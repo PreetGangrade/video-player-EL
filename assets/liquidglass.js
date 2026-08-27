@@ -109,7 +109,7 @@ function getPixelRatio() {
       ratio = 1;
     }
   }
-  return ratio || window.devicePixelRatio || 1;
+  return ratio || (window.__lgDpr || window.devicePixelRatio || 1);
 }
 var canvasDimensionLimit = 16384;
 function checkCanvasDimensions(canvas) {
@@ -2007,7 +2007,7 @@ var LiquidGlass = class _LiquidGlass {
       this._glassDirty.add(element);
     }
     const rootRect = this.root.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = (window.__lgDpr || window.devicePixelRatio || 1);
     const elementDOMRect = rectOverride ?? element.getBoundingClientRect();
     const elementBox = this._getPixelRect(
       elementDOMRect,
@@ -2044,7 +2044,7 @@ var LiquidGlass = class _LiquidGlass {
    */
   _markGlassesIntersecting(element) {
     const rootRect = this.root.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = (window.__lgDpr || window.devicePixelRatio || 1);
     const elementBox = this._getPixelRect(
       element.getBoundingClientRect(),
       rootRect,
@@ -2302,7 +2302,7 @@ var LiquidGlass = class _LiquidGlass {
   // Resize
   // ────────────────────────────────────────────
   _handleResize() {
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = (window.__lgDpr || window.devicePixelRatio || 1);
     const rect = this.root.getBoundingClientRect();
     this.capture.resize(dpr);
     this.renderer.resize(Math.round(rect.width * dpr), Math.round(rect.height * dpr));
@@ -2316,7 +2316,7 @@ var LiquidGlass = class _LiquidGlass {
   _updateGlassCanvasSize(el) {
     const canvas = this.glassCanvases.get(el);
     if (!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = (window.__lgDpr || window.devicePixelRatio || 1);
     const elW = Math.round(el.offsetWidth);
     const elH = Math.round(el.offsetHeight);
     const padW = SHADOW_PAD * 2;
@@ -2470,7 +2470,7 @@ var LiquidGlass = class _LiquidGlass {
     this._rafId = requestAnimationFrame(() => this._renderLoop());
   }
   _renderFrame() {
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = (window.__lgDpr || window.devicePixelRatio || 1);
     const rootRect = this.root.getBoundingClientRect();
     const isDragging = this._drag.active;
     if (this._userMarkedChanged.size > 0) {

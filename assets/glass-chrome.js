@@ -6,6 +6,12 @@
 // chrome (background / border / blur) is suppressed while a proxy covers them.
 import { LiquidGlass } from './liquidglass.js';
 
+// The stages render scaled down (a 1280x720 canvas fitted into the layout),
+// so at native DPR the library samples too few pixels and the refraction
+// looks pixelated. Supersample the whole pipeline: capture, scene canvas and
+// glass canvases all key off this patched DPR read.
+window.__lgDpr = Math.min(4, (window.devicePixelRatio || 1) * 2);
+
 const SLOTS_PER_STAGE = 14;
 const TV_SELECTOR = '.elpill, .iconctl, [data-fk="tab-info"], [data-fk="tab-next"], [data-fk="skip-now"], [data-fk="vote-cast"], [data-fk="vote-change"]';
 const MOBILE_SELECTOR = '.lgx';
@@ -62,15 +68,14 @@ async function initStage(st, root) {
       root,
       glassElements: st.slots.map((s) => s.el),
       defaults: {
-        refraction: 0.42,
-        blurAmount: 0.14,
-        chromAberration: 0.04,
-        edgeHighlight: 0.09,
-        specular: 0.12,
-        fresnel: 0.8,
+        refraction: 0.7,
+        blurAmount: 0.08,
+        chromAberration: 0.06,
+        edgeHighlight: 0.14,
+        specular: 0.25,
+        fresnel: 1,
         shadowOpacity: 0.22,
         shadowSpread: 7,
-        zRadius: 16,
       },
     });
   } catch (e) {
@@ -109,7 +114,12 @@ function tickStages() {
     for (const st of stages) {
       const root = document.querySelector('[data-screen-label="' + st.label + '"]');
       if (st.root && (st.root !== root || !st.root.isConnected)) clearStage(st);
-      if (!st.root && root && !st.initing) initStage(st, root);
+      if (!st.root && root && !st.initing) {
+        // wait for the stage's video to be decoding before the heavy init
+        // pre-capture runs, otherwise Chrome can drop the video surface
+        const vid = root.querySelector('video');
+        if (!vid || vid.readyState >= 3) initStage(st, root);
+      }
       if (!st.inst || !st.root) continue;
 
       const now = performance.now();
@@ -158,7 +168,7 @@ function tickStages() {
           slot.el.style.width = w;
           slot.el.style.height = h;
           slot.el.style.borderRadius = radius + 'px';
-          slot.el.dataset.config = JSON.stringify({ cornerRadius: radius, zRadius: Math.min(16, Math.round(r.height / 3)) });
+          slot.el.dataset.config = JSON.stringify({ cornerRadius: radius, zRadius: radius });
           slot.content = '';
           st.inst.markChanged(slot.el);
         }
