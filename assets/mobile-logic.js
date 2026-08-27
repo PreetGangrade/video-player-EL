@@ -43,11 +43,16 @@ class Component extends DCLogic {
       {t:239, dancer:'Rylee Prodigy', track:'Push the Feeling On', artist:'Nightcrawlers'},
       {t:299, dancer:'Jesse Sykes',   track:'Hollaback Girl',      artist:'Gwen Stefani'}
     ];
+    this.STYLES = {
+      'Jesse Sykes':'Freestyle', 'Harini':'All-styles', 'Jabari':'Hip-hop',
+      'Vik White':'Popping', 'Rylee Prodigy':'Freestyle'
+    };
+    this.OPPONENT = 'Lil Nova';
     this.BIOS = {
       'Jesse Sykes':'Freestyle competitor bringing sharp musicality and character to every round of the USA Qualifier.',
       'Harini':'All-styles dancer known for switching effortlessly between grooves when the DJ flips the track.',
-      'Jabari':'Raw energy and crowd control — feeding off the audience with every beat.',
-      'Vik White':'Signature spins and showmanship — a crowd favorite from the moment the music drops.',
+      'Jabari':'Raw energy and crowd control, feeding off the audience with every beat.',
+      'Vik White':'Signature spins and showmanship: a crowd favorite from the moment the music drops.',
       'Rylee Prodigy':'Young powerhouse mixing technical footwork with fearless improvisation.'
     };
     this.rootEl=null; this.deviceEl=null; this.videoEl=null;
@@ -85,6 +90,7 @@ class Component extends DCLogic {
     this.setVote=()=>this.setState({elModule:'vote'});
     this.setAbout=()=>this.setState({elModule:'about'});
     this.setMusic=()=>this.setState({elModule:'music'});
+    this.setPeople=()=>this.setState({elModule:'people'});
     this.togglePlay=()=>{ this.setState(s=>({playing:!s.playing})); this.armLsHide(); };
     this.goLive=()=>{ this.setState({behindS:0}); };
     this.back10=()=>{ if(this.isLD()){ this.setState(s=>({behindS: Math.min(this.DVR_W, s.behindS+10)})); } else if(this.videoEl){ this.videoEl.currentTime=Math.max(0,this.videoEl.currentTime-10); } this.armLsHide(); };
@@ -271,6 +277,7 @@ class Component extends DCLogic {
     const sv = s.elModule==='vote'?segA:segI;
     const sa = s.elModule==='about'?segA:segI;
     const sm = s.elModule==='music'?segA:segI;
+    const sp = s.elModule==='people'?segA:segI;
 
     const oA={bg:'#fff',color:'#111'}; const oI={bg:'transparent',color:'rgba(255,255,255,.6)'};
     const op = isPortrait?oA:oI; const ol = !isPortrait?oA:oI;
@@ -284,27 +291,28 @@ class Component extends DCLogic {
     const initials=(n)=>n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
 
     const cardSel = s.voted!==null ? s.voted : s.voteSel;
-    const mkVote=(i, name, sub, ini, placeholder)=>{
+    const mkVote=(i, name, sub, ini)=>{
       const sel = cardSel===i;
       return {
         idx:i, name, sub, initials:ini,
-        bg: sel ? 'rgba(219,6,64,.16)' : 'rgba(255,255,255,.05)',
-        border: sel ? 'rgba(219,6,64,.65)' : 'rgba(255,255,255,.14)',
-        ring: sel ? '#DB0640' : 'rgba(255,255,255,.35)',
-        dot: sel ? '#DB0640' : 'transparent',
-        avatarBorder: placeholder ? '1px dashed rgba(255,255,255,.35)' : '1px solid rgba(255,255,255,.22)',
-        avatarColor: placeholder ? 'rgba(255,255,255,.45)' : '#fff'
+        bg: sel ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.05)',
+        border: sel ? 'rgba(255,255,255,.85)' : 'rgba(255,255,255,.14)',
+        ring: sel ? '#fff' : 'rgba(255,255,255,.35)',
+        dot: sel ? '#fff' : 'transparent',
+        avatarBorder: '1px solid rgba(255,255,255,.22)',
+        avatarColor: '#fff'
       };
     };
     const voteCards=[
-      mkVote(0, seg.dancer, 'Now performing · '+seg.track, initials(seg.dancer), false),
-      mkVote(1, 'Opponent · TBD', 'Battle details coming soon', '?', true)
+      mkVote(0, seg.dancer, 'Now performing · '+seg.track, initials(seg.dancer)),
+      mkVote(1, this.OPPONENT, 'Challenger · Los Angeles', initials(this.OPPONENT))
     ];
     const castReady = s.voteSel!==null;
-    const votedName = s.voted!==null ? (s.voted===0 ? seg.dancer : 'Opponent · TBD') : '';
+    const votedName = s.voted!==null ? (s.voted===0 ? seg.dancer : this.OPPONENT) : '';
     const segPct = Math.max(0, Math.min(100, ((curT-seg.t)/Math.max(1,(segEnd-seg.t)))*100)).toFixed(1)+'%';
     const setList = this.SEGMENTS.map((x,i)=>({
       idx:i, time:mmssL(x.t), dancer:x.dancer, track:x.track, artist:x.artist,
+      initials: initials(x.dancer),
       now: i===s.curSeg,
       bg: i===s.curSeg ? 'rgba(255,255,255,.13)' : 'rgba(255,255,255,.05)',
       border: i===s.curSeg ? 'rgba(255,255,255,.42)' : 'rgba(255,255,255,.1)',
@@ -351,14 +359,14 @@ class Component extends DCLogic {
       pMetaOp: (s.phase==='live' && isPortrait && s.panel==='none' && s.pControls && !s.scrubbing && !s.toast && !s.ad && !s.squeeze) ? '1' : '0',
       pMetaPe: (s.phase==='live' && isPortrait && s.panel==='none' && s.pControls && !s.scrubbing && !s.toast && !s.ad && !s.squeeze) ? 'auto' : 'none',
       goLive: this.goLive, goLiveShown: isLD && s.behindS>1,
-      toastDesc: s.battle ? 'The battle is ending — cast your vote before the decision.' : 'Vote the battles, meet the dancers and follow the music — live.',
+      toastDesc: s.battle ? 'The battle is ending. Cast your vote before the decision.' : 'Vote the battles, meet the dancers and follow the music, live.',
       igTabPlain: false, igTabBtn: elOk,
       rateInDur: '600ms',
       rateOutDur: '650ms',
       rootRef:this.rootRef, deviceRef:this.deviceRef, videoRef:this.videoRef,
       setPortrait:this.setPortrait, setLandscape:this.setLandscape,
       openInfo:this.openInfo, closePanel:this.closePanel,
-      setVote:this.setVote, setAbout:this.setAbout, setMusic:this.setMusic,
+      setVote:this.setVote, setAbout:this.setAbout, setMusic:this.setMusic, setPeople:this.setPeople,
       togglePlay:this.togglePlay, back10:this.back10, fwd10:this.fwd10,
       onVoteSel:this.onVoteSel, castVote:this.castVote, changeVote:this.changeVote, jumpSeg:this.jumpSeg,
       lsInfo:this.lsInfo, cardStartOver:this.cardStartOver, selCtrl:this.selCtrl,
@@ -435,16 +443,18 @@ class Component extends DCLogic {
       pMeta: (s.phase==='live' && isPortrait && s.panel==='none' && (s.pControls||s.scrubbing) && !s.toast && !s.ad && !s.squeeze),
       pMetaText: (s.phase==='live' && isPortrait && s.panel==='none' && s.pControls && !s.scrubbing && !s.toast && !s.ad && !s.squeeze),
       playing:s.playing, paused:!s.playing,
-      mVote:s.elModule==='vote', mAbout:s.elModule==='about', mMusic:s.elModule==='music',
+      mVote:s.elModule==='vote', mAbout:s.elModule==='about', mMusic:s.elModule==='music', mPeople:s.elModule==='people',
       voteFormShown: s.voted===null,
       voteDoneShown: s.voted!==null,
       voteCards, votedName,
-      castBg: castReady ? '#DB0640' : 'rgba(255,255,255,.08)',
-      castColor: '#fff',
+      castBg: castReady ? '#fff' : 'rgba(255,255,255,.08)',
+      castColor: castReady ? '#101013' : '#fff',
       castOp: castReady ? '1' : '.45',
       aboutInitials: initials(seg.dancer),
       aboutName: seg.dancer,
       aboutBio: this.BIOS[seg.dancer]||'Competing in the Red Bull Dance Your Style USA Qualifier.',
+      aboutFrom: 'United States',
+      aboutStyle: this.STYLES[seg.dancer]||'Freestyle',
       aboutWindow: mmssL(seg.t)+' – '+mmssL(segEnd),
       musicTrack: seg.track,
       musicArtist: seg.artist,
@@ -462,7 +472,7 @@ class Component extends DCLogic {
       titleText:'Red Bull Dance Your Style',
 
       tabInfoBg:ti.bg, tabInfoColor:ti.color, tabInfoBorder:ti.border,
-      segVoteBg:sv.bg, segVoteColor:sv.color, segAboutBg:sa.bg, segAboutColor:sa.color, segMusicBg:sm.bg, segMusicColor:sm.color,
+      segVoteBg:sv.bg, segVoteColor:sv.color, segAboutBg:sa.bg, segAboutColor:sa.color, segMusicBg:sm.bg, segMusicColor:sm.color, segPeopleBg:sp.bg, segPeopleColor:sp.color,
       oPortBg:op.bg, oPortColor:op.color, oLandBg:ol.bg, oLandColor:ol.color,
       hintText
     };
