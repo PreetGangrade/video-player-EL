@@ -17,14 +17,18 @@
   .mtap{transition:transform .12s ease, background-color .15s ease, color .15s ease, border-color .15s ease; cursor:pointer; -webkit-tap-highlight-color:transparent;}
   .mtap:active{transform:scale(.95);}
   .device{transition:width .42s cubic-bezier(.2,.7,.3,1), height .42s cubic-bezier(.2,.7,.3,1);}
+  [data-sq]{transition:width .4s cubic-bezier(.2,.7,.3,1), margin .4s cubic-bezier(.2,.7,.3,1), border-radius .4s ease;}
+  [data-sq="stack"]{width:60% !important; margin:16px auto 0 !important; border-radius:10px !important; order:2; box-shadow:0 14px 40px rgba(0,0,0,.55);}
+  .sqstack{order:1;}
+  [data-sq="stack"] ~ div[style*="flex: 1 1"]{order:3;}
   input[type=range]{-webkit-appearance:none; appearance:none; height:4px; border-radius:3px; background:rgba(255,255,255,.28); outline:none;}
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:13px; height:13px; border-radius:50%; background:#fff;}
 </style>
 </helmet>
-<div ref="{{ rootRef }}" style="display:flex; height:100%; min-height:100vh; width:100%; background:#0d0d10; color:#fff; font-family:-apple-system,'SF Pro Display','SF Pro Text',BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; overflow:hidden;">
+<div ref="{{ rootRef }}" style="display:flex; height:100%; min-height:100vh; width:100%; background:#0d0d10; color:#fff; font-family:'Bull Text',-apple-system,'SF Pro Display',BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; overflow:hidden;">
 
   <div style="flex:1; min-width:0; position:relative; display:flex; align-items:center; justify-content:center; padding:28px;">
-    <div style="position:absolute; top:20px; left:32px; font-size:11px; letter-spacing:.22em; color:#5c5c66; font-weight:700;">MOBILE · EASE LIVE</div>
+    <div style="position:absolute; top:20px; left:32px; font-size:11px; letter-spacing:.22em; color:#5c5c66; font-weight:500;">MOBILE · EASE LIVE</div>
 
     <!-- ============ DEVICE ============ -->
     <!-- ===== PORTRAIT ===== -->
@@ -37,12 +41,12 @@
           <sc-if value="{{ toastOpen }}" hint-placeholder-val="{{ false }}">
             <div style="position:absolute; left:0; right:0; bottom:0; z-index:30; padding:56px 22px 44px; background:linear-gradient(180deg, transparent, rgba(8,8,10,.94) 46%); animation:m-toastin .42s cubic-bezier(.2,.7,.3,1);">
               <div style="height:2px; border-radius:2px; background:rgba(255,255,255,.35); transform-origin:left; animation:m-toastcount 6s linear forwards; margin-bottom:16px;"></div>
-              <div style="font-size:11px; letter-spacing:.18em; font-weight:700; color:rgba(255,255,255,.6); margin-bottom:10px;">{{ toastKicker }}</div>
-              <div style="font-size:27px; font-weight:800; letter-spacing:-.015em; line-height:1.12;">{{ toastTitle }}</div>
+              <div style="font-size:11px; letter-spacing:.18em; font-weight:500; color:rgba(255,255,255,.6); margin-bottom:10px;">{{ toastKicker }}</div>
+              <div style="font-size:27px; font-weight:500; letter-spacing:-.015em; line-height:1.12;">{{ toastTitle }}</div>
               <div style="font-size:14.5px; color:rgba(255,255,255,.62); margin-top:9px; line-height:1.45;">{{ toastDesc }}</div>
               <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px;">
-                <div class="mtap" onClick="{{ acceptToast }}" style="display:flex; align-items:center; justify-content:center; height:52px; border-radius:26px; background:#fff; color:#101013; font-size:15px; font-weight:700;">{{ toastAcceptLabel }}</div>
-                <div class="mtap" onClick="{{ dismissToast }}" style="display:flex; align-items:center; justify-content:center; height:50px; border-radius:25px; background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.06) 55%, rgba(255,255,255,.1)); -webkit-backdrop-filter:blur(22px) saturate(180%); backdrop-filter:blur(22px) saturate(180%); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4); color:#fff; font-size:15px; font-weight:600;">Not now</div>
+                <div class="mtap" onClick="{{ acceptToast }}" style="display:flex; align-items:center; justify-content:center; height:52px; border-radius:26px; background:#fff; color:#101013; font-size:15px; font-weight:500;">{{ toastAcceptLabel }}</div>
+                <div class="mtap" onClick="{{ dismissToast }}" style="display:flex; align-items:center; justify-content:center; height:50px; border-radius:25px; background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.06) 55%, rgba(255,255,255,.1)); -webkit-backdrop-filter:blur(22px) saturate(180%); backdrop-filter:blur(22px) saturate(180%); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4); color:#fff; font-size:15px; font-weight:500;">Not now</div>
               </div>
             </div>
           </sc-if>
@@ -50,14 +54,14 @@
           <!-- portrait skip intro: bottom space, same surface as the toast -->
           <sc-if value="{{ skipShown }}" hint-placeholder-val="{{ false }}">
             <div style="position:absolute; left:22px; right:22px; bottom:44px; z-index:29; animation:m-fade .3s ease;">
-              <div class="mtap" onClick="{{ skipTap }}" style="display:flex; align-items:center; justify-content:center; gap:9px; height:52px; border-radius:26px; background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.06) 55%, rgba(255,255,255,.1)); -webkit-backdrop-filter:blur(22px) saturate(180%); backdrop-filter:blur(22px) saturate(180%); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 8px 24px rgba(0,0,0,.3); font-size:15px; font-weight:600; color:#fff;">Skip intro<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M4 5l9 7-9 7z"></path><rect x="15" y="5" width="3" height="14" rx="1.2"></rect></svg></div>
+              <div class="mtap" onClick="{{ skipTap }}" style="display:flex; align-items:center; justify-content:center; gap:9px; height:52px; border-radius:26px; background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.06) 55%, rgba(255,255,255,.1)); -webkit-backdrop-filter:blur(22px) saturate(180%); backdrop-filter:blur(22px) saturate(180%); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 8px 24px rgba(0,0,0,.3); font-size:15px; font-weight:500; color:#fff;">Skip intro<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M4 5l9 7-9 7z"></path><rect x="15" y="5" width="3" height="14" rx="1.2"></rect></svg></div>
             </div>
           </sc-if>
 
           <div style="position:absolute; top:0; left:0; right:0; z-index:10;">
           <!-- status bar -->
           <div style="height:52px; flex:none; display:flex; align-items:flex-end; justify-content:space-between; padding:0 30px 7px;">
-            <span style="font-size:16px; font-weight:600; letter-spacing:.02em;">9:41</span>
+            <span style="font-size:16px; font-weight:500; letter-spacing:.02em;">9:41</span>
             <span style="display:flex; gap:7px; align-items:center;">
               <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#fff"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#fff"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#fff"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#fff"/></svg>
               <svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.5c2.7 0 5.1 1 7 2.7l-1.4 1.5A8.2 8.2 0 0 0 8.5 4.5 8.2 8.2 0 0 0 2.9 6.7L1.5 5.2A10.2 10.2 0 0 1 8.5 2.5z" fill="#fff"/><path d="M8.5 6c1.5 0 2.9.6 3.9 1.5l-1.5 1.6c-.6-.6-1.5-1-2.4-1s-1.8.4-2.4 1L4.6 7.5C5.6 6.6 7 6 8.5 6z" fill="#fff"/><circle cx="8.5" cy="10.5" r="1.4" fill="#fff"/></svg>
@@ -93,14 +97,14 @@
           <!-- maturity rating — below the close icon (portrait) -->
           <sc-if value="{{ ratingIn }}" hint-placeholder-val="{{ true }}">
           <div style="position:absolute; top:108px; left:18px; z-index:15; display:flex; align-items:center; gap:8px; text-shadow:0 2px 14px rgba(0,0,0,.6); pointer-events:none; animation:m-ratein {{ rateInDur }} cubic-bezier(.2,.7,.3,1) forwards;">
-            <div style="display:flex; align-items:center; justify-content:center; min-width:34px; height:24px; padding:0 7px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:12px; font-weight:800;">TV-G</div>
-            <div style="font-size:11px; font-weight:600; color:rgba(255,255,255,.9); max-width:150px; line-height:1.25;">General audiences · all ages</div>
+            <div style="display:flex; align-items:center; justify-content:center; min-width:34px; height:24px; padding:0 7px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:12px; font-weight:500;">TV-G</div>
+            <div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.9); max-width:150px; line-height:1.25;">General audiences · all ages</div>
           </div>
           </sc-if>
           <sc-if value="{{ ratingOutP }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute; top:108px; left:18px; z-index:15; display:flex; align-items:center; gap:8px; text-shadow:0 2px 14px rgba(0,0,0,.6); pointer-events:none; animation:m-rateout {{ rateOutDur }} cubic-bezier(.2,.7,.3,1) forwards;">
-            <div style="display:flex; align-items:center; justify-content:center; min-width:34px; height:24px; padding:0 7px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:12px; font-weight:800;">TV-G</div>
-            <div style="font-size:11px; font-weight:600; color:rgba(255,255,255,.9); max-width:150px; line-height:1.25;">General audiences · all ages</div>
+            <div style="display:flex; align-items:center; justify-content:center; min-width:34px; height:24px; padding:0 7px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:12px; font-weight:500;">TV-G</div>
+            <div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.9); max-width:150px; line-height:1.25;">General audiences · all ages</div>
           </div>
           </sc-if>
 
@@ -108,7 +112,7 @@
           <sc-if value="{{ panelNone }}" hint-placeholder-val="{{ true }}"><div style="flex:1;"></div></sc-if>
           <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ false }}"><div style="height:102px; flex:none;"></div></sc-if>
 
-          <div style="flex:none; position:relative; width:100%; aspect-ratio:16/9; background:#26262c; overflow:hidden;">
+          <div data-sq="{{ sqMode }}" style="flex:none; position:relative; width:100%; aspect-ratio:16/9; background:#26262c; overflow:hidden;">
             <video ref="{{ videoRef }}" src="assets/feature.mp4" poster="assets/splash-tv.png" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
             <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,.5) 100%);"></div>
             <div onClick="{{ pTap }}" style="position:absolute; inset:0; z-index:1;"></div>
@@ -134,7 +138,7 @@
                     <div style="width:128px; height:72px; border-radius:9px; overflow:hidden; border:2px solid #fff; box-shadow:0 10px 28px rgba(0,0,0,.6); background:#3a3a40; display:flex; align-items:center; justify-content:center;">
                       <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="2.5" y="5" width="19" height="14" rx="2.2" fill="rgba(255,255,255,.22)"/><circle cx="8" cy="10" r="1.9" fill="rgba(255,255,255,.55)"/><path d="M4 18l5-5.5 3.2 3.6L16 12l4 5.5" stroke="rgba(255,255,255,.55)" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
-                    <div style="text-align:center; font-size:12px; font-weight:700; color:#fff; margin-top:5px; font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ scrubTime }}</div>
+                    <div style="text-align:center; font-size:12px; font-weight:500; color:#fff; margin-top:5px; font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ scrubTime }}</div>
                   </div>
                 </sc-if>
                 <div>
@@ -146,9 +150,9 @@
                     </div>
                   </div>
                   <div style="display:flex; align-items:center; justify-content:space-between; margin-top:3px;">
-                    <span style="font-size:11px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeNow }}</span>
+                    <span style="font-size:11px; font-weight:500; color:#fff; font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeNow }}</span>
                     <span style="display:flex; align-items:center; gap:8px;">
-                      <span style="font-size:11px; font-weight:600; color:rgba(255,255,255,.65); font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeDur }}</span>
+                      <span style="font-size:11px; font-weight:500; color:rgba(255,255,255,.65); font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeDur }}</span>
                       <sc-if value="{{ goLiveShown }}" hint-placeholder-val="{{ false }}">
                         <div class="mtap" onClick="{{ goLive }}" title="Jump to live" style="width:26px; height:26px; flex:none; border-radius:50%; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); display:flex; align-items:center; justify-content:center; animation:m-fade .25s ease;"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M5 5l9 7-9 7z"></path><rect x="16" y="5" width="3" height="14" rx="1.2"></rect></svg></div>
                       </sc-if>
@@ -172,17 +176,17 @@
               <div style="position:absolute; left:10px; right:10px; bottom:10px; z-index:33; display:flex; align-items:center; gap:8px;">
                 <div style="flex:1; display:flex; align-items:center; gap:7px; min-width:0;">
                   <div style="width:26px; height:26px; flex:none; border-radius:7px; background:#0a0a0a; border:1px solid rgba(255,255,255,.16); display:flex; align-items:center; justify-content:center;"><img src="assets/redbull.png" style="width:18px;" /></div>
-                  <div style="line-height:1.2; min-width:0;"><div style="font-size:11px; font-weight:700;">redbull.com</div><div style="font-size:9px; color:rgba(255,255,255,.55);">Sponsored</div></div>
+                  <div style="line-height:1.2; min-width:0;"><div style="font-size:11px; font-weight:500;">redbull.com</div><div style="font-size:9px; color:rgba(255,255,255,.55);">Sponsored</div></div>
                 </div>
-                <div class="mtap" onClick="{{ sendPhone }}" style="display:flex; align-items:center; gap:6px; height:34px; padding:0 13px; box-sizing:border-box; border-radius:18px; background:rgba(28,28,32,.75); -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,.16); color:#fff; font-size:11.5px; font-weight:600; white-space:nowrap;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>Send to phone</div>
-                <div class="mtap" onClick="{{ closeAd }}" style="display:flex; align-items:center; gap:6px; height:34px; padding:0 6px 0 13px; box-sizing:border-box; border-radius:18px; background:#F4F4F5; color:#0B1B2C; font-size:11.5px; font-weight:600; white-space:nowrap;">Skip<span style="width:22px; height:22px; border-radius:50%; background:#E7E7EA; display:inline-flex; align-items:center; justify-content:center; font-size:11px; color:#8A8A8F; font-variant-numeric:tabular-nums;">{{ adCount }}</span></div>
+                <div class="mtap" onClick="{{ sendPhone }}" style="display:flex; align-items:center; gap:6px; height:34px; padding:0 13px; box-sizing:border-box; border-radius:18px; background:rgba(28,28,32,.75); -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,.16); color:#fff; font-size:11.5px; font-weight:500; white-space:nowrap;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>Send to phone</div>
+                <div class="mtap" onClick="{{ closeAd }}" style="display:flex; align-items:center; gap:6px; height:34px; padding:0 6px 0 13px; box-sizing:border-box; border-radius:18px; background:#F4F4F5; color:#0B1B2C; font-size:11.5px; font-weight:500; white-space:nowrap;">Skip<span style="width:22px; height:22px; border-radius:50%; background:#E7E7EA; display:inline-flex; align-items:center; justify-content:center; font-size:11px; color:#8A8A8F; font-variant-numeric:tabular-nums;">{{ adCount }}</span></div>
               </div>
               <sc-if value="{{ adModalOpen }}" hint-placeholder-val="{{ false }}">
                 <div onClick="{{ closeModal }}" style="position:absolute; inset:0; z-index:34; background:rgba(0,0,0,.55);"></div>
                 <div style="position:absolute; left:26px; right:26px; top:50%; transform:translateY(-50%); z-index:35; background:#1b1b20; border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:16px; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,.6);">
-                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;"><span style="font-size:14px; font-weight:700;">Send to phone</span><div class="mtap" onClick="{{ closeModal }}" style="display:flex;"><svg width="16" height="16" viewBox="0 0 20 20"><line x1="4" y1="4" x2="16" y2="16" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="4" x2="4" y2="16" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round"/></svg></div></div>
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;"><span style="font-size:14px; font-weight:500;">Send to phone</span><div class="mtap" onClick="{{ closeModal }}" style="display:flex;"><svg width="16" height="16" viewBox="0 0 20 20"><line x1="4" y1="4" x2="16" y2="16" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="4" x2="4" y2="16" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round"/></svg></div></div>
                   <div style="font-size:12px; color:rgba(255,255,255,.7); line-height:1.4; margin-bottom:14px;">Scan the QR code to view on your phone</div>
-                  <div class="mtap" onClick="{{ closeModal }}" style="padding:11px; border-radius:20px; background:#fff; color:#101013; font-size:13px; font-weight:600;">Got it</div>
+                  <div class="mtap" onClick="{{ closeModal }}" style="padding:11px; border-radius:20px; background:#fff; color:#101013; font-size:13px; font-weight:500;">Got it</div>
                 </div>
               </sc-if>
             </sc-if>
@@ -190,16 +194,13 @@
 
           <!-- ===== portrait AD SQUEEZE: content keeps playing, ad stacks under the video ===== -->
           <sc-if value="{{ sqStackOpen }}" hint-placeholder-val="{{ false }}">
-            <div style="flex:none; padding:14px 16px 0; animation:m-fade .3s ease;">
-              <div style="position:relative; width:100%; aspect-ratio:16/9; border-radius:13px; overflow:hidden; box-shadow:0 14px 40px rgba(0,0,0,.5);">
+            <div class="sqstack" style="flex:none; animation:m-fade .3s ease;">
+              <div style="position:relative; width:100%; aspect-ratio:16/9; overflow:hidden; background:#000;">
                 <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
               </div>
-              <div style="display:flex; align-items:center; justify-content:space-between; margin-top:10px;">
-                <div style="display:flex; align-items:center; gap:9px; min-width:0;">
-                  <img src="assets/redbull.png" alt="Red Bull" style="height:20px; width:auto; display:block;">
-                  <div style="font-size:11.5px; color:rgba(255,255,255,.6); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Sponsored · Gives You Wings</div>
-                </div>
-                <div style="font-size:11px; font-weight:600; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; white-space:nowrap;">Back in {{ squeezeCount }}s</div>
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; padding:0 16px 0 0;">
+                <div style="display:flex; align-items:center; padding:5px 14px 5px 12px; background:#DB0640; clip-path:polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); font-size:10px; font-weight:500; letter-spacing:.14em; color:#fff;">ADVERTISEMENT</div>
+                <div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; margin-top:6px;">Back in {{ squeezeCount }}s</div>
               </div>
             </div>
           </sc-if>
@@ -209,10 +210,10 @@
                 <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
               </div>
               <div style="flex:1; min-width:0;">
-                <div style="font-size:12.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Summer Edition, out now</div>
+                <div style="font-size:12.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Summer Edition, out now</div>
                 <div style="font-size:10.5px; color:rgba(255,255,255,.6); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Ad · redbull.com · video keeps playing</div>
               </div>
-              <div style="font-size:10.5px; font-weight:600; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; white-space:nowrap;">{{ squeezeCount }}s</div>
+              <div style="font-size:10.5px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; white-space:nowrap;">{{ squeezeCount }}s</div>
             </div>
           </sc-if>
 
@@ -223,7 +224,7 @@
               <div style="position:relative; width:100%; aspect-ratio:16/9; background:#000; overflow:hidden; flex:none;">
                 <video ref="{{ adVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
                 <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.32), transparent 30%, transparent 68%, rgba(0,0,0,.4));"></div>
-                <div style="position:absolute; top:12px; left:12px; display:flex; align-items:center; gap:7px; padding:6px 12px; border-radius:18px; background:rgba(8,8,10,.55); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.16); font-size:11px; font-weight:700; letter-spacing:.08em; color:rgba(255,255,255,.85);">AD · {{ adClock }}</div>
+                <div style="position:absolute; top:12px; left:12px; display:flex; align-items:center; gap:7px; padding:6px 12px; border-radius:18px; background:rgba(8,8,10,.55); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.16); font-size:11px; font-weight:500; letter-spacing:.08em; color:rgba(255,255,255,.85);">AD · {{ adClock }}</div>
                 <img src="assets/redbull.png" alt="Red Bull" style="position:absolute; top:12px; right:14px; height:30px; width:auto; opacity:.9; filter:drop-shadow(0 2px 6px rgba(0,0,0,.55));" />
               </div>
               <!-- native sponsor card -->
@@ -231,16 +232,16 @@
                 <div style="display:flex; align-items:center; gap:12px;">
                   <div style="width:46px; height:46px; flex:none; border-radius:12px; background:#141418; border:1px solid rgba(255,255,255,.14); display:flex; align-items:center; justify-content:center;"><img src="assets/redbull.png" alt="Red Bull" style="width:30px; height:auto;" /></div>
                   <div style="min-width:0;">
-                    <div style="font-size:16px; font-weight:700;">redbull.com</div>
+                    <div style="font-size:16px; font-weight:500;">redbull.com</div>
                     <div style="font-size:12px; color:rgba(255,255,255,.5); margin-top:2px;">Sponsored · Gives You Wings</div>
                   </div>
                 </div>
-                <div style="font-size:23px; font-weight:800; letter-spacing:-.01em; line-height:1.2; margin-top:18px;">Wiiings for every battle.</div>
+                <div style="font-size:23px; font-weight:500; letter-spacing:-.01em; line-height:1.2; margin-top:18px;">Wiiings for every battle.</div>
                 <div style="font-size:14px; line-height:1.5; color:rgba(255,255,255,.6); margin-top:8px;">Fuel every battle with Red Bull — explore Dance Your Style, dancer stories and more.</div>
                 <div style="flex:1;"></div>
                 <div style="display:flex; flex-direction:column; gap:12px;">
-                  <div class="mtap" onClick="{{ openAdSheet }}" style="display:flex; align-items:center; justify-content:center; gap:9px; height:52px; border-radius:26px; background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.06) 55%, rgba(255,255,255,.1)); -webkit-backdrop-filter:blur(22px) saturate(180%); backdrop-filter:blur(22px) saturate(180%); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 8px 24px rgba(0,0,0,.35); font-size:15px; font-weight:600; color:#fff;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"></path><path d="M20 4l-8.5 8.5"></path><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg>Learn more</div>
-                  <div class="mtap" onClick="{{ adSkipTap }}" style="position:relative; opacity:{{ adSkipOp }}; pointer-events:{{ adSkipPe }}; transition:opacity .3s ease, background-color .3s ease, color .3s ease; display:flex; align-items:center; justify-content:center; gap:10px; height:52px; border-radius:26px; background:{{ adSkipBtnBg }}; -webkit-backdrop-filter:blur(22px) saturate(180%); backdrop-filter:blur(22px) saturate(180%); border:1px solid {{ adSkipBtnBorder }}; box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 8px 24px rgba(0,0,0,.35); font-size:15px; font-weight:600; color:{{ adSkipBtnColor }};">Skip ad<span style="position:relative; width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; flex:none;"><svg width="28" height="28" viewBox="0 0 28 28" style="position:absolute; inset:0;"><circle cx="14" cy="14" r="11.5" fill="none" stroke="{{ adRingTrack }}" stroke-width="2.4"></circle><circle cx="14" cy="14" r="11.5" fill="none" stroke="{{ adRingFill }}" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="72.26" stroke-dashoffset="{{ adRingOffset }}" transform="rotate(-90 14 14)" style="transition:stroke-dashoffset 1s linear;"></circle></svg><span style="font-size:11.5px; font-weight:600; font-variant-numeric:tabular-nums; color:{{ adNumColor }};">{{ adCount }}</span></span></div>
+                  <div class="mtap" onClick="{{ openAdSheet }}" style="display:flex; align-items:center; justify-content:center; gap:9px; height:52px; border-radius:26px; background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.06) 55%, rgba(255,255,255,.1)); -webkit-backdrop-filter:blur(22px) saturate(180%); backdrop-filter:blur(22px) saturate(180%); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 8px 24px rgba(0,0,0,.35); font-size:15px; font-weight:500; color:#fff;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"></path><path d="M20 4l-8.5 8.5"></path><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg>Learn more</div>
+                  <div class="mtap" onClick="{{ adSkipTap }}" style="position:relative; opacity:{{ adSkipOp }}; pointer-events:{{ adSkipPe }}; transition:opacity .3s ease, background-color .3s ease, color .3s ease; display:flex; align-items:center; justify-content:center; gap:10px; height:52px; border-radius:26px; background:{{ adSkipBtnBg }}; -webkit-backdrop-filter:blur(22px) saturate(180%); backdrop-filter:blur(22px) saturate(180%); border:1px solid {{ adSkipBtnBorder }}; box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 8px 24px rgba(0,0,0,.35); font-size:15px; font-weight:500; color:{{ adSkipBtnColor }};">Skip ad<span style="position:relative; width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; flex:none;"><svg width="28" height="28" viewBox="0 0 28 28" style="position:absolute; inset:0;"><circle cx="14" cy="14" r="11.5" fill="none" stroke="{{ adRingTrack }}" stroke-width="2.4"></circle><circle cx="14" cy="14" r="11.5" fill="none" stroke="{{ adRingFill }}" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="72.26" stroke-dashoffset="{{ adRingOffset }}" transform="rotate(-90 14 14)" style="transition:stroke-dashoffset 1s linear;"></circle></svg><span style="font-size:11.5px; font-weight:500; font-variant-numeric:tabular-nums; color:{{ adNumColor }};">{{ adCount }}</span></span></div>
                 </div>
               </div>
               <!-- learn-more bottom sheet -->
@@ -251,13 +252,13 @@
                   <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
                     <div style="width:44px; height:44px; flex:none; border-radius:12px; background:#0a0a0a; border:1px solid rgba(255,255,255,.14); display:flex; align-items:center; justify-content:center;"><img src="assets/redbull.png" alt="Red Bull" style="width:28px; height:auto;" /></div>
                     <div>
-                      <div style="font-size:15px; font-weight:700;">Red Bull Dance Hub</div>
+                      <div style="font-size:15px; font-weight:500;">Red Bull Dance Hub</div>
                       <div style="font-size:12px; color:rgba(255,255,255,.5); margin-top:2px;">redbull.com · Sponsored</div>
                     </div>
                   </div>
                   <div style="font-size:13.5px; line-height:1.55; color:rgba(255,255,255,.68); margin-bottom:18px;">Battle highlights, dancer profiles and behind-the-scenes from Dance Your Style. Your stream keeps playing — the ad timer pauses while you read.</div>
-                  <div class="mtap" onClick="{{ closeModal }}" style="display:flex; align-items:center; justify-content:center; gap:8px; height:50px; border-radius:25px; background:#fff; color:#101013; font-size:15px; font-weight:700;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"></path><path d="M20 4l-8.5 8.5"></path><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg>Visit redbull.com</div>
-                  <div class="mtap" onClick="{{ closeModal }}" style="display:flex; align-items:center; justify-content:center; height:48px; margin-top:10px; border-radius:24px; background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.06) 55%, rgba(255,255,255,.1)); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4); font-size:14px; font-weight:600; color:#fff;">Continue watching</div>
+                  <div class="mtap" onClick="{{ closeModal }}" style="display:flex; align-items:center; justify-content:center; gap:8px; height:50px; border-radius:25px; background:#fff; color:#101013; font-size:15px; font-weight:500;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"></path><path d="M20 4l-8.5 8.5"></path><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg>Visit redbull.com</div>
+                  <div class="mtap" onClick="{{ closeModal }}" style="display:flex; align-items:center; justify-content:center; height:48px; margin-top:10px; border-radius:24px; background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.06) 55%, rgba(255,255,255,.1)); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4); font-size:14px; font-weight:500; color:#fff;">Continue watching</div>
                 </div>
               </sc-if>
             </div>
@@ -272,11 +273,11 @@
                 <sc-if value="{{ badgeShown }}" hint-placeholder-val="{{ true }}">
                 <div style="display:flex; align-items:center; gap:7px; background:rgba(22,22,26,.5); -webkit-backdrop-filter:blur(20px) saturate(150%); backdrop-filter:blur(20px) saturate(150%); border:1px solid rgba(255,255,255,.18); padding:6px 13px; border-radius:30px; width:max-content; margin-bottom:8px;">
                   <sc-if value="{{ badgeLive }}" hint-placeholder-val="{{ true }}"><span style="width:8px; height:8px; border-radius:50%; background:#FF3B30; box-shadow:0 0 8px rgba(255,59,48,.7); animation:m-pulse 1.6s infinite;"></span></sc-if>
-                  <span style="font-size:13px; font-weight:700; letter-spacing:.08em; color:#fff;">{{ badgeText }}</span>
+                  <span style="font-size:13px; font-weight:500; letter-spacing:.08em; color:#fff;">{{ badgeText }}</span>
                 </div>
                 </sc-if>
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-                  <div style="font-size:24px; font-weight:700; letter-spacing:-.01em;">{{ titleText }}</div>
+                  <div style="font-size:22px; font-weight:500; letter-spacing:-.01em;">{{ titleText }}</div>
                   <div style="display:flex; gap:8px; align-items:center; flex:none;">
                     <sc-if value="{{ igTabBtn }}" hint-placeholder-val="{{ false }}">
                       <div class="lgx mtap" onClick="{{ openELBtn }}" title="Interactive" style="width:36px; height:36px; flex:none; border-radius:50%; background:rgba(255,255,255,.14); -webkit-backdrop-filter:blur(20px) saturate(160%); backdrop-filter:blur(20px) saturate(160%); border:1px solid rgba(255,255,255,.22); box-shadow:inset 0 1px 0 rgba(255,255,255,.2); color:#fff; display:flex; align-items:center; justify-content:center;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2"></path><path d="M15 16v-2"></path><path d="M8 9h2"></path><path d="M20 9h2"></path><path d="M17.8 11.8L19 13"></path><path d="M17.8 6.2L19 5"></path><path d="M3 21l9-9"></path><path d="M12.2 6.2L11 5"></path></svg></div>
@@ -293,7 +294,7 @@
                     <div style="width:128px; height:72px; border-radius:9px; overflow:hidden; border:2px solid #fff; box-shadow:0 10px 28px rgba(0,0,0,.6); background:#3a3a40; display:flex; align-items:center; justify-content:center;">
                       <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="2.5" y="5" width="19" height="14" rx="2.2" fill="rgba(255,255,255,.22)"/><circle cx="8" cy="10" r="1.9" fill="rgba(255,255,255,.55)"/><path d="M4 18l5-5.5 3.2 3.6L16 12l4 5.5" stroke="rgba(255,255,255,.55)" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </div>
-                    <div style="text-align:center; font-size:12px; font-weight:700; color:#fff; margin-top:5px; font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ scrubTime }}</div>
+                    <div style="text-align:center; font-size:12px; font-weight:500; color:#fff; margin-top:5px; font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ scrubTime }}</div>
                   </div>
                 </sc-if>
                 <div>
@@ -305,9 +306,9 @@
                     </div>
                   </div>
                   <div style="display:flex; align-items:center; justify-content:space-between; margin-top:3px;">
-                    <span style="font-size:11px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeNow }}</span>
+                    <span style="font-size:11px; font-weight:500; color:#fff; font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeNow }}</span>
                     <span style="display:flex; align-items:center; gap:8px;">
-                      <span style="font-size:11px; font-weight:600; color:rgba(255,255,255,.65); font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeDur }}</span>
+                      <span style="font-size:11px; font-weight:500; color:rgba(255,255,255,.65); font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeDur }}</span>
                       <sc-if value="{{ goLiveShown }}" hint-placeholder-val="{{ false }}">
                         <div class="mtap" onClick="{{ goLive }}" title="Jump to live" style="width:26px; height:26px; flex:none; border-radius:50%; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); display:flex; align-items:center; justify-content:center; animation:m-fade .25s ease;"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M5 5l9 7-9 7z"></path><rect x="16" y="5" width="3" height="14" rx="1.2"></rect></svg></div>
                       </sc-if>
@@ -343,16 +344,16 @@
                 <!-- INFO -->
                 <sc-if value="{{ panelInfo }}" hint-placeholder-val="{{ false }}">
                   <div style="display:flex; flex-direction:column; height:100%; min-height:0; animation:m-fade .26s ease;">
-                    <div style="font-size:22px; font-weight:700; margin-bottom:9px;">{{ titleText }}</div>
+                    <div style="font-size:22px; font-weight:500; margin-bottom:9px;">{{ titleText }}</div>
                     <div style="font-size:15px; line-height:1.5; color:rgba(255,255,255,.66); margin-bottom:16px;">The best battles from the Red Bull Dance Your Style USA Qualifier. Vote for your favorite dancer and follow every round through the interactive experience.</div>
                     <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
-                      <span style="background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); color:#fff; font-size:12px; font-weight:700; padding:5px 11px; border-radius:8px;">USA Qualifier</span>
-                      <span style="border:1px solid rgba(255,255,255,.3); color:#fff; font-size:12px; font-weight:700; padding:4px 9px; border-radius:8px;">4K</span>
+                      <span style="background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); color:#fff; font-size:12px; font-weight:500; padding:5px 11px; border-radius:8px;">USA Qualifier</span>
+                      <span style="border:1px solid rgba(255,255,255,.3); color:#fff; font-size:12px; font-weight:500; padding:4px 9px; border-radius:8px;">4K</span>
                       <span style="font-size:14px; color:rgba(255,255,255,.7);">Los Angeles</span>
                     </div>
                     <div style="flex:1;"></div>
-                    <div class="mtap" onClick="{{ togglePlay }}" style="display:flex; align-items:center; justify-content:center; gap:9px; padding:15px; border-radius:32px; background:#fff; color:#101013; font-size:16px; font-weight:600; margin-bottom:11px; flex:none;"><svg width="13" height="13" viewBox="0 0 12 12"><path d="M2 1.4l8 4.6-8 4.6z" fill="currentColor"/></svg>Start over</div>
-                    <div class="mtap" style="text-align:center; padding:15px; border-radius:32px; background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.06) 55%, rgba(255,255,255,.1)); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4); color:#fff; font-size:16px; font-weight:600; flex:none;">More Details</div>
+                    <div class="mtap" onClick="{{ togglePlay }}" style="display:flex; align-items:center; justify-content:center; gap:9px; padding:15px; border-radius:32px; background:#fff; color:#101013; font-size:16px; font-weight:500; margin-bottom:11px; flex:none;"><svg width="13" height="13" viewBox="0 0 12 12"><path d="M2 1.4l8 4.6-8 4.6z" fill="currentColor"/></svg>Start over</div>
+                    <div class="mtap" style="text-align:center; padding:15px; border-radius:32px; background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.06) 55%, rgba(255,255,255,.1)); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4); color:#fff; font-size:16px; font-weight:500; flex:none;">More Details</div>
                   </div>
                 </sc-if>
 
@@ -361,24 +362,24 @@
                   <div style="display:flex; flex-direction:column; height:100%; min-height:0; animation:m-fade .26s ease;">
                     <div style="display:flex; gap:8px; align-items:center; margin-bottom:14px; flex:none;">
                       <div style="flex:1; display:flex; gap:5px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); border-radius:999px; padding:5px;">
-                        <div class="mtap" onClick="{{ setVote }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:600; background:{{ segVoteBg }}; color:{{ segVoteColor }};">Vote</div>
-                        <div class="mtap" onClick="{{ setAbout }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:600; background:{{ segAboutBg }}; color:{{ segAboutColor }};">About</div>
-                        <div class="mtap" onClick="{{ setMusic }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:600; background:{{ segMusicBg }}; color:{{ segMusicColor }};">Music</div>
-                        <div class="mtap" onClick="{{ setPeople }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:600; background:{{ segPeopleBg }}; color:{{ segPeopleColor }};">People</div>
+                        <div class="mtap" onClick="{{ setVote }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ segVoteBg }}; color:{{ segVoteColor }};">Vote</div>
+                        <div class="mtap" onClick="{{ setAbout }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ segAboutBg }}; color:{{ segAboutColor }};">About</div>
+                        <div class="mtap" onClick="{{ setMusic }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ segMusicBg }}; color:{{ segMusicColor }};">Music</div>
+                        <div class="mtap" onClick="{{ setPeople }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ segPeopleBg }}; color:{{ segPeopleColor }};">People</div>
                       </div>
                       <div class="lgx mtap" onClick="{{ closePanel }}" title="Collapse" style="width:42px; height:42px; flex:none; border-radius:50%; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16); display:flex; align-items:center; justify-content:center;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                     </div>
                     <div style="flex:1; min-height:0; overflow-y:auto;">
                       <sc-if value="{{ mVote }}" hint-placeholder-val="{{ true }}">
                         <sc-if value="{{ voteFormShown }}" hint-placeholder-val="{{ true }}">
-                          <div style="font-size:18px; font-weight:700; margin-bottom:5px;">Who wins this battle?</div>
+                          <div style="font-size:18px; font-weight:500; margin-bottom:5px;">Who wins this battle?</div>
                           <div style="font-size:13px; color:rgba(255,255,255,.55); margin-bottom:16px;">Pick your favorite: the crowd decides</div>
                           <div style="display:flex; flex-direction:column; gap:11px;">
                             <sc-for list="{{ voteCards }}" as="o" hint-placeholder-count="2">
                               <div class="mtap" data-i="{{ o.idx }}" onClick="{{ onVoteSel }}" style="border-radius:14px; border:1px solid {{ o.border }}; background:{{ o.bg }}; padding:14px 15px; display:flex; align-items:center; gap:13px;">
-                                <div style="width:44px; height:44px; flex:none; border-radius:50%; background:rgba(255,255,255,.12); border:{{ o.avatarBorder }}; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:{{ o.avatarColor }};">{{ o.initials }}</div>
+                                <div style="width:44px; height:44px; flex:none; border-radius:50%; background:rgba(255,255,255,.12); border:{{ o.avatarBorder }}; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:500; color:{{ o.avatarColor }};">{{ o.initials }}</div>
                                 <div style="flex:1; min-width:0;">
-                                  <div style="font-size:15px; font-weight:700;">{{ o.name }}</div>
+                                  <div style="font-size:15px; font-weight:500;">{{ o.name }}</div>
                                   <div style="font-size:12px; color:rgba(255,255,255,.5); margin-top:2px;">{{ o.sub }}</div>
                                 </div>
                                 <div style="width:22px; height:22px; flex:none; border-radius:50%; border:2px solid {{ o.ring }}; display:flex; align-items:center; justify-content:center;">
@@ -387,26 +388,26 @@
                               </div>
                             </sc-for>
                           </div>
-                          <div class="mtap" onClick="{{ castVote }}" style="margin-top:15px; padding:14px; border-radius:28px; text-align:center; font-size:15px; font-weight:700; background:{{ castBg }}; color:{{ castColor }}; opacity:{{ castOp }};">Cast vote</div>
+                          <div class="mtap" onClick="{{ castVote }}" style="margin-top:15px; padding:14px; border-radius:28px; text-align:center; font-size:15px; font-weight:500; background:{{ castBg }}; color:{{ castColor }}; opacity:{{ castOp }};">Cast vote</div>
                         </sc-if>
                         <sc-if value="{{ voteDoneShown }}" hint-placeholder-val="{{ false }}">
                           <div style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:26px 10px 8px; animation:m-fade .3s ease;">
                             <div style="width:72px; height:72px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 12px 34px rgba(0,0,0,.45);">
                               <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="#101013" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                             </div>
-                            <div style="font-size:20px; font-weight:800; margin-top:16px;">Vote locked in!</div>
-                            <div style="font-size:14px; color:rgba(255,255,255,.72); margin-top:6px;">You voted for <span style="font-weight:700; color:#fff;">{{ votedName }}</span></div>
+                            <div style="font-size:20px; font-weight:500; margin-top:16px;">Vote locked in!</div>
+                            <div style="font-size:14px; color:rgba(255,255,255,.72); margin-top:6px;">You voted for <span style="font-weight:500; color:#fff;">{{ votedName }}</span></div>
                             <div style="font-size:12px; color:rgba(255,255,255,.45); margin-top:5px;">Results are revealed after the battle</div>
-                            <div class="mtap" onClick="{{ changeVote }}" style="margin-top:18px; padding:10px 22px; border-radius:24px; font-size:13px; font-weight:600; background:rgba(255,255,255,.08); color:#fff; border:1px solid rgba(255,255,255,.2);">Change my vote</div>
+                            <div class="mtap" onClick="{{ changeVote }}" style="margin-top:18px; padding:10px 22px; border-radius:24px; font-size:13px; font-weight:500; background:rgba(255,255,255,.08); color:#fff; border:1px solid rgba(255,255,255,.2);">Change my vote</div>
                           </div>
                         </sc-if>
                       </sc-if>
                       <sc-if value="{{ mAbout }}" hint-placeholder-val="{{ false }}">
-                        <div style="font-size:10.5px; letter-spacing:.16em; font-weight:600; color:rgba(255,255,255,.5); margin-bottom:11px; display:flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:#fff; animation:m-pulse 1.6s infinite;"></span>NOW PERFORMING</div>
+                        <div style="font-size:10.5px; letter-spacing:.16em; font-weight:500; color:rgba(255,255,255,.5); margin-bottom:11px; display:flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:#fff; animation:m-pulse 1.6s infinite;"></span>NOW PERFORMING</div>
                         <div style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:22px 18px;">
                           <div style="display:flex; flex-direction:column; align-items:center; text-align:center;">
-                            <div style="width:76px; height:76px; border-radius:50%; background:rgba(255,255,255,.1); border:2px solid rgba(255,255,255,.45); display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:600;">{{ aboutInitials }}</div>
-                            <div style="font-size:20px; font-weight:600; margin-top:12px;">{{ aboutName }}</div>
+                            <div style="width:76px; height:76px; border-radius:50%; background:rgba(255,255,255,.1); border:2px solid rgba(255,255,255,.45); display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:500;">{{ aboutInitials }}</div>
+                            <div style="font-size:20px; font-weight:500; margin-top:12px;">{{ aboutName }}</div>
                             <div style="font-size:12.5px; font-weight:400; color:rgba(255,255,255,.6); margin-top:4px;">{{ aboutFrom }} · {{ aboutStyle }}</div>
                             <div style="display:inline-flex; align-items:center; margin-top:10px; padding:4px 11px; border-radius:8px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); font-size:10.5px; font-weight:500; color:rgba(255,255,255,.8);">USA Qualifier finalist</div>
                           </div>
@@ -417,8 +418,8 @@
                         <div style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:16px 18px; margin-bottom:12px;">
                           <div style="display:flex; align-items:center; justify-content:space-between;">
                             <div style="min-width:0;">
-                              <div style="font-size:10px; letter-spacing:.14em; color:rgba(255,255,255,.5); font-weight:700; margin-bottom:7px;">NOW PLAYING</div>
-                              <div style="font-size:19px; font-weight:800; line-height:1.15;">{{ musicTrack }}</div>
+                              <div style="font-size:10px; letter-spacing:.14em; color:rgba(255,255,255,.5); font-weight:500; margin-bottom:7px;">NOW PLAYING</div>
+                              <div style="font-size:19px; font-weight:500; line-height:1.15;">{{ musicTrack }}</div>
                               <div style="font-size:12.5px; color:rgba(255,255,255,.6); margin-top:4px;">{{ musicArtist }}</div>
                             </div>
                             <div style="display:flex; align-items:flex-end; gap:3px; height:34px; flex:none;">
@@ -437,17 +438,17 @@
                         </div>
                       </sc-if>
                       <sc-if value="{{ mPeople }}" hint-placeholder-val="{{ false }}">
-                        <div style="font-size:10px; letter-spacing:.14em; color:rgba(255,255,255,.5); font-weight:700; margin-bottom:8px;">TONIGHT'S LINEUP · TAP TO JUMP</div>
+                        <div style="font-size:10px; letter-spacing:.14em; color:rgba(255,255,255,.5); font-weight:500; margin-bottom:8px;">TONIGHT'S LINEUP · TAP TO JUMP</div>
                         <div style="display:flex; flex-direction:column; gap:6px;">
                           <sc-for list="{{ setList }}" as="t" hint-placeholder-count="6">
                             <div class="mtap" data-i="{{ t.idx }}" onClick="{{ jumpSeg }}" style="display:flex; align-items:center; gap:11px; background:{{ t.bg }}; border:1px solid {{ t.border }}; border-radius:12px; padding:9px 12px;">
-                              <div style="width:36px; height:36px; flex:none; border-radius:50%; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">{{ t.initials }}</div>
+                              <div style="width:36px; height:36px; flex:none; border-radius:50%; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:500;">{{ t.initials }}</div>
                               <div style="flex:1; min-width:0;">
-                                <div style="font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.dancer }}</div>
+                                <div style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.dancer }}</div>
                                 <div style="font-size:10.5px; color:rgba(255,255,255,.5); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.track }} · {{ t.artist }}</div>
                               </div>
-                              <sc-if value="{{ t.now }}" hint-placeholder-val="{{ false }}"><span style="font-size:9px; letter-spacing:.1em; font-weight:800; color:#fff;">● LIVE</span></sc-if>
-                              <div style="font-size:11px; font-weight:600; color:{{ t.timeColor }}; font-variant-numeric:tabular-nums;">{{ t.time }}</div>
+                              <sc-if value="{{ t.now }}" hint-placeholder-val="{{ false }}"><span style="font-size:9px; letter-spacing:.1em; font-weight:500; color:#fff;">● LIVE</span></sc-if>
+                              <div style="font-size:11px; font-weight:500; color:{{ t.timeColor }}; font-variant-numeric:tabular-nums;">{{ t.time }}</div>
                             </div>
                           </sc-for>
                         </div>
@@ -459,13 +460,13 @@
                 <!-- UP NEXT (linear) -->
                 <sc-if value="{{ panelNext }}" hint-placeholder-val="{{ false }}">
                   <div style="animation:m-fade .26s ease;">
-                    <div style="font-size:22px; font-weight:700; margin-bottom:14px;">Up next</div>
+                    <div style="font-size:22px; font-weight:500; margin-bottom:14px;">Up next</div>
                     <div style="display:flex; flex-direction:column; gap:9px;">
                       <sc-for list="{{ upNext }}" as="u" hint-placeholder-count="3">
                         <div style="display:flex; align-items:center; gap:14px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:14px 16px;">
-                          <div style="font-size:14px; font-weight:700; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; flex:none;">{{ u.time }}</div>
+                          <div style="font-size:14px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; flex:none;">{{ u.time }}</div>
                           <div style="flex:1; min-width:0;">
-                            <div style="font-size:16px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ u.title }}</div>
+                            <div style="font-size:16px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ u.title }}</div>
                             <div style="font-size:12.5px; color:rgba(255,255,255,.5); margin-top:2px;">{{ u.sub }}</div>
                           </div>
                         </div>
@@ -481,10 +482,10 @@
           <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
             <div onClick="{{ closeMenu }}" style="position:absolute; inset:0; z-index:20;"></div>
             <div style="position:absolute; right:16px; bottom:132px; width:248px; z-index:21; background:rgba(18,18,22,.72); -webkit-backdrop-filter:blur(34px) saturate(160%); backdrop-filter:blur(34px) saturate(160%); border:1px solid rgba(255,255,255,.14); border-radius:16px; padding:12px; box-shadow:inset 0 1px 0 rgba(255,255,255,.16), 0 18px 50px rgba(0,0,0,.55);">
-              <div style="font-size:9.5px; letter-spacing:.14em; font-weight:700; color:rgba(255,255,255,.5); margin-bottom:8px; padding:0 4px;">{{ menuTitle }}</div>
+              <div style="font-size:9.5px; letter-spacing:.14em; font-weight:500; color:rgba(255,255,255,.5); margin-bottom:8px; padding:0 4px;">{{ menuTitle }}</div>
               <sc-for list="{{ menuOptions }}" as="o" hint-placeholder-count="4">
                 <sc-if value="{{ o.sel }}" hint-placeholder-val="{{ false }}">
-                  <div class="mtap" data-i="{{ o.idx }}" onClick="{{ chooseMenu }}" style="display:flex; align-items:center; justify-content:space-between; padding:11px 6px; font-size:13px; font-weight:600; color:#fff; border-top:1px solid rgba(255,255,255,.1);"><span>{{ o.label }}</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <div class="mtap" data-i="{{ o.idx }}" onClick="{{ chooseMenu }}" style="display:flex; align-items:center; justify-content:space-between; padding:11px 6px; font-size:13px; font-weight:500; color:#fff; border-top:1px solid rgba(255,255,255,.1);"><span>{{ o.label }}</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                 </sc-if>
                 <sc-if value="{{ o.idle }}" hint-placeholder-val="{{ true }}">
                   <div class="mtap" data-i="{{ o.idx }}" onClick="{{ chooseMenu }}" style="display:flex; align-items:center; padding:11px 6px; font-size:13px; font-weight:500; color:rgba(255,255,255,.55); border-top:1px solid rgba(255,255,255,.1);">{{ o.label }}</div>
@@ -502,10 +503,10 @@
         <div style="position:absolute; inset:0; background:#000;">
           <sc-if value="{{ ratingShow }}" hint-placeholder-val="{{ true }}">
           <sc-if value="{{ ratingIn }}" hint-placeholder-val="{{ true }}">
-          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); height:100%; aspect-ratio:16/9; z-index:51; pointer-events:none;"><div style="position:absolute; top:54px; left:18px; display:flex; align-items:center; gap:9px; text-shadow:0 2px 14px rgba(0,0,0,.6); animation:m-ratein {{ rateInDur }} cubic-bezier(.2,.7,.3,1) forwards;"><div style="display:flex; align-items:center; justify-content:center; min-width:36px; height:26px; padding:0 8px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:13px; font-weight:700;">TV-G</div><div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.9); max-width:200px; line-height:1.25;">General audiences · all ages</div></div></div>
+          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); height:100%; aspect-ratio:16/9; z-index:51; pointer-events:none;"><div style="position:absolute; top:54px; left:18px; display:flex; align-items:center; gap:9px; text-shadow:0 2px 14px rgba(0,0,0,.6); animation:m-ratein {{ rateInDur }} cubic-bezier(.2,.7,.3,1) forwards;"><div style="display:flex; align-items:center; justify-content:center; min-width:36px; height:26px; padding:0 8px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:13px; font-weight:500;">TV-G</div><div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.9); max-width:200px; line-height:1.25;">General audiences · all ages</div></div></div>
           </sc-if>
           <sc-if value="{{ ratingOutP }}" hint-placeholder-val="{{ false }}">
-          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); height:100%; aspect-ratio:16/9; z-index:51; pointer-events:none;"><div style="position:absolute; top:54px; left:18px; display:flex; align-items:center; gap:9px; text-shadow:0 2px 14px rgba(0,0,0,.6); animation:m-rateout {{ rateOutDur }} cubic-bezier(.2,.7,.3,1) forwards;"><div style="display:flex; align-items:center; justify-content:center; min-width:36px; height:26px; padding:0 8px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:13px; font-weight:700;">TV-G</div><div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.9); max-width:200px; line-height:1.25;">General audiences · all ages</div></div></div>
+          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); height:100%; aspect-ratio:16/9; z-index:51; pointer-events:none;"><div style="position:absolute; top:54px; left:18px; display:flex; align-items:center; gap:9px; text-shadow:0 2px 14px rgba(0,0,0,.6); animation:m-rateout {{ rateOutDur }} cubic-bezier(.2,.7,.3,1) forwards;"><div style="display:flex; align-items:center; justify-content:center; min-width:36px; height:26px; padding:0 8px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:13px; font-weight:500;">TV-G</div><div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.9); max-width:200px; line-height:1.25;">General audiences · all ages</div></div></div>
           </sc-if>
           </sc-if>
           <video ref="{{ videoRef }}" src="assets/feature.mp4" poster="assets/splash-tv.png" style="position:absolute; top:50%; left:{{ vLeft }}; transform:{{ vTf }}; height:{{ vH }}; width:{{ vW }}; aspect-ratio:16/9; object-fit:cover; border-radius:{{ vR }}; transition:left .42s cubic-bezier(.2,.7,.3,1), width .42s cubic-bezier(.2,.7,.3,1), height .42s cubic-bezier(.2,.7,.3,1), border-radius .42s ease;"></video>
@@ -522,7 +523,7 @@
 
             <!-- skip intro pill (landscape) -->
             <sc-if value="{{ skipShown }}" hint-placeholder-val="{{ false }}">
-              <div class="lgx mtap" onClick="{{ skipTap }}" style="position:absolute; right:16px; bottom:16px; z-index:29; display:flex; align-items:center; gap:8px; padding:11px 18px; border-radius:24px; background:rgba(255,255,255,.14); -webkit-backdrop-filter:blur(18px) saturate(180%); backdrop-filter:blur(18px) saturate(180%); border:1px solid rgba(255,255,255,.35); box-shadow:inset 0 1px 1px rgba(255,255,255,.45), 0 8px 22px rgba(0,0,0,.3); font-size:14px; font-weight:600; color:#fff; pointer-events:auto; animation:m-fade .3s ease;">Skip intro<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M4 5l9 7-9 7z"></path><rect x="15" y="5" width="3" height="14" rx="1.2"></rect></svg></div>
+              <div class="lgx mtap" onClick="{{ skipTap }}" style="position:absolute; right:16px; bottom:16px; z-index:29; display:flex; align-items:center; gap:8px; padding:11px 18px; border-radius:24px; background:rgba(255,255,255,.14); -webkit-backdrop-filter:blur(18px) saturate(180%); backdrop-filter:blur(18px) saturate(180%); border:1px solid rgba(255,255,255,.35); box-shadow:inset 0 1px 1px rgba(255,255,255,.45), 0 8px 22px rgba(0,0,0,.3); font-size:14px; font-weight:500; color:#fff; pointer-events:auto; animation:m-fade .3s ease;">Skip intro<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M4 5l9 7-9 7z"></path><rect x="15" y="5" width="3" height="14" rx="1.2"></rect></svg></div>
             </sc-if>
 
             <sc-if value="{{ lsShowChrome }}" hint-placeholder-val="{{ true }}">
@@ -564,10 +565,10 @@
             <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
               <div onClick="{{ closeMenu }}" style="position:absolute; inset:0; z-index:8; pointer-events:auto;"></div>
               <div style="position:absolute; right:14px; bottom:92px; width:266px; z-index:9; background:rgba(18,18,22,.86); -webkit-backdrop-filter:blur(34px) saturate(160%); backdrop-filter:blur(34px) saturate(160%); border:1px solid rgba(255,255,255,.14); border-radius:16px; padding:12px; box-shadow:inset 0 1px 0 rgba(255,255,255,.16), 0 18px 50px rgba(0,0,0,.55); pointer-events:auto;">
-                <div style="font-size:9.5px; letter-spacing:.14em; font-weight:700; color:rgba(255,255,255,.5); margin-bottom:8px; padding:0 4px;">{{ menuTitle }}</div>
+                <div style="font-size:9.5px; letter-spacing:.14em; font-weight:500; color:rgba(255,255,255,.5); margin-bottom:8px; padding:0 4px;">{{ menuTitle }}</div>
                 <sc-for list="{{ menuOptions }}" as="o" hint-placeholder-count="4">
                   <sc-if value="{{ o.sel }}" hint-placeholder-val="{{ false }}">
-                    <div class="mtap" data-i="{{ o.idx }}" onClick="{{ chooseMenu }}" style="display:flex; align-items:center; justify-content:space-between; padding:10px 6px; font-size:12.5px; font-weight:600; color:#fff; border-top:1px solid rgba(255,255,255,.1);"><span>{{ o.label }}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="mtap" data-i="{{ o.idx }}" onClick="{{ chooseMenu }}" style="display:flex; align-items:center; justify-content:space-between; padding:10px 6px; font-size:12.5px; font-weight:500; color:#fff; border-top:1px solid rgba(255,255,255,.1);"><span>{{ o.label }}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                   </sc-if>
                   <sc-if value="{{ o.idle }}" hint-placeholder-val="{{ true }}">
                     <div class="mtap" data-i="{{ o.idx }}" onClick="{{ chooseMenu }}" style="display:flex; align-items:center; padding:10px 6px; font-size:12.5px; font-weight:500; color:rgba(255,255,255,.55); border-top:1px solid rgba(255,255,255,.1);">{{ o.label }}</div>
@@ -583,7 +584,7 @@
                   <div style="width:140px; height:79px; border-radius:9px; overflow:hidden; border:2px solid #fff; box-shadow:0 10px 28px rgba(0,0,0,.6); background:#3a3a40; display:flex; align-items:center; justify-content:center;">
                     <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><rect x="2.5" y="5" width="19" height="14" rx="2.2" fill="rgba(255,255,255,.22)"/><circle cx="8" cy="10" r="1.9" fill="rgba(255,255,255,.55)"/><path d="M4 18l5-5.5 3.2 3.6L16 12l4 5.5" stroke="rgba(255,255,255,.55)" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   </div>
-                  <div style="text-align:center; font-size:12px; font-weight:700; color:#fff; margin-top:5px; font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ scrubTime }}</div>
+                  <div style="text-align:center; font-size:12px; font-weight:500; color:#fff; margin-top:5px; font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ scrubTime }}</div>
                 </div>
               </sc-if>
               <sc-if value="{{ lsShowScrub }}" hint-placeholder-val="{{ true }}">
@@ -596,9 +597,9 @@
                     </div>
                   </div>
                   <div style="display:flex; align-items:center; justify-content:space-between; margin-top:3px;">
-                    <span style="font-size:12px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeNow }}</span>
+                    <span style="font-size:12px; font-weight:500; color:#fff; font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeNow }}</span>
                     <span style="display:flex; align-items:center; gap:8px;">
-                      <span style="font-size:12px; font-weight:600; color:rgba(255,255,255,.7); font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeDur }}</span>
+                      <span style="font-size:12px; font-weight:500; color:rgba(255,255,255,.7); font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeDur }}</span>
                       <sc-if value="{{ goLiveShown }}" hint-placeholder-val="{{ false }}">
                         <div class="mtap" onClick="{{ goLive }}" title="Jump to live" style="width:28px; height:28px; flex:none; border-radius:50%; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); display:flex; align-items:center; justify-content:center; pointer-events:auto; animation:m-fade .25s ease;"><svg width="13" height="13" viewBox="0 0 24 24" fill="#fff"><path d="M5 5l9 7-9 7z"></path><rect x="16" y="5" width="3" height="14" rx="1.2"></rect></svg></div>
                       </sc-if>
@@ -628,8 +629,8 @@
                     <div style="display:flex; gap:10px; align-items:stretch; height:100%; box-sizing:border-box;">
                       <sc-for list="{{ upNext }}" as="u" hint-placeholder-count="3">
                         <div style="flex:1; min-width:0; border-radius:14px; background:rgba(18,18,22,.66); -webkit-backdrop-filter:blur(30px) saturate(160%); backdrop-filter:blur(30px) saturate(160%); border:1px solid rgba(255,255,255,.14); box-shadow:inset 0 1px 0 rgba(255,255,255,.16), 0 14px 40px rgba(0,0,0,.4); padding:14px 16px; display:flex; flex-direction:column; justify-content:flex-end; gap:4px;">
-                          <div style="font-size:11px; font-weight:700; letter-spacing:.08em; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums;">{{ u.time }}</div>
-                          <div style="font-size:14px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ u.title }}</div>
+                          <div style="font-size:11px; font-weight:500; letter-spacing:.08em; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums;">{{ u.time }}</div>
+                          <div style="font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ u.title }}</div>
                           <div style="font-size:11.5px; color:rgba(255,255,255,.55); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ u.sub }}</div>
                         </div>
                       </sc-for>
@@ -639,16 +640,16 @@
                     <div style="display:flex; gap:16px; align-items:center; height:100%; box-sizing:border-box; background:rgba(18,18,22,.66); -webkit-backdrop-filter:blur(30px) saturate(160%); backdrop-filter:blur(30px) saturate(160%); border:1px solid rgba(255,255,255,.14); box-shadow:inset 0 1px 0 rgba(255,255,255,.16), 0 18px 50px rgba(0,0,0,.45); border-radius:18px; padding:15px;">
                       <div style="width:170px; height:100%; flex:none; border-radius:10px; background:repeating-linear-gradient(45deg,#2a2a30,#2a2a30 9px,#32323a 9px,#32323a 18px); display:flex; align-items:center; justify-content:center; color:#55555f;"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><rect x="2.5" y="5" width="19" height="14" rx="2.2" fill="rgba(255,255,255,.14)"/><circle cx="8" cy="10" r="1.9" fill="rgba(255,255,255,.4)"/><path d="M4 18l5-5.5 3.2 3.6L16 12l4 5.5" stroke="rgba(255,255,255,.4)" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                       <div style="flex:1; min-width:0;">
-                        <div style="font-size:17px; font-weight:700; margin-bottom:5px;">{{ titleText }}</div>
+                        <div style="font-size:17px; font-weight:500; margin-bottom:5px;">{{ titleText }}</div>
                         <div style="font-size:13px; line-height:1.45; color:rgba(255,255,255,.62); margin-bottom:9px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">The best battles from the Red Bull Dance Your Style USA Qualifier. Vote for your favorite dancer and follow every round through the interactive experience.</div>
                         <div style="display:flex; align-items:center; gap:10px;">
-                          <span style="background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); color:#fff; font-size:12px; font-weight:700; padding:5px 11px; border-radius:8px;">USA Qualifier</span>
-                          <span style="border:1px solid rgba(255,255,255,.32); color:#fff; font-size:12px; font-weight:700; padding:4px 9px; border-radius:8px;">4K</span>
+                          <span style="background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); color:#fff; font-size:12px; font-weight:500; padding:5px 11px; border-radius:8px;">USA Qualifier</span>
+                          <span style="border:1px solid rgba(255,255,255,.32); color:#fff; font-size:12px; font-weight:500; padding:4px 9px; border-radius:8px;">4K</span>
                           <span style="font-size:13px; color:rgba(255,255,255,.7);">Los Angeles</span>
                         </div>
                       </div>
                       <div style="display:flex; flex-direction:column; gap:9px; flex:none;">
-                        <div class="mtap" onClick="{{ cardStartOver }}" style="display:flex; align-items:center; justify-content:center; gap:8px; padding:12px 24px; border-radius:30px; background:#fff; color:#101013; font-size:14px; font-weight:600; white-space:nowrap;"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 1.4l8 4.6-8 4.6z" fill="currentColor"/></svg>Start over</div>
+                        <div class="mtap" onClick="{{ cardStartOver }}" style="display:flex; align-items:center; justify-content:center; gap:8px; padding:12px 24px; border-radius:30px; background:#fff; color:#101013; font-size:14px; font-weight:500; white-space:nowrap;"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 1.4l8 4.6-8 4.6z" fill="currentColor"/></svg>Start over</div>
                         <div class="lgx mtap" style="padding:12px 24px; border-radius:30px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.14); color:#fff; font-size:14px; font-weight:500; text-align:center; white-space:nowrap;">More details</div>
                       </div>
                     </div>
@@ -662,10 +663,10 @@
                     <sc-if value="{{ badgeShown }}" hint-placeholder-val="{{ true }}">
                     <div style="display:flex; align-items:center; gap:7px; background:rgba(22,22,26,.5); -webkit-backdrop-filter:blur(20px) saturate(150%); backdrop-filter:blur(20px) saturate(150%); border:1px solid rgba(255,255,255,.18); padding:6px 13px; border-radius:30px; width:max-content; margin-bottom:9px;">
                       <sc-if value="{{ badgeLive }}" hint-placeholder-val="{{ true }}"><span style="width:8px; height:8px; border-radius:50%; background:#FF3B30; box-shadow:0 0 8px rgba(255,59,48,.7); animation:m-pulse 1.6s infinite;"></span></sc-if>
-                      <span style="font-size:13px; font-weight:700; letter-spacing:.08em; color:#fff;">{{ badgeText }}</span>
+                      <span style="font-size:13px; font-weight:500; letter-spacing:.08em; color:#fff;">{{ badgeText }}</span>
                     </div>
                     </sc-if>
-                    <div style="font-size:16px; font-weight:600; letter-spacing:-.01em; text-shadow:0 2px 8px rgba(0,0,0,.5);">{{ titleText }}</div>
+                    <div style="font-size:16px; font-weight:500; letter-spacing:-.01em; text-shadow:0 2px 8px rgba(0,0,0,.5);">{{ titleText }}</div>
                   </div>
                   <div style="display:flex; gap:8px; align-items:center; pointer-events:auto;">
                     <sc-if value="{{ igTabBtn }}" hint-placeholder-val="{{ false }}">
@@ -690,9 +691,9 @@
               </div>
               <div style="flex:1; min-height:0; display:flex; flex-direction:column; justify-content:flex-end; gap:3px;">
                 <img src="assets/redbull.png" alt="Red Bull" style="height:18px; width:auto; display:block; margin-bottom:4px;">
-                <div style="font-size:11.5px; font-weight:700;">redbull.com</div>
+                <div style="font-size:11.5px; font-weight:500;">redbull.com</div>
                 <div style="font-size:9.5px; color:rgba(255,255,255,.55);">Sponsored · Gives You Wings</div>
-                <div style="font-size:9.5px; font-weight:600; color:rgba(255,255,255,.5); font-variant-numeric:tabular-nums; margin-top:5px;">Your video continues · back in {{ squeezeCount }}s</div>
+                <div style="font-size:9.5px; font-weight:500; color:rgba(255,255,255,.5); font-variant-numeric:tabular-nums; margin-top:5px;">Your video continues · back in {{ squeezeCount }}s</div>
               </div>
             </div>
           </sc-if>
@@ -702,10 +703,10 @@
                 <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
               </div>
               <div style="flex:1; min-width:0;">
-                <div style="font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Summer Edition, out now</div>
+                <div style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Summer Edition, out now</div>
                 <div style="font-size:10.5px; color:rgba(255,255,255,.6); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Ad · redbull.com · your video keeps playing</div>
               </div>
-              <div style="font-size:11px; font-weight:600; color:rgba(255,255,255,.6); font-variant-numeric:tabular-nums; white-space:nowrap;">{{ squeezeCount }}s</div>
+              <div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.6); font-variant-numeric:tabular-nums; white-space:nowrap;">{{ squeezeCount }}s</div>
             </div>
           </sc-if>
 
@@ -717,26 +718,26 @@
                 <div class="mtap" onClick="{{ closeLsPanel }}" style="width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center;"><svg width="13" height="13" viewBox="0 0 16 16"><line x1="4" y1="4" x2="12" y2="12" stroke="#fff" stroke-width="2" stroke-linecap="round"></line><line x1="12" y1="4" x2="4" y2="12" stroke="#fff" stroke-width="2" stroke-linecap="round"></line></svg></div>
               </div>
               <div style="padding:8px 16px 10px;">
-                <div style="font-size:16px; font-weight:800; letter-spacing:-.01em;">Dance Your Style</div>
+                <div style="font-size:16px; font-weight:500; letter-spacing:-.01em;">Dance Your Style</div>
                 <div style="font-size:10.5px; color:rgba(255,255,255,.5); margin-top:2px;">USA Qualifier · Best Moments · Los Angeles</div>
               </div>
               <div style="margin:0 16px 10px; display:flex; gap:4px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:999px; padding:4px; box-shadow:inset 0 1px 1px rgba(255,255,255,.1); flex:none;">
-                <div class="mtap" onClick="{{ setVote }}" style="flex:1; text-align:center; padding:7px 2px; border-radius:999px; font-size:10.5px; font-weight:600; background:{{ segVoteBg }}; color:{{ segVoteColor }};">Vote</div>
-                <div class="mtap" onClick="{{ setAbout }}" style="flex:1; text-align:center; padding:7px 2px; border-radius:999px; font-size:10.5px; font-weight:600; background:{{ segAboutBg }}; color:{{ segAboutColor }};">About</div>
-                <div class="mtap" onClick="{{ setMusic }}" style="flex:1; text-align:center; padding:7px 2px; border-radius:999px; font-size:10.5px; font-weight:600; background:{{ segMusicBg }}; color:{{ segMusicColor }};">Music</div>
-                <div class="mtap" onClick="{{ setPeople }}" style="flex:1; text-align:center; padding:7px 2px; border-radius:999px; font-size:10.5px; font-weight:600; background:{{ segPeopleBg }}; color:{{ segPeopleColor }};">People</div>
+                <div class="mtap" onClick="{{ setVote }}" style="flex:1; text-align:center; padding:7px 2px; border-radius:999px; font-size:10.5px; font-weight:500; background:{{ segVoteBg }}; color:{{ segVoteColor }};">Vote</div>
+                <div class="mtap" onClick="{{ setAbout }}" style="flex:1; text-align:center; padding:7px 2px; border-radius:999px; font-size:10.5px; font-weight:500; background:{{ segAboutBg }}; color:{{ segAboutColor }};">About</div>
+                <div class="mtap" onClick="{{ setMusic }}" style="flex:1; text-align:center; padding:7px 2px; border-radius:999px; font-size:10.5px; font-weight:500; background:{{ segMusicBg }}; color:{{ segMusicColor }};">Music</div>
+                <div class="mtap" onClick="{{ setPeople }}" style="flex:1; text-align:center; padding:7px 2px; border-radius:999px; font-size:10.5px; font-weight:500; background:{{ segPeopleBg }}; color:{{ segPeopleColor }};">People</div>
               </div>
               <div style="flex:1; min-height:0; overflow-y:auto; padding:0 16px 14px;">
                 <sc-if value="{{ mVote }}" hint-placeholder-val="{{ true }}">
                   <sc-if value="{{ voteFormShown }}" hint-placeholder-val="{{ true }}">
-                    <div style="font-size:13px; font-weight:700; margin-bottom:3px;">Who wins this battle?</div>
+                    <div style="font-size:13px; font-weight:500; margin-bottom:3px;">Who wins this battle?</div>
                     <div style="font-size:10px; color:rgba(255,255,255,.55); margin-bottom:10px;">Pick your favorite: the crowd decides</div>
                     <div style="display:flex; flex-direction:column; gap:7px;">
                       <sc-for list="{{ voteCards }}" as="o" hint-placeholder-count="2">
                         <div class="mtap" data-i="{{ o.idx }}" onClick="{{ onVoteSel }}" style="border-radius:11px; border:1px solid {{ o.border }}; background:{{ o.bg }}; padding:9px 11px; display:flex; align-items:center; gap:9px;">
-                          <div style="width:32px; height:32px; flex:none; border-radius:50%; background:rgba(255,255,255,.12); border:{{ o.avatarBorder }}; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:{{ o.avatarColor }};">{{ o.initials }}</div>
+                          <div style="width:32px; height:32px; flex:none; border-radius:50%; background:rgba(255,255,255,.12); border:{{ o.avatarBorder }}; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:500; color:{{ o.avatarColor }};">{{ o.initials }}</div>
                           <div style="flex:1; min-width:0;">
-                            <div style="font-size:12px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ o.name }}</div>
+                            <div style="font-size:12px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ o.name }}</div>
                             <div style="font-size:9.5px; color:rgba(255,255,255,.5); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ o.sub }}</div>
                           </div>
                           <div style="width:18px; height:18px; flex:none; border-radius:50%; border:2px solid {{ o.ring }}; display:flex; align-items:center; justify-content:center;">
@@ -745,26 +746,26 @@
                         </div>
                       </sc-for>
                     </div>
-                    <div class="mtap" onClick="{{ castVote }}" style="margin-top:10px; padding:10px; border-radius:22px; text-align:center; font-size:12px; font-weight:700; background:{{ castBg }}; color:{{ castColor }}; opacity:{{ castOp }};">Cast vote</div>
+                    <div class="mtap" onClick="{{ castVote }}" style="margin-top:10px; padding:10px; border-radius:22px; text-align:center; font-size:12px; font-weight:500; background:{{ castBg }}; color:{{ castColor }}; opacity:{{ castOp }};">Cast vote</div>
                   </sc-if>
                   <sc-if value="{{ voteDoneShown }}" hint-placeholder-val="{{ false }}">
                     <div style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:18px 6px 6px; animation:m-fade .3s ease;">
                       <div style="width:52px; height:52px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 26px rgba(0,0,0,.45);">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="#101013" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                       </div>
-                      <div style="font-size:15px; font-weight:800; margin-top:11px;">Vote locked in!</div>
-                      <div style="font-size:11px; color:rgba(255,255,255,.72); margin-top:4px;">You voted for <span style="font-weight:700; color:#fff;">{{ votedName }}</span></div>
+                      <div style="font-size:15px; font-weight:500; margin-top:11px;">Vote locked in!</div>
+                      <div style="font-size:11px; color:rgba(255,255,255,.72); margin-top:4px;">You voted for <span style="font-weight:500; color:#fff;">{{ votedName }}</span></div>
                       <div style="font-size:9.5px; color:rgba(255,255,255,.45); margin-top:3px;">Results after the battle</div>
-                      <div class="mtap" onClick="{{ changeVote }}" style="margin-top:12px; padding:7px 16px; border-radius:18px; font-size:10.5px; font-weight:600; background:rgba(255,255,255,.08); color:#fff; border:1px solid rgba(255,255,255,.2);">Change my vote</div>
+                      <div class="mtap" onClick="{{ changeVote }}" style="margin-top:12px; padding:7px 16px; border-radius:18px; font-size:10.5px; font-weight:500; background:rgba(255,255,255,.08); color:#fff; border:1px solid rgba(255,255,255,.2);">Change my vote</div>
                     </div>
                   </sc-if>
                 </sc-if>
                 <sc-if value="{{ mAbout }}" hint-placeholder-val="{{ false }}">
-                  <div style="font-size:8.5px; letter-spacing:.16em; font-weight:600; color:rgba(255,255,255,.5); margin-bottom:8px; display:flex; align-items:center; gap:6px;"><span style="width:6px; height:6px; border-radius:50%; background:#fff; animation:m-pulse 1.6s infinite;"></span>NOW PERFORMING</div>
+                  <div style="font-size:8.5px; letter-spacing:.16em; font-weight:500; color:rgba(255,255,255,.5); margin-bottom:8px; display:flex; align-items:center; gap:6px;"><span style="width:6px; height:6px; border-radius:50%; background:#fff; animation:m-pulse 1.6s infinite;"></span>NOW PERFORMING</div>
                   <div style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:14px 12px;">
                     <div style="display:flex; flex-direction:column; align-items:center; text-align:center;">
-                      <div style="width:50px; height:50px; border-radius:50%; background:rgba(255,255,255,.1); border:2px solid rgba(255,255,255,.45); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600;">{{ aboutInitials }}</div>
-                      <div style="font-size:14.5px; font-weight:600; margin-top:8px;">{{ aboutName }}</div>
+                      <div style="width:50px; height:50px; border-radius:50%; background:rgba(255,255,255,.1); border:2px solid rgba(255,255,255,.45); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:500;">{{ aboutInitials }}</div>
+                      <div style="font-size:14.5px; font-weight:500; margin-top:8px;">{{ aboutName }}</div>
                       <div style="font-size:9.5px; font-weight:400; color:rgba(255,255,255,.6); margin-top:2px;">{{ aboutFrom }} · {{ aboutStyle }}</div>
                       <div style="display:inline-flex; align-items:center; margin-top:7px; padding:3px 8px; border-radius:6px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); font-size:8px; font-weight:500; color:rgba(255,255,255,.8);">USA Qualifier finalist</div>
                     </div>
@@ -775,8 +776,8 @@
                   <div style="background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:11px 12px; margin-bottom:8px;">
                     <div style="display:flex; align-items:center; justify-content:space-between;">
                       <div style="min-width:0;">
-                        <div style="font-size:8px; letter-spacing:.14em; color:rgba(255,255,255,.5); font-weight:700; margin-bottom:4px;">NOW PLAYING</div>
-                        <div style="font-size:13.5px; font-weight:800; line-height:1.15;">{{ musicTrack }}</div>
+                        <div style="font-size:8px; letter-spacing:.14em; color:rgba(255,255,255,.5); font-weight:500; margin-bottom:4px;">NOW PLAYING</div>
+                        <div style="font-size:13.5px; font-weight:500; line-height:1.15;">{{ musicTrack }}</div>
                         <div style="font-size:9.5px; color:rgba(255,255,255,.6); margin-top:2px;">{{ musicArtist }}</div>
                       </div>
                       <div style="display:flex; align-items:flex-end; gap:2.5px; height:24px; flex:none;">
@@ -794,17 +795,17 @@
                   </div>
                 </sc-if>
                 <sc-if value="{{ mPeople }}" hint-placeholder-val="{{ false }}">
-                  <div style="font-size:8px; letter-spacing:.14em; color:rgba(255,255,255,.5); font-weight:700; margin-bottom:6px;">TONIGHT'S LINEUP · TAP TO JUMP</div>
+                  <div style="font-size:8px; letter-spacing:.14em; color:rgba(255,255,255,.5); font-weight:500; margin-bottom:6px;">TONIGHT'S LINEUP · TAP TO JUMP</div>
                   <div style="display:flex; flex-direction:column; gap:4px;">
                     <sc-for list="{{ setList }}" as="t" hint-placeholder-count="6">
                       <div class="mtap" data-i="{{ t.idx }}" onClick="{{ jumpSeg }}" style="display:flex; align-items:center; gap:8px; background:{{ t.bg }}; border:1px solid {{ t.border }}; border-radius:9px; padding:6px 9px;">
-                        <div style="width:26px; height:26px; flex:none; border-radius:50%; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); display:flex; align-items:center; justify-content:center; font-size:8.5px; font-weight:700;">{{ t.initials }}</div>
+                        <div style="width:26px; height:26px; flex:none; border-radius:50%; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); display:flex; align-items:center; justify-content:center; font-size:8.5px; font-weight:500;">{{ t.initials }}</div>
                         <div style="flex:1; min-width:0;">
-                          <div style="font-size:10.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.dancer }}</div>
+                          <div style="font-size:10.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.dancer }}</div>
                           <div style="font-size:8.5px; color:rgba(255,255,255,.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.track }} · {{ t.artist }}</div>
                         </div>
-                        <sc-if value="{{ t.now }}" hint-placeholder-val="{{ false }}"><span style="font-size:7px; letter-spacing:.1em; font-weight:800; color:#fff;">● LIVE</span></sc-if>
-                        <div style="font-size:8.5px; font-weight:600; color:{{ t.timeColor }}; font-variant-numeric:tabular-nums;">{{ t.time }}</div>
+                        <sc-if value="{{ t.now }}" hint-placeholder-val="{{ false }}"><span style="font-size:7px; letter-spacing:.1em; font-weight:500; color:#fff;">● LIVE</span></sc-if>
+                        <div style="font-size:8.5px; font-weight:500; color:{{ t.timeColor }}; font-variant-numeric:tabular-nums;">{{ t.time }}</div>
                       </div>
                     </sc-for>
                   </div>
@@ -820,11 +821,11 @@
                 <div style="position:absolute; top:0; left:0; width:100%; height:2px; background:rgba(255,255,255,.5); transform-origin:center; animation:m-toastcount 6s linear forwards;"></div>
                 <div style="display:flex; align-items:center; gap:16px; padding:15px 16px 15px 20px;">
                   <div style="flex:1; min-width:0;">
-                    <div style="font-size:10px; letter-spacing:.16em; font-weight:700; color:rgba(255,255,255,.65); margin-bottom:4px;">{{ toastKickerLs }}</div>
-                    <div style="font-size:16px; font-weight:700; letter-spacing:-.01em;">{{ toastTitle }}</div>
+                    <div style="font-size:10px; letter-spacing:.16em; font-weight:500; color:rgba(255,255,255,.65); margin-bottom:4px;">{{ toastKickerLs }}</div>
+                    <div style="font-size:16px; font-weight:500; letter-spacing:-.01em;">{{ toastTitle }}</div>
                   </div>
-                  <div class="mtap" onClick="{{ dismissToast }}" style="padding:10px 18px; border-radius:22px; color:rgba(255,255,255,.7); font-size:13px; font-weight:600; white-space:nowrap;">Not now</div>
-                  <div class="mtap" onClick="{{ acceptToast }}" style="padding:10px 22px; border-radius:22px; background:#fff; color:#101013; font-size:13px; font-weight:700; white-space:nowrap;">{{ toastAcceptLabel }}</div>
+                  <div class="mtap" onClick="{{ dismissToast }}" style="padding:10px 18px; border-radius:22px; color:rgba(255,255,255,.7); font-size:13px; font-weight:500; white-space:nowrap;">Not now</div>
+                  <div class="mtap" onClick="{{ acceptToast }}" style="padding:10px 22px; border-radius:22px; background:#fff; color:#101013; font-size:13px; font-weight:500; white-space:nowrap;">{{ toastAcceptLabel }}</div>
                 </div>
               </div>
             </div>
@@ -836,19 +837,19 @@
               <video ref="{{ adVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
               <div style="position:absolute; left:0; right:0; bottom:0; height:56%; background:linear-gradient(180deg, transparent, rgba(0,0,0,.72)); pointer-events:none;"></div>
               <!-- ad chip (top-left) -->
-              <div style="position:absolute; top:14px; left:16px; display:flex; align-items:center; gap:7px; padding:6px 12px; border-radius:18px; background:rgba(8,8,10,.55); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.16); font-size:11px; font-weight:700; letter-spacing:.08em; color:rgba(255,255,255,.85);">AD · {{ adClock }}</div>
+              <div style="position:absolute; top:14px; left:16px; display:flex; align-items:center; gap:7px; padding:6px 12px; border-radius:18px; background:rgba(8,8,10,.55); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.16); font-size:11px; font-weight:500; letter-spacing:.08em; color:rgba(255,255,255,.85);">AD · {{ adClock }}</div>
               <!-- native lower-third: lockup + message left, CTAs right -->
               <div style="position:absolute; left:18px; right:18px; bottom:16px; display:flex; align-items:flex-end; justify-content:space-between; gap:14px;">
                 <div style="min-width:0;">
                   <div style="display:flex; align-items:center; gap:10px; margin-bottom:9px;">
                     <div style="width:38px; height:38px; flex:none; border-radius:10px; background:#0a0a0a; border:1px solid rgba(255,255,255,.16); display:flex; align-items:center; justify-content:center;"><img src="assets/redbull.png" alt="Red Bull" style="width:24px;" /></div>
-                    <div style="line-height:1.25;"><div style="font-size:14px; font-weight:700;">redbull.com</div><div style="font-size:11px; color:rgba(255,255,255,.55);">Sponsored · Gives You Wings</div></div>
+                    <div style="line-height:1.25;"><div style="font-size:14px; font-weight:500;">redbull.com</div><div style="font-size:11px; color:rgba(255,255,255,.55);">Sponsored · Gives You Wings</div></div>
                   </div>
-                  <div style="font-size:18px; font-weight:800; letter-spacing:-.01em; text-shadow:0 1px 10px rgba(0,0,0,.5);">Wiiings for every battle.</div>
+                  <div style="font-size:18px; font-weight:500; letter-spacing:-.01em; text-shadow:0 1px 10px rgba(0,0,0,.5);">Wiiings for every battle.</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:9px; flex:none;">
-                  <div class="mtap" onClick="{{ openAdSheet }}" style="display:flex; align-items:center; gap:8px; height:42px; padding:0 18px; box-sizing:border-box; border-radius:22px; background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.06) 55%, rgba(255,255,255,.1)); -webkit-backdrop-filter:blur(22px) saturate(180%); backdrop-filter:blur(22px) saturate(180%); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 8px 24px rgba(0,0,0,.35); color:#fff; font-size:13px; font-weight:600; white-space:nowrap;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"></path><path d="M20 4l-8.5 8.5"></path><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg>Learn more</div>
-                  <div class="mtap" onClick="{{ adSkipTap }}" style="opacity:{{ adSkipOp }}; pointer-events:{{ adSkipPe }}; transition:opacity .3s ease, background-color .3s ease, color .3s ease; display:flex; align-items:center; gap:9px; height:42px; padding:0 12px 0 16px; box-sizing:border-box; border-radius:22px; background:{{ adSkipBtnBg }}; -webkit-backdrop-filter:blur(22px) saturate(180%); backdrop-filter:blur(22px) saturate(180%); border:1px solid {{ adSkipBtnBorder }}; box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 8px 24px rgba(0,0,0,.35); color:{{ adSkipBtnColor }}; font-size:13px; font-weight:600; white-space:nowrap;">Skip ad<span style="position:relative; width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; flex:none;"><svg width="26" height="26" viewBox="0 0 28 28" style="position:absolute; inset:0;"><circle cx="14" cy="14" r="11.5" fill="none" stroke="{{ adRingTrack }}" stroke-width="2.4"></circle><circle cx="14" cy="14" r="11.5" fill="none" stroke="{{ adRingFill }}" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="72.26" stroke-dashoffset="{{ adRingOffset }}" transform="rotate(-90 14 14)" style="transition:stroke-dashoffset 1s linear;"></circle></svg><span style="font-size:11px; font-weight:600; font-variant-numeric:tabular-nums; color:{{ adNumColor }};">{{ adCount }}</span></span></div>
+                  <div class="mtap" onClick="{{ openAdSheet }}" style="display:flex; align-items:center; gap:8px; height:42px; padding:0 18px; box-sizing:border-box; border-radius:22px; background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.06) 55%, rgba(255,255,255,.1)); -webkit-backdrop-filter:blur(22px) saturate(180%); backdrop-filter:blur(22px) saturate(180%); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 8px 24px rgba(0,0,0,.35); color:#fff; font-size:13px; font-weight:500; white-space:nowrap;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"></path><path d="M20 4l-8.5 8.5"></path><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg>Learn more</div>
+                  <div class="mtap" onClick="{{ adSkipTap }}" style="opacity:{{ adSkipOp }}; pointer-events:{{ adSkipPe }}; transition:opacity .3s ease, background-color .3s ease, color .3s ease; display:flex; align-items:center; gap:9px; height:42px; padding:0 12px 0 16px; box-sizing:border-box; border-radius:22px; background:{{ adSkipBtnBg }}; -webkit-backdrop-filter:blur(22px) saturate(180%); backdrop-filter:blur(22px) saturate(180%); border:1px solid {{ adSkipBtnBorder }}; box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 8px 24px rgba(0,0,0,.35); color:{{ adSkipBtnColor }}; font-size:13px; font-weight:500; white-space:nowrap;">Skip ad<span style="position:relative; width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; flex:none;"><svg width="26" height="26" viewBox="0 0 28 28" style="position:absolute; inset:0;"><circle cx="14" cy="14" r="11.5" fill="none" stroke="{{ adRingTrack }}" stroke-width="2.4"></circle><circle cx="14" cy="14" r="11.5" fill="none" stroke="{{ adRingFill }}" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="72.26" stroke-dashoffset="{{ adRingOffset }}" transform="rotate(-90 14 14)" style="transition:stroke-dashoffset 1s linear;"></circle></svg><span style="font-size:11px; font-weight:500; font-variant-numeric:tabular-nums; color:{{ adNumColor }};">{{ adCount }}</span></span></div>
                 </div>
               </div>
               <!-- learn-more sheet (landscape: bottom sheet, timer pauses) -->
@@ -859,14 +860,14 @@
                   <div style="display:flex; align-items:center; gap:11px; margin-bottom:10px;">
                     <div style="width:38px; height:38px; flex:none; border-radius:10px; background:#0a0a0a; border:1px solid rgba(255,255,255,.14); display:flex; align-items:center; justify-content:center;"><img src="assets/redbull.png" alt="Red Bull" style="width:24px;" /></div>
                     <div>
-                      <div style="font-size:14px; font-weight:700;">Red Bull Dance Hub</div>
+                      <div style="font-size:14px; font-weight:500;">Red Bull Dance Hub</div>
                       <div style="font-size:11px; color:rgba(255,255,255,.5); margin-top:1px;">redbull.com · Sponsored</div>
                     </div>
                   </div>
                   <div style="font-size:12.5px; line-height:1.5; color:rgba(255,255,255,.68); margin-bottom:14px;">Battle highlights, dancer profiles and behind-the-scenes from Dance Your Style. The ad timer pauses while you read.</div>
                   <div style="display:flex; gap:9px;">
-                    <div class="mtap" onClick="{{ closeModal }}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:7px; height:42px; border-radius:21px; background:#fff; color:#101013; font-size:13px; font-weight:700;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"></path><path d="M20 4l-8.5 8.5"></path><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg>Visit redbull.com</div>
-                    <div class="mtap" onClick="{{ closeModal }}" style="flex:1; display:flex; align-items:center; justify-content:center; height:42px; border-radius:21px; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.14); color:#fff; font-size:13px; font-weight:600;">Continue watching</div>
+                    <div class="mtap" onClick="{{ closeModal }}" style="flex:1; display:flex; align-items:center; justify-content:center; gap:7px; height:42px; border-radius:21px; background:#fff; color:#101013; font-size:13px; font-weight:500;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"></path><path d="M20 4l-8.5 8.5"></path><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg>Visit redbull.com</div>
+                    <div class="mtap" onClick="{{ closeModal }}" style="flex:1; display:flex; align-items:center; justify-content:center; height:42px; border-radius:21px; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.14); color:#fff; font-size:13px; font-weight:500;">Continue watching</div>
                   </div>
                 </div>
               </sc-if>
@@ -879,10 +880,10 @@
     <!-- orientation toggle (top-right, clear of the device; hidden when hosted by the v2 wrapper) -->
     <sc-if value="{{ showOrientToggle }}" hint-placeholder-val="{{ true }}">
     <div style="position:absolute; top:18px; right:28px; display:flex; gap:5px; background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:5px;">
-      <sc-if value="{{ isPortrait }}" hint-placeholder-val="{{ true }}"><div class="mtap" onClick="{{ setPortrait }}" style="display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; background:#fff; color:#111;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/></svg>Portrait</div></sc-if>
-      <sc-if value="{{ isLandscape }}" hint-placeholder-val="{{ false }}"><div class="mtap" onClick="{{ setPortrait }}" style="display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; background:transparent; color:rgba(255,255,255,.6);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/></svg>Portrait</div></sc-if>
-      <sc-if value="{{ isLandscape }}" hint-placeholder-val="{{ false }}"><div class="mtap" onClick="{{ setLandscape }}" style="display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; background:#fff; color:#111;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/></svg>Landscape</div></sc-if>
-      <sc-if value="{{ isPortrait }}" hint-placeholder-val="{{ true }}"><div class="mtap" onClick="{{ setLandscape }}" style="display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; background:transparent; color:rgba(255,255,255,.6);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/></svg>Landscape</div></sc-if>
+      <sc-if value="{{ isPortrait }}" hint-placeholder-val="{{ true }}"><div class="mtap" onClick="{{ setPortrait }}" style="display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:500; background:#fff; color:#111;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/></svg>Portrait</div></sc-if>
+      <sc-if value="{{ isLandscape }}" hint-placeholder-val="{{ false }}"><div class="mtap" onClick="{{ setPortrait }}" style="display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:500; background:transparent; color:rgba(255,255,255,.6);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/></svg>Portrait</div></sc-if>
+      <sc-if value="{{ isLandscape }}" hint-placeholder-val="{{ false }}"><div class="mtap" onClick="{{ setLandscape }}" style="display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:500; background:#fff; color:#111;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/></svg>Landscape</div></sc-if>
+      <sc-if value="{{ isPortrait }}" hint-placeholder-val="{{ true }}"><div class="mtap" onClick="{{ setLandscape }}" style="display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:8px; font-size:13px; font-weight:500; background:transparent; color:rgba(255,255,255,.6);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/></svg>Landscape</div></sc-if>
     </div>
     </sc-if>
     <div style="position:absolute; bottom:18px; left:50%; transform:translateX(-50%); font-size:11px; color:#5c5c66; letter-spacing:.02em;">{{ hintText }}</div>

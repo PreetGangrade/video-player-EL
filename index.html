@@ -3,8 +3,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Red Bull TV · Player Prototype v2</title>
+<style>
+@font-face{font-family:'Bull Text';src:url('assets/fonts/BullText-Regular.woff2') format('woff2');font-weight:100 499;font-style:normal;}
+@font-face{font-family:'Bull Text';src:url('assets/fonts/BullText-Medium.woff2') format('woff2');font-weight:500 900;font-style:normal;}
+</style>
 <script src="assets/dc-runtime.js"></script>
-<script src="assets/liquidgl.js" defer></script>
 <script src="assets/glass-chrome.js" defer></script>
 </head>
 <body>
@@ -15,21 +18,21 @@
   *{box-sizing:border-box;}
   html,body{margin:0;background:#08080a;}
   #bgvideo{position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition:all .42s cubic-bezier(.2,.7,.3,1);}
-  #bgvideo[data-split="1"]{left:28px; top:50%; transform:translateY(-50%); width:58%; height:auto; aspect-ratio:16/9; border-radius:14px;}
+  #bgvideo[data-split="1"]{left:28px; top:50%; transform:translateY(-50%); width:var(--splitw, 58%); height:auto; aspect-ratio:16/9; border-radius:14px;}
   #bgvideo[data-ad="1"]{left:56px; top:50%; transform:translateY(-50%); width:60%; height:auto; aspect-ratio:16/9; border-radius:16px;}
   #bgvideo[data-squeeze="split"]{left:36px; top:50%; transform:translateY(-50%); width:47%; height:auto; aspect-ratio:16/9; border-radius:14px;}
   #bgvideo[data-squeeze="side"]{left:36px; top:50%; transform:translateY(-50%); width:61%; height:auto; aspect-ratio:16/9; border-radius:14px;}
   #bgvideo[data-squeeze="lshape"]{left:36px; top:36px; transform:none; width:64%; height:auto; aspect-ratio:16/9; border-radius:14px;}
-  #bgvideo[data-squeeze="adfocus"]{left:auto; right:36px; top:64px; transform:none; width:27%; height:auto; aspect-ratio:16/9; border-radius:12px; box-shadow:0 18px 50px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.16); z-index:6;}
+  #bgvideo[data-squeeze="adfocus"]{left:0; top:50%; transform:translateY(-50%); width:27%; height:auto; aspect-ratio:16/9; border-radius:0 10px 10px 0; box-shadow:0 18px 50px rgba(0,0,0,.55); z-index:6;}
   #bgvideo[data-squeeze="pip"]{left:auto; right:36px; top:auto; bottom:44px; transform:none; width:26%; height:auto; aspect-ratio:16/9; border-radius:12px; box-shadow:0 18px 50px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.24); z-index:6;}
-  #bug[data-split="1"] img{height:37px !important;}
+  #bug[data-split="1"] img{height:calc(64px * var(--splitwn, .58)) !important;}
   #bug[data-squeeze="split"]{top:207px; right:51.8%;}
   #bug[data-squeeze="split"] img{height:30px !important;}
   #bug[data-squeeze="side"]{top:161px; right:38.3%;}
   #bug[data-squeeze="side"] img{height:39px !important;}
   #bug[data-squeeze="lshape"]{top:58px; right:35.4%;}
   #bug[data-squeeze="lshape"] img{height:41px !important;}
-  #bug[data-squeeze="adfocus"]{top:73px; right:3.8%; z-index:7;}
+  #bug[data-squeeze="adfocus"]{top:272px; right:calc(73% + 12px); z-index:7;}
   #bug[data-squeeze="adfocus"] img{height:17px !important;}
   #bug[data-squeeze="pip"]{top:498px; right:3.7%; z-index:7;}
   #bug[data-squeeze="pip"] img{height:17px !important;}
@@ -37,11 +40,11 @@
   [data-foc="1"]{box-shadow:0 0 0 3px rgba(8,8,10,.92), 0 0 0 6px #ffffff, 0 18px 50px rgba(0,0,0,.6); transform:scale(1.07); z-index:30;}
   [data-fk^="tab-"][data-foc="1"], [data-fk^="m-"][data-foc="1"], .menuopt[data-foc="1"], [data-fk^="toast-"][data-foc="1"], [data-fk^="ad-"][data-foc="1"], .cardbtn[data-foc="1"], .shelftile[data-foc="1"], [data-fk="skip-now"][data-foc="1"], [data-fk="shelf-grab"][data-foc="1"]{box-shadow:none; transform:none;}
   #bug{top:34px; right:44px; opacity:.2; transition:all .42s cubic-bezier(.2,.7,.3,1);}
-  #bug[data-split="1"]{top:170px; right:43%;}
+  #bug[data-split="1"]{top:calc((720px - 1280px * var(--splitwn, .58) * 9 / 16) / 2 + 34px * var(--splitwn, .58)); right:calc(100% - 28px - var(--splitw, 58%) + 44px * var(--splitwn, .58));}
   #bug[data-on="0"]{opacity:0;}
   .iconctl{display:flex; align-items:center; justify-content:center; color:#fff; background:linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.04) 55%, rgba(255,255,255,.09)); -webkit-backdrop-filter:blur(26px) saturate(180%); backdrop-filter:blur(26px) saturate(180%); border:1px solid rgba(255,255,255,.22); box-shadow:inset 0 1px 1px rgba(255,255,255,.4), inset 0 -8px 16px rgba(255,255,255,.05), 0 8px 26px rgba(0,0,0,.35); transition:background-color .16s ease, color .16s ease, transform .16s ease, box-shadow .16s ease, border-color .16s ease;}
   .iconctl[data-foc="1"]{color:#101013; background:#fff; border-color:#fff; box-shadow:0 10px 34px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.9); transform:scale(1.1);}
-  .elpill{display:flex; align-items:center; gap:10px; height:58px; box-sizing:border-box; padding:0 24px; border-radius:29px; color:#fff; font-size:16px; font-weight:600; white-space:nowrap; background:linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.04) 55%, rgba(255,255,255,.09)); -webkit-backdrop-filter:blur(26px) saturate(180%); backdrop-filter:blur(26px) saturate(180%); border:1px solid rgba(255,255,255,.22); box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 8px 26px rgba(0,0,0,.35);}
+  .elpill{display:flex; align-items:center; gap:10px; height:58px; box-sizing:border-box; padding:0 24px; border-radius:29px; color:#fff; font-size:16px; font-weight:500; white-space:nowrap; background:linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.04) 55%, rgba(255,255,255,.09)); -webkit-backdrop-filter:blur(26px) saturate(180%); backdrop-filter:blur(26px) saturate(180%); border:1px solid rgba(255,255,255,.22); box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 8px 26px rgba(0,0,0,.35);}
   .elpill[data-foc="1"]{background:#fff !important; color:#101013; border-color:#fff; transform:scale(1.05); box-shadow:0 10px 30px rgba(0,0,0,.5);}
   #rail[data-dim="1"] .iconctl{opacity:.4;}
   #rail .iconctl[data-foc="1"]{opacity:1;}
@@ -52,10 +55,10 @@
   [data-fk="seek"][data-foc="1"]{transform:none; box-shadow:none;}
   [data-fk="seek"] .track{height:var(--sbh, 6px); background:rgba(255,255,255,.26); transition:height .16s ease, background-color .16s ease;}
   [data-fk="seek"] .fill{background:rgba(255,255,255,.55); transition:background-color .16s ease;}
-  [data-fk="seek"] .knob{width:3px; height:var(--sbh, 6px); transition:height .16s ease, width .16s ease, box-shadow .16s ease;}
+  [data-fk="seek"] .knob{width:calc(var(--sbh, 6px) + 8px); height:calc(var(--sbh, 6px) + 8px); transition:height .16s ease, width .16s ease, box-shadow .16s ease;}
   [data-fk="seek"][data-foc="1"] .track{height:calc(var(--sbh, 6px) + 4px); background:rgba(255,255,255,.42);}
   [data-fk="seek"][data-foc="1"] .fill{background:#fff;}
-  [data-fk="seek"][data-foc="1"] .knob{height:calc(var(--sbh, 6px) + 4px); width:3px;}
+  [data-fk="seek"][data-foc="1"] .knob{height:calc(var(--sbh, 6px) + 12px); width:calc(var(--sbh, 6px) + 12px);}
   #ctl-transient{transition:opacity .3s ease;}
   #ctl-transient[data-vis="0"]{opacity:0; pointer-events:none;}
   #layer-controls[data-hidden="1"]{opacity:0; pointer-events:none; transition:opacity .25s ease;}
@@ -64,13 +67,13 @@
   #rail[data-hide="1"]{opacity:0; pointer-events:none; transform:translateY(-50%) translateX(52px);}
   [data-scrub]{transition:opacity .3s ease, transform .3s ease;}
   [data-scrub="1"]{opacity:0; pointer-events:none; transform:translateY(8px);}
-  #layer-overlay[data-split="1"]{width:38% !important; background:rgba(12,12,15,.97) !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;}
+  #layer-overlay[data-split="1"]{width:calc(96.5% - var(--splitw, 58%)) !important; background:rgba(12,12,15,.97) !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;}
   #rating[data-rstate="in"]{opacity:1; transform:translateX(0); clip-path:inset(0 0 0 0);}
   #rating[data-rstate="out"]{opacity:0; transform:translateX(-22px); clip-path:inset(0 100% 0 0); pointer-events:none;}
   .deckbtn{transition:background-color .15s ease, border-color .15s ease, transform .1s ease;}
   .deckbtn:hover{background:#26262c !important; border-color:#3a3a44 !important;}
   .deckbtn:active{transform:scale(.96);}
-  select.ctlsel{width:100%; padding:10px 12px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12.5px; font-weight:600; font-family:inherit; outline:none; cursor:pointer; -webkit-appearance:none; appearance:none; background-image:linear-gradient(45deg, transparent 50%, #8a8a94 50%), linear-gradient(135deg, #8a8a94 50%, transparent 50%); background-position:calc(100% - 18px) 50%, calc(100% - 13px) 50%; background-size:5px 5px, 5px 5px; background-repeat:no-repeat;}
+  select.ctlsel{width:100%; padding:10px 12px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12.5px; font-weight:500; font-family:inherit; outline:none; cursor:pointer; -webkit-appearance:none; appearance:none; background-image:linear-gradient(45deg, transparent 50%, #8a8a94 50%), linear-gradient(135deg, #8a8a94 50%, transparent 50%); background-position:calc(100% - 18px) 50%, calc(100% - 13px) 50%; background-size:5px 5px, 5px 5px; background-repeat:no-repeat;}
   input[type=range]{-webkit-appearance:none; appearance:none; height:4px; border-radius:3px; background:#2c2c34; outline:none;}
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:15px; height:15px; border-radius:50%; background:#fff; cursor:pointer;}
   @keyframes rb-pulse{0%,100%{opacity:1}50%{opacity:.3}}
@@ -85,18 +88,18 @@
 <script src="assets/mobile.js"></script>
 </helmet>
 
-<div ref="{{ rootRef }}" style="display:flex; height:100vh; width:100vw; background:#08080a; color:#fff; font-family:-apple-system,'SF Pro Display','SF Pro Text',BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; overflow:hidden;">
+<div ref="{{ rootRef }}" style="display:flex; height:100vh; width:100vw; background:#08080a; color:#fff; font-family:'Bull Text',-apple-system,'SF Pro Display',BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; overflow:hidden;">
 
   <div style="flex:1; min-width:0; display:flex; flex-direction:column;">
     <div style="flex:none; display:flex; align-items:center; gap:12px; padding:14px 24px 0; position:relative; z-index:2;">
       <div style="display:flex; gap:4px; background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:11px; padding:4px;">
-        <div data-dev="tv" onclick="{{ onMode }}" style="padding:8px 18px; border-radius:8px; font-size:12px; font-weight:600; background:{{ devTvBg }}; color:{{ devTvColor }}; cursor:pointer;">10-foot TV</div>
-        <div data-dev="mobile" onclick="{{ onMode }}" style="padding:8px 18px; border-radius:8px; font-size:12px; font-weight:600; background:{{ devMobileBg }}; color:{{ devMobileColor }}; cursor:pointer;">Mobile</div>
+        <div data-dev="tv" onclick="{{ onMode }}" style="padding:8px 18px; border-radius:8px; font-size:12px; font-weight:500; background:{{ devTvBg }}; color:{{ devTvColor }}; cursor:pointer;">10-foot TV</div>
+        <div data-dev="mobile" onclick="{{ onMode }}" style="padding:8px 18px; border-radius:8px; font-size:12px; font-weight:500; background:{{ devMobileBg }}; color:{{ devMobileColor }}; cursor:pointer;">Mobile</div>
       </div>
       <sc-if value="{{ mobileMode }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex; gap:4px; background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:11px; padding:4px;">
-          <div data-orient="portrait" onclick="{{ onMOrient }}" style="padding:8px 16px; border-radius:8px; font-size:12px; font-weight:600; background:{{ orPBg }}; color:{{ orPColor }}; cursor:pointer;">Portrait</div>
-          <div data-orient="landscape" onclick="{{ onMOrient }}" style="padding:8px 16px; border-radius:8px; font-size:12px; font-weight:600; background:{{ orLBg }}; color:{{ orLColor }}; cursor:pointer;">Landscape</div>
+          <div data-orient="portrait" onclick="{{ onMOrient }}" style="padding:8px 16px; border-radius:8px; font-size:12px; font-weight:500; background:{{ orPBg }}; color:{{ orPColor }}; cursor:pointer;">Portrait</div>
+          <div data-orient="landscape" onclick="{{ onMOrient }}" style="padding:8px 16px; border-radius:8px; font-size:12px; font-weight:500; background:{{ orLBg }}; color:{{ orLColor }}; cursor:pointer;">Landscape</div>
         </div>
       </sc-if>
     </div>
@@ -106,7 +109,7 @@
   <div data-screen-label="TV stage" style="flex:1; min-width:0; min-height:0; display:flex; align-items:center; justify-content:center; padding:24px; position:relative;">
 
     <div ref="{{ tvFitRef }}" style="position:relative; border-radius:14px; overflow:hidden; background:#000; box-shadow:0 40px 120px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.06);">
-      <div ref="{{ tvScreenRef }}" style="position:absolute; top:0; left:0; width:1280px; height:720px; transform-origin:top left;">
+      <div ref="{{ tvScreenRef }}" style="--splitw:{{ splitWpct }}; --splitwn:{{ splitWfrac }}; position:absolute; top:0; left:0; width:1280px; height:720px; transform-origin:top left;">
 
         <video id="bgvideo" ref="{{ videoRef }}" src="assets/feature.mp4" poster="assets/splash-tv.png" data-split="{{ videoSplit }}" data-ad="{{ adActive }}" data-squeeze="{{ squeezeMode }}"></video>
         <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.4) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 50%, rgba(0,0,0,.74) 100%);"></div>
@@ -114,8 +117,8 @@
         <div id="bug" data-split="{{ videoSplit }}" data-squeeze="{{ squeezeMode }}" data-on="{{ bugOn }}" style="position:absolute; z-index:4; opacity:.35;"><img src="assets/corner-rbtv.png" alt="Red Bull TV" style="height:64px; width:auto; display:block;"></div>
 
         <div id="rating" ref="{{ ratingRef }}" data-rstate="{{ ratingState }}" style="position:absolute; top:58px; left:56px; z-index:9; display:flex; align-items:center; gap:18px; text-shadow:0 2px 18px rgba(0,0,0,.6);">
-          <div style="display:flex; align-items:center; justify-content:center; min-width:64px; height:44px; padding:0 13px; border-radius:10px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); font-size:22px; font-weight:800; letter-spacing:.01em;">TV-G</div>
-          <div style="font-size:15px; font-weight:600; color:rgba(255,255,255,.9); max-width:220px; line-height:1.3;">General audiences · all ages</div>
+          <div style="display:flex; align-items:center; justify-content:center; min-width:64px; height:44px; padding:0 13px; border-radius:10px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); font-size:22px; font-weight:500; letter-spacing:.01em;">TV-G</div>
+          <div style="font-size:15px; font-weight:500; color:rgba(255,255,255,.9); max-width:220px; line-height:1.3;">General audiences · all ages</div>
         </div>
 
         <!-- ===== LAYER: PLAYER CONTROLS ===== -->
@@ -130,7 +133,7 @@
 
           <!-- Skip intro pill (Netflix / tvOS pattern: alone in clean playback, pre-focused) -->
           <sc-if value="{{ skipShown }}" hint-placeholder-val="{{ false }}">
-            <div data-fk="skip-now" onclick="{{ onItemClick }}" style="position:absolute; right:48px; bottom:56px; z-index:6; display:flex; align-items:center; gap:11px; padding:16px 30px; border-radius:34px; background:linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.05)); -webkit-backdrop-filter:blur(26px) saturate(180%); backdrop-filter:blur(26px) saturate(180%); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 12px 34px rgba(0,0,0,.45); font-size:18px; font-weight:600; color:#fff; animation:rb-fade .3s ease;">
+            <div data-fk="skip-now" onclick="{{ onItemClick }}" style="position:absolute; right:48px; bottom:56px; z-index:6; display:flex; align-items:center; gap:11px; padding:16px 30px; border-radius:34px; background:linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.05)); -webkit-backdrop-filter:blur(26px) saturate(180%); backdrop-filter:blur(26px) saturate(180%); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4), 0 12px 34px rgba(0,0,0,.45); font-size:18px; font-weight:500; color:#fff; animation:rb-fade .3s ease;">
               <span>{{ skipLabel }}</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M4 5l9 7-9 7z"></path><rect x="15" y="5" width="3" height="14" rx="1.2"></rect></svg>
             </div>
@@ -144,16 +147,16 @@
                   <sc-if value="{{ liveBadge }}" hint-placeholder-val="{{ true }}">
                   <div style="display:flex; align-items:center; gap:8px; background:rgba(22,22,26,.5); -webkit-backdrop-filter:blur(20px) saturate(150%); backdrop-filter:blur(20px) saturate(150%); border:1px solid rgba(255,255,255,.18); padding:6px 13px; border-radius:30px; width:max-content; margin-bottom:12px;">
                     <span style="width:8px; height:8px; border-radius:50%; background:#FF3B30; box-shadow:0 0 8px rgba(255,59,48,.7); animation:rb-pulse 1.6s infinite;"></span>
-                    <span style="font-size:13px; font-weight:700; letter-spacing:.08em;">LIVE</span>
+                    <span style="font-size:13px; font-weight:500; letter-spacing:.08em;">LIVE</span>
                   </div>
                   </sc-if>
                   <sc-if value="{{ linearBadge }}" hint-placeholder-val="{{ false }}">
                   <div style="display:flex; align-items:center; gap:8px; background:rgba(22,22,26,.5); -webkit-backdrop-filter:blur(20px) saturate(150%); backdrop-filter:blur(20px) saturate(150%); border:1px solid rgba(255,255,255,.18); padding:6px 13px; border-radius:30px; width:max-content; margin-bottom:12px;">
                     <span style="width:8px; height:8px; border-radius:50%; background:#FF3B30; box-shadow:0 0 8px rgba(255,59,48,.7); animation:rb-pulse 1.6s infinite;"></span>
-                    <span style="font-size:13px; font-weight:700; letter-spacing:.08em;">CH 04 · RED BULL TV</span>
+                    <span style="font-size:13px; font-weight:500; letter-spacing:.08em;">CH 04 · RED BULL TV</span>
                   </div>
                   </sc-if>
-                  <div style="font-size:34px; font-weight:500; letter-spacing:-.01em; text-shadow:0 2px 10px rgba(0,0,0,.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ titleText }}</div>
+                  <div style="font-size:32px; font-weight:500; letter-spacing:-.01em; text-shadow:0 2px 10px rgba(0,0,0,.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ titleText }}</div>
                 </div>
                 <div style="display:flex; gap:12px; align-items:center; flex:none;">
                   <sc-if value="{{ behindLive }}" hint-placeholder-val="{{ false }}">
@@ -198,7 +201,7 @@
                       <div style="width:212px; height:119px; border-radius:12px; overflow:hidden; border:3px solid #fff; box-shadow:0 14px 42px rgba(0,0,0,.6); background:#8b8b91; display:flex; align-items:center; justify-content:center;">
                         <svg width="50" height="50" viewBox="0 0 24 24" fill="none"><rect x="2.5" y="5" width="19" height="14" rx="2.2" fill="rgba(255,255,255,.22)"></rect><circle cx="8" cy="10" r="1.9" fill="rgba(255,255,255,.55)"></circle><path d="M4 18l5-5.5 3.2 3.6L16 12l4 5.5" stroke="rgba(255,255,255,.55)" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                       </div>
-                      <span style="font-size:18px; font-weight:600; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ scrubTimeLabel }}</span>
+                      <span style="font-size:18px; font-weight:500; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ scrubTimeLabel }}</span>
                     </div>
                   </sc-if>
                   <div class="fill" style="position:absolute; left:0; top:0; height:100%; border-radius:4px 0 0 4px; width:{{ seekWidth }};"></div>
@@ -212,17 +215,22 @@
                   </sc-if>
                   <sc-if value="{{ heatShown }}" hint-placeholder-val="{{ false }}">
                     <div style="position:absolute; left:0; right:0; bottom:16px; height:44px; pointer-events:none; animation:rb-fade .25s ease;">
-                      <div style="font-size:11px; font-weight:700; letter-spacing:.12em; color:rgba(255,255,255,.5); margin-bottom:4px;">MOST WATCHED</div>
+                      <div style="font-size:11px; font-weight:500; letter-spacing:.12em; color:rgba(255,255,255,.5); margin-bottom:4px;">MOST WATCHED</div>
                       <svg viewBox="0 0 100 26" preserveAspectRatio="none" style="display:block; width:100%; height:28px;">
                         <path d="M0,26 L0,20 C8,8 14,23 22,16 C30,7 36,24 44,13 C52,3 58,21 66,11 C74,4 82,19 90,14 L100,17 L100,26 Z" fill="rgba(255,255,255,.22)"></path>
                       </svg>
                     </div>
                   </sc-if>
-                  <div class="knob" style="position:absolute; top:50%; left:{{ seekWidth }}; border-radius:3px; background:#fff; transform:translate(-50%,-50%); box-shadow:0 1px 8px rgba(0,0,0,.55);"></div>
+                  <div class="knob" style="position:absolute; top:50%; left:{{ seekWidth }}; border-radius:50%; background:#fff; transform:translate(-50%,-50%); box-shadow:0 1px 8px rgba(0,0,0,.55);"></div>
                 </div>
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-top:7px; min-height:19px;">
-                  <span style="font-size:15px; font-weight:500; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6); white-space:nowrap;">{{ tsLeft }}</span>
-                  <span style="font-size:15px; font-weight:500; color:rgba(255,255,255,.62); font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6); white-space:nowrap;">{{ tsRight }}</span>
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px; min-height:20px;">
+                  <span style="display:flex; align-items:center; gap:9px;">
+                    <span style="font-size:16px; font-weight:500; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6); white-space:nowrap;">{{ tsLeft }}</span>
+                    <sc-if value="{{ pausedGlyph }}" hint-placeholder-val="{{ false }}">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="filter:drop-shadow(0 1px 4px rgba(0,0,0,.6));"><circle cx="12" cy="12" r="9.6" stroke="#fff" stroke-width="1.9"></circle><rect x="9.1" y="8.2" width="2.1" height="7.6" rx="1" fill="#fff"></rect><rect x="12.8" y="8.2" width="2.1" height="7.6" rx="1" fill="#fff"></rect></svg>
+                    </sc-if>
+                  </span>
+                  <span style="font-size:16px; font-weight:500; color:rgba(255,255,255,.62); font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6); white-space:nowrap;">{{ tsRight }}</span>
                 </div>
               </div>
               </sc-if>
@@ -233,7 +241,7 @@
                 <div style="position:relative; flex:1; height:6px; border-radius:4px; background:rgba(255,255,255,.26); overflow:hidden;">
                   <div style="position:absolute; inset:0; background:rgba(255,255,255,.55);"></div>
                 </div>
-                <span style="display:flex; align-items:center; gap:7px; font-size:14px; font-weight:700; letter-spacing:.06em; color:#fff; white-space:nowrap;"><span style="width:8px; height:8px; border-radius:50%; background:#FF3B30; box-shadow:0 0 8px rgba(255,59,48,.7); animation:rb-pulse 1.6s infinite;"></span>LIVE</span>
+                <span style="display:flex; align-items:center; gap:7px; font-size:14px; font-weight:500; letter-spacing:.06em; color:#fff; white-space:nowrap;"><span style="width:8px; height:8px; border-radius:50%; background:#FF3B30; box-shadow:0 0 8px rgba(255,59,48,.7); animation:rb-pulse 1.6s infinite;"></span>LIVE</span>
               </div>
               </sc-if>
 
@@ -253,12 +261,12 @@
                   <sc-if value="{{ cardInfo }}" hint-placeholder-val="{{ true }}">
                     <div style="display:flex; gap:24px; align-items:center; height:170px; background:linear-gradient(160deg, rgba(24,24,29,.66), rgba(14,14,18,.6)); -webkit-backdrop-filter:blur(30px) saturate(160%); backdrop-filter:blur(30px) saturate(160%); border:1px solid rgba(255,255,255,.16); box-shadow:inset 0 1px 1px rgba(255,255,255,.22), inset 0 -12px 30px rgba(255,255,255,.03), 0 18px 50px rgba(0,0,0,.45); border-radius:22px; padding:22px;">
                       <div style="flex:1; min-width:0;">
-                        <div style="font-size:22px; font-weight:700; margin-bottom:8px;">{{ titleText }}</div>
+                        <div style="font-size:22px; font-weight:500; margin-bottom:8px;">{{ titleText }}</div>
                         <div style="font-size:15px; line-height:1.5; color:rgba(255,255,255,.66); margin-bottom:10px;">The best battles from the Red Bull Dance Your Style USA Qualifier. Vote for your favorite dancer and follow every round through the interactive experience.</div>
-                        <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); color:#fff; font-size:12px; font-weight:600; padding:5px 11px; border-radius:7px;">LOS ANGELES · USA QUALIFIER</div>
+                        <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); color:#fff; font-size:12px; font-weight:500; padding:5px 11px; border-radius:7px;">LOS ANGELES · USA QUALIFIER</div>
                       </div>
                       <div style="display:flex; flex-direction:column; gap:12px; flex:none; align-items:stretch;">
-                        <div data-fk="start-over" class="cardbtn" onclick="{{ onItemClick }}" style="display:flex; align-items:center; justify-content:center; gap:9px; padding:14px 26px; border-radius:30px; background:{{ startBg }}; color:{{ startColor }}; font-size:15px; font-weight:600; white-space:nowrap; min-width:200px;"><svg width="13" height="13" viewBox="0 0 12 12"><path d="M2 1.4l8 4.6-8 4.6z" fill="currentColor"></path></svg>Start over</div>
+                        <div data-fk="start-over" class="cardbtn" onclick="{{ onItemClick }}" style="display:flex; align-items:center; justify-content:center; gap:9px; padding:14px 26px; border-radius:30px; background:{{ startBg }}; color:{{ startColor }}; font-size:15px; font-weight:500; white-space:nowrap; min-width:200px;"><svg width="13" height="13" viewBox="0 0 12 12"><path d="M2 1.4l8 4.6-8 4.6z" fill="currentColor"></path></svg>Start over</div>
                         <div data-fk="more-details" class="cardbtn" onclick="{{ onItemClick }}" style="padding:14px 26px; border-radius:30px; background:{{ moreBg }}; color:{{ moreColor }}; font-size:15px; font-weight:500; text-align:center; white-space:nowrap; min-width:200px;">More details</div>
                       </div>
                     </div>
@@ -267,8 +275,8 @@
                     <div style="display:flex; gap:14px; align-items:stretch; height:170px; box-sizing:border-box;">
                       <sc-for list="{{ upNext }}" as="u" hint-placeholder-count="3">
                         <div style="flex:1; min-width:0; border-radius:18px; background:linear-gradient(160deg, rgba(24,24,29,.66), rgba(14,14,18,.6)); -webkit-backdrop-filter:blur(30px) saturate(160%); backdrop-filter:blur(30px) saturate(160%); border:1px solid rgba(255,255,255,.16); box-shadow:inset 0 1px 1px rgba(255,255,255,.22), 0 14px 40px rgba(0,0,0,.4); padding:18px 20px; display:flex; flex-direction:column; justify-content:flex-end; gap:5px;">
-                          <div style="font-size:12px; font-weight:700; letter-spacing:.08em; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums;">{{ u.time }}</div>
-                          <div style="font-size:17px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ u.title }}</div>
+                          <div style="font-size:12px; font-weight:500; letter-spacing:.08em; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums;">{{ u.time }}</div>
+                          <div style="font-size:17px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ u.title }}</div>
                           <div style="font-size:13px; color:rgba(255,255,255,.55); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ u.sub }}</div>
                         </div>
                       </sc-for>
@@ -282,10 +290,10 @@
           <!-- control-icon inline menu -->
           <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
             <div style="position:absolute; right:48px; bottom:250px; z-index:7; width:440px; background:linear-gradient(160deg, rgba(26,26,31,.7), rgba(14,14,18,.62)); -webkit-backdrop-filter:blur(34px) saturate(170%); backdrop-filter:blur(34px) saturate(170%); border:1px solid rgba(255,255,255,.16); box-shadow:inset 0 1px 1px rgba(255,255,255,.26), inset 0 -12px 28px rgba(255,255,255,.03), 0 24px 70px rgba(0,0,0,.6); border-radius:20px; padding:14px; animation:rb-fade .22s ease;">
-              <div style="font-size:12px; letter-spacing:.16em; font-weight:700; color:rgba(255,255,255,.5); padding:8px 14px 12px;">{{ menuTitle }}</div>
+              <div style="font-size:12px; letter-spacing:.16em; font-weight:500; color:rgba(255,255,255,.5); padding:8px 14px 12px;">{{ menuTitle }}</div>
               <div style="display:flex; flex-direction:column; gap:2px;">
                 <sc-for list="{{ menuOptions }}" as="o" hint-placeholder-count="4">
-                  <div data-fk="menuopt-{{ o.idx }}" class="menuopt" onclick="{{ onItemClick }}" style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-radius:13px; font-size:18px; font-weight:600; background:{{ o.bg }}; color:{{ o.color }};">
+                  <div data-fk="menuopt-{{ o.idx }}" class="menuopt" onclick="{{ onItemClick }}" style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-radius:13px; font-size:18px; font-weight:500; background:{{ o.bg }}; color:{{ o.color }};">
                     <span>{{ o.label }}</span>
                     <sc-if value="{{ o.checked }}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 16 16"><path d="M3 8.5l3.5 3.5L13 4.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg></sc-if>
                   </div>
@@ -301,12 +309,12 @@
                 <div style="position:absolute; top:0; left:0; width:100%; height:2px; background:rgba(255,255,255,.45); transform-origin:center; animation:toast-count 7s linear forwards;"></div>
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:28px; padding:26px 32px;">
                   <div style="min-width:0;">
-                    <div style="font-size:12px; letter-spacing:.18em; font-weight:700; color:#fff; opacity:.7; margin-bottom:7px;">{{ toastKicker }}</div>
-                    <div style="font-size:27px; font-weight:700; letter-spacing:-.01em;">{{ toastTitle }}</div>
+                    <div style="font-size:12px; letter-spacing:.18em; font-weight:500; color:#fff; opacity:.7; margin-bottom:7px;">{{ toastKicker }}</div>
+                    <div style="font-size:24px; font-weight:500; letter-spacing:-.01em;">{{ toastTitle }}</div>
                   </div>
                   <div style="display:flex; gap:14px; flex:none;">
-                    <div data-fk="toast-dismiss" onclick="{{ onItemClick }}" style="padding:16px 32px; border-radius:32px; background:{{ toastDismissBg }}; color:{{ toastDismissColor }}; font-size:17px; font-weight:600;">Not now</div>
-                    <div data-fk="toast-accept" onclick="{{ onItemClick }}" style="padding:16px 36px; border-radius:32px; background:{{ toastAcceptBg }}; color:{{ toastAcceptColor }}; font-size:17px; font-weight:700;">{{ toastAcceptLabel }}</div>
+                    <div data-fk="toast-dismiss" onclick="{{ onItemClick }}" style="padding:16px 32px; border-radius:32px; background:{{ toastDismissBg }}; color:{{ toastDismissColor }}; font-size:17px; font-weight:500;">Not now</div>
+                    <div data-fk="toast-accept" onclick="{{ onItemClick }}" style="padding:16px 36px; border-radius:32px; background:{{ toastAcceptBg }}; color:{{ toastAcceptColor }}; font-size:17px; font-weight:500;">{{ toastAcceptLabel }}</div>
                   </div>
                 </div>
               </div>
@@ -320,7 +328,7 @@
           <div id="layer-overlay" data-split="{{ overlaySplit }}" style="position:absolute; top:0; right:0; bottom:0; width:472px; z-index:8; background:linear-gradient(200deg, rgba(16,16,20,.66), rgba(8,8,11,.6)); -webkit-backdrop-filter:blur(38px) saturate(170%); backdrop-filter:blur(38px) saturate(170%); border-left:1px solid rgba(255,255,255,.14); box-shadow:inset 1px 0 0 rgba(255,255,255,.1), inset 0 1px 1px rgba(255,255,255,.16), -30px 0 80px rgba(0,0,0,.5); display:flex; flex-direction:column; animation:rb-fade .26s ease;">
             <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding:24px 26px 16px;">
               <div style="min-width:0;">
-                <div style="font-size:24px; font-weight:600; letter-spacing:-.01em;">Dance Your Style</div>
+                <div style="font-size:24px; font-weight:500; letter-spacing:-.01em;">Dance Your Style</div>
                 <div style="font-size:13.5px; font-weight:400; color:rgba(255,255,255,.55); margin-top:4px;">USA Qualifier · Best Moments · Los Angeles</div>
               </div>
               <div data-fk="ov-close" class="iconctl" onclick="{{ onItemClick }}" title="Close" style="width:42px; height:42px; flex:none; border-radius:50%;">
@@ -329,24 +337,24 @@
             </div>
 
             <div style="margin:0 26px 16px; display:flex; gap:5px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:999px; padding:5px; box-shadow:inset 0 1px 1px rgba(255,255,255,.12);">
-              <div data-fk="m-vote" class="seg" onclick="{{ onItemClick }}" style="flex:1; display:flex; align-items:center; justify-content:center; padding:11px 4px; border-radius:999px; font-size:13px; font-weight:600; background:{{ mVoteBg }}; color:{{ mVoteColor }}; box-shadow:{{ mVoteShadow }};">Vote</div>
-              <div data-fk="m-about" class="seg" onclick="{{ onItemClick }}" style="flex:1; display:flex; align-items:center; justify-content:center; padding:11px 4px; border-radius:999px; font-size:13px; font-weight:600; background:{{ mAboutBg }}; color:{{ mAboutColor }}; box-shadow:{{ mAboutShadow }};">About</div>
-              <div data-fk="m-music" class="seg" onclick="{{ onItemClick }}" style="flex:1; display:flex; align-items:center; justify-content:center; padding:11px 4px; border-radius:999px; font-size:13px; font-weight:600; background:{{ mMusicBg }}; color:{{ mMusicColor }}; box-shadow:{{ mMusicShadow }};">Music</div>
-              <div data-fk="m-people" class="seg" onclick="{{ onItemClick }}" style="flex:1.35; display:flex; align-items:center; justify-content:center; padding:11px 4px; border-radius:999px; font-size:13px; font-weight:600; background:{{ mPeopleBg }}; color:{{ mPeopleColor }}; box-shadow:{{ mPeopleShadow }};">Participants</div>
+              <div data-fk="m-vote" class="seg" onclick="{{ onItemClick }}" style="flex:1; display:flex; align-items:center; justify-content:center; padding:11px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ mVoteBg }}; color:{{ mVoteColor }}; box-shadow:{{ mVoteShadow }};">Vote</div>
+              <div data-fk="m-about" class="seg" onclick="{{ onItemClick }}" style="flex:1; display:flex; align-items:center; justify-content:center; padding:11px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ mAboutBg }}; color:{{ mAboutColor }}; box-shadow:{{ mAboutShadow }};">About</div>
+              <div data-fk="m-music" class="seg" onclick="{{ onItemClick }}" style="flex:1; display:flex; align-items:center; justify-content:center; padding:11px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ mMusicBg }}; color:{{ mMusicColor }}; box-shadow:{{ mMusicShadow }};">Music</div>
+              <div data-fk="m-people" class="seg" onclick="{{ onItemClick }}" style="flex:1.35; display:flex; align-items:center; justify-content:center; padding:11px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ mPeopleBg }}; color:{{ mPeopleColor }}; box-shadow:{{ mPeopleShadow }};">Participants</div>
             </div>
 
             <div style="flex:1; min-height:0; overflow:hidden; padding:2px 26px 22px;">
               <sc-if value="{{ mVote }}" hint-placeholder-val="{{ true }}">
                 <sc-if value="{{ voteFormShown }}" hint-placeholder-val="{{ true }}">
                   <div style="display:flex; flex-direction:column; height:100%; min-height:0;">
-                    <div style="font-size:19px; font-weight:600; margin-bottom:6px;">Who wins this battle?</div>
+                    <div style="font-size:19px; font-weight:500; margin-bottom:6px;">Who wins this battle?</div>
                     <div style="font-size:13px; font-weight:400; color:rgba(255,255,255,.55); margin-bottom:16px;">Pick your favorite: the crowd decides</div>
                     <div style="display:flex; flex-direction:column; gap:12px;">
                       <sc-for list="{{ voteCards }}" as="o" hint-placeholder-count="2">
                         <div data-fk="vote-{{ o.idx }}" onclick="{{ onItemClick }}" style="border-radius:16px; border:1px solid {{ o.border }}; background:{{ o.bg }}; box-shadow:inset 0 1px 0 rgba(255,255,255,.12); padding:16px 18px; display:flex; align-items:center; gap:16px;">
-                          <div style="width:64px; height:64px; flex:none; border-radius:50%; background:rgba(255,255,255,.12); border:{{ o.avatarBorder }}; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; letter-spacing:.02em; color:{{ o.avatarColor }};">{{ o.initials }}</div>
+                          <div style="width:64px; height:64px; flex:none; border-radius:50%; background:rgba(255,255,255,.12); border:{{ o.avatarBorder }}; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:500; letter-spacing:.02em; color:{{ o.avatarColor }};">{{ o.initials }}</div>
                           <div style="flex:1; min-width:0;">
-                            <div style="font-size:17px; font-weight:600;">{{ o.name }}</div>
+                            <div style="font-size:17px; font-weight:500;">{{ o.name }}</div>
                             <div style="font-size:12.5px; font-weight:400; color:rgba(255,255,255,.55); margin-top:3px;">{{ o.sub }}</div>
                           </div>
                           <div style="width:22px; height:22px; flex:none; border-radius:50%; border:2px solid {{ o.ring }}; display:flex; align-items:center; justify-content:center;">
@@ -356,7 +364,7 @@
                       </sc-for>
                     </div>
                     <div style="flex:1;"></div>
-                    <div data-fk="vote-cast" onclick="{{ onItemClick }}" style="padding:15px; border-radius:30px; text-align:center; font-size:15px; font-weight:600; background:{{ castBg }}; color:{{ castColor }}; opacity:{{ castOp }};">Cast vote</div>
+                    <div data-fk="vote-cast" onclick="{{ onItemClick }}" style="padding:15px; border-radius:30px; text-align:center; font-size:15px; font-weight:500; background:{{ castBg }}; color:{{ castColor }}; opacity:{{ castOp }};">Cast vote</div>
                   </div>
                 </sc-if>
                 <sc-if value="{{ voteDoneShown }}" hint-placeholder-val="{{ false }}">
@@ -364,8 +372,8 @@
                     <div style="width:84px; height:84px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 14px 40px rgba(0,0,0,.45);">
                       <svg width="38" height="38" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="#101013" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                     </div>
-                    <div style="font-size:23px; font-weight:600; margin-top:20px;">Vote locked in!</div>
-                    <div style="font-size:15px; font-weight:400; color:rgba(255,255,255,.72); margin-top:8px;">You voted for <span style="font-weight:600; color:#fff;">{{ votedName }}</span></div>
+                    <div style="font-size:21px; font-weight:500; margin-top:20px;">Vote locked in!</div>
+                    <div style="font-size:15px; font-weight:400; color:rgba(255,255,255,.72); margin-top:8px;">You voted for <span style="font-weight:500; color:#fff;">{{ votedName }}</span></div>
                     <div style="font-size:12.5px; font-weight:400; color:rgba(255,255,255,.45); margin-top:6px;">Results are revealed after the battle</div>
                     <div data-fk="vote-change" onclick="{{ onItemClick }}" style="margin-top:22px; padding:11px 26px; border-radius:26px; font-size:13.5px; font-weight:500; background:{{ changeBg }}; color:{{ changeColor }}; border:1px solid rgba(255,255,255,.2);">Change my vote</div>
                   </div>
@@ -373,11 +381,11 @@
               </sc-if>
 
               <sc-if value="{{ mAbout }}" hint-placeholder-val="{{ false }}">
-                <div style="font-size:11px; letter-spacing:.16em; font-weight:600; color:rgba(255,255,255,.5); margin-bottom:14px; display:flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:#fff; animation:rb-pulse 1.6s infinite;"></span>NOW PERFORMING</div>
+                <div style="font-size:11px; letter-spacing:.16em; font-weight:500; color:rgba(255,255,255,.5); margin-bottom:14px; display:flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:#fff; animation:rb-pulse 1.6s infinite;"></span>NOW PERFORMING</div>
                 <div style="background:linear-gradient(160deg, rgba(255,255,255,.09), rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.14); box-shadow:inset 0 1px 1px rgba(255,255,255,.22); border-radius:18px; padding:24px 22px;">
                   <div style="display:flex; flex-direction:column; align-items:center; text-align:center;">
-                    <div style="width:88px; height:88px; border-radius:50%; background:rgba(255,255,255,.1); border:2px solid rgba(255,255,255,.45); display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:600;">{{ aboutInitials }}</div>
-                    <div style="font-size:23px; font-weight:600; letter-spacing:-.01em; margin-top:14px;">{{ aboutName }}</div>
+                    <div style="width:88px; height:88px; border-radius:50%; background:rgba(255,255,255,.1); border:2px solid rgba(255,255,255,.45); display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:500;">{{ aboutInitials }}</div>
+                    <div style="font-size:22px; font-weight:500; letter-spacing:-.01em; margin-top:14px;">{{ aboutName }}</div>
                     <div style="font-size:13px; font-weight:400; color:rgba(255,255,255,.6); margin-top:5px;">{{ aboutFrom }} · {{ aboutStyle }}</div>
                     <div style="display:inline-flex; align-items:center; gap:6px; margin-top:12px; padding:5px 12px; border-radius:8px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); font-size:11.5px; font-weight:500; color:rgba(255,255,255,.8);">USA Qualifier finalist</div>
                   </div>
@@ -389,8 +397,8 @@
                 <div style="position:relative; overflow:hidden; background:linear-gradient(160deg, rgba(255,255,255,.09), rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.14); box-shadow:inset 0 1px 1px rgba(255,255,255,.22); border-radius:18px; padding:22px;">
                   <div style="display:flex; align-items:center; justify-content:space-between;">
                     <div style="min-width:0;">
-                      <div style="font-size:11px; letter-spacing:.14em; color:rgba(255,255,255,.5); font-weight:600; margin-bottom:10px;">NOW PLAYING</div>
-                      <div style="font-size:24px; font-weight:600; letter-spacing:-.01em; line-height:1.15;">{{ musicTrack }}</div>
+                      <div style="font-size:11px; letter-spacing:.14em; color:rgba(255,255,255,.5); font-weight:500; margin-bottom:10px;">NOW PLAYING</div>
+                      <div style="font-size:22px; font-weight:500; letter-spacing:-.01em; line-height:1.15;">{{ musicTrack }}</div>
                       <div style="font-size:14px; font-weight:400; color:rgba(255,255,255,.6); margin-top:6px;">{{ musicArtist }}</div>
                     </div>
                     <div style="display:flex; align-items:flex-end; gap:4px; height:44px; padding-bottom:2px; flex:none;">
@@ -411,16 +419,16 @@
               </sc-if>
 
               <sc-if value="{{ mPeople }}" hint-placeholder-val="{{ false }}">
-                <div style="font-size:11px; letter-spacing:.14em; color:rgba(255,255,255,.5); font-weight:600; margin-bottom:10px;">TONIGHT'S LINEUP · TAP TO JUMP</div>
+                <div style="font-size:11px; letter-spacing:.14em; color:rgba(255,255,255,.5); font-weight:500; margin-bottom:10px;">TONIGHT'S LINEUP · TAP TO JUMP</div>
                 <div style="display:flex; flex-direction:column; gap:8px;">
                   <sc-for list="{{ setList }}" as="t" hint-placeholder-count="6">
                     <div data-fk="seg-{{ t.idx }}" onclick="{{ onItemClick }}" style="display:flex; align-items:center; gap:14px; background:{{ t.bg }}; border:1px solid {{ t.border }}; box-shadow:inset 0 1px 0 rgba(255,255,255,.1); border-radius:13px; padding:11px 14px;">
-                      <div style="width:42px; height:42px; flex:none; border-radius:50%; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600;">{{ t.initials }}</div>
+                      <div style="width:42px; height:42px; flex:none; border-radius:50%; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:500;">{{ t.initials }}</div>
                       <div style="flex:1; min-width:0;">
-                        <div style="font-size:14.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.dancer }}</div>
+                        <div style="font-size:14.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.dancer }}</div>
                         <div style="font-size:11.5px; font-weight:400; color:rgba(255,255,255,.5); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.track }} · {{ t.artist }}</div>
                       </div>
-                      <sc-if value="{{ t.now }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px; letter-spacing:.1em; font-weight:700; color:#fff;">● LIVE</span></sc-if>
+                      <sc-if value="{{ t.now }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px; letter-spacing:.1em; font-weight:500; color:#fff;">● LIVE</span></sc-if>
                       <div style="font-size:12.5px; font-weight:500; color:{{ t.timeColor }}; font-variant-numeric:tabular-nums;">{{ t.time }}</div>
                     </div>
                   </sc-for>
@@ -470,7 +478,7 @@
                   <img src="assets/redbull.png" alt="Red Bull" style="width:42px; height:auto; display:block;">
                 </div>
                 <div>
-                  <div style="font-size:21px; font-weight:700; letter-spacing:-.01em;">redbull.com</div>
+                  <div style="font-size:21px; font-weight:500; letter-spacing:-.01em;">redbull.com</div>
                   <div style="font-size:14px; color:rgba(255,255,255,.55); margin-top:3px;">Sponsored · Gives You Wings</div>
                 </div>
               </div>
@@ -486,7 +494,7 @@
                       <circle cx="18" cy="18" r="15.6" fill="none" stroke="{{ adRingTrack }}" stroke-width="2.6"></circle>
                       <circle cx="18" cy="18" r="15.6" fill="none" stroke="{{ adRingFill }}" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="98" stroke-dashoffset="{{ adRingOffset }}" transform="rotate(-90 18 18)" style="transition:stroke-dashoffset 1s linear;"></circle>
                     </svg>
-                    <span style="font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; color:{{ adNumColor }};">{{ adCount }}</span>
+                    <span style="font-size:14px; font-weight:500; font-variant-numeric:tabular-nums; color:{{ adNumColor }};">{{ adCount }}</span>
                   </span>
                 </div>
               </div>
@@ -505,7 +513,7 @@
                 <img src="assets/redbull.png" alt="Red Bull" style="height:26px; width:auto; display:block;">
                 <div style="font-size:13.5px; color:rgba(255,255,255,.6);">Sponsored · Gives You Wings</div>
               </div>
-              <div style="font-size:13px; font-weight:600; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums;">Back in {{ squeezeCount }}s</div>
+              <div style="font-size:13px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums;">Back in {{ squeezeCount }}s</div>
             </div>
           </div>
         </sc-if>
@@ -516,10 +524,10 @@
             </div>
             <div style="border-radius:14px; padding:16px 18px; background:linear-gradient(160deg, rgba(255,255,255,.1), rgba(255,255,255,.04)); border:1px solid rgba(255,255,255,.16);">
               <img src="assets/redbull.png" alt="Red Bull" style="height:24px; width:auto; display:block; margin-bottom:9px;">
-              <div style="font-size:14px; font-weight:700;">redbull.com</div>
+              <div style="font-size:14px; font-weight:500;">redbull.com</div>
               <div style="font-size:12px; color:rgba(255,255,255,.55); margin-top:3px;">Sponsored · Gives You Wings</div>
             </div>
-            <div style="font-size:12.5px; font-weight:600; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; text-align:center;">Your video continues · back in {{ squeezeCount }}s</div>
+            <div style="font-size:12.5px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; text-align:center;">Your video continues · back in {{ squeezeCount }}s</div>
           </div>
         </sc-if>
         <sc-if value="{{ sqLOn }}" hint-placeholder-val="{{ false }}">
@@ -529,7 +537,7 @@
             </div>
             <div style="flex:1; border-radius:14px; padding:18px; background:linear-gradient(160deg, rgba(255,255,255,.1), rgba(255,255,255,.04)); border:1px solid rgba(255,255,255,.16); display:flex; flex-direction:column; justify-content:flex-end; gap:6px;">
               <img src="assets/redbull.png" alt="Red Bull" style="height:28px; width:auto; display:block; margin-bottom:6px;">
-              <div style="font-size:15px; font-weight:700;">Red Bull Gives You Wings</div>
+              <div style="font-size:15px; font-weight:500;">Red Bull Gives You Wings</div>
               <div style="font-size:12px; color:rgba(255,255,255,.55);">redbull.com · Sponsored</div>
             </div>
           </div>
@@ -537,7 +545,7 @@
             <div style="display:flex; align-items:center; gap:18px;">
               <img src="assets/redbull.png" alt="Red Bull" style="height:34px; width:auto; display:block;">
               <div>
-                <div style="font-size:17px; font-weight:600;">Summer Edition, out now</div>
+                <div style="font-size:17px; font-weight:500;">Summer Edition, out now</div>
                 <div style="font-size:12.5px; font-weight:400; color:rgba(255,255,255,.6); margin-top:3px;">Sponsored · your video keeps playing</div>
               </div>
             </div>
@@ -545,21 +553,19 @@
           </div>
         </sc-if>
         <sc-if value="{{ sqFocusOn }}" hint-placeholder-val="{{ false }}">
-          <div style="position:absolute; inset:0; z-index:2; background:radial-gradient(120% 90% at 12% 88%, rgba(0,58,110,.4), transparent 55%), radial-gradient(90% 70% at 88% 10%, rgba(0,40,80,.3), transparent 60%), #050507;"></div>
-          <div style="position:absolute; top:50%; left:36px; transform:translateY(-50%); width:61%; z-index:5; animation:rb-fade .35s ease;">
-            <div style="position:relative; width:100%; aspect-ratio:16/9; border-radius:14px; overflow:hidden; box-shadow:0 26px 74px rgba(0,0,0,.6);">
+          <div style="position:absolute; inset:0; z-index:2; overflow:hidden; background:radial-gradient(85% 75% at 6% 18%, rgba(0,62,124,.5), transparent 58%), radial-gradient(70% 60% at 96% 92%, rgba(150,0,45,.4), transparent 62%), #06060a;">
+            <div style="position:absolute; left:57%; top:-12%; width:2px; height:126%; background:linear-gradient(180deg, transparent 8%, rgba(255,190,60,.55), transparent 92%); transform:rotate(13deg);"></div>
+          </div>
+          <div style="position:absolute; top:50%; right:24px; transform:translateY(-50%); width:64%; z-index:5; animation:rb-fade .35s ease;">
+            <div style="position:relative; width:100%; aspect-ratio:16/9; border-radius:10px; overflow:hidden; box-shadow:0 28px 80px rgba(0,0,0,.65);">
               <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
             </div>
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-top:16px;">
-              <div style="display:flex; align-items:center; gap:12px;">
-                <img src="assets/redbull.png" alt="Red Bull" style="height:26px; width:auto; display:block;">
-                <div style="font-size:13.5px; font-weight:400; color:rgba(255,255,255,.6);">Sponsored · Gives You Wings</div>
-              </div>
-            </div>
           </div>
-          <div style="position:absolute; top:calc(64px + 27% * 9 / 16 + 14px); right:36px; width:27%; z-index:5; display:flex; align-items:center; justify-content:space-between; animation:rb-fade .35s ease;">
-            <span style="font-size:12.5px; font-weight:500; color:rgba(255,255,255,.65);">You're watching · live</span>
-            <span style="font-size:12.5px; font-weight:500; color:rgba(255,255,255,.5); font-variant-numeric:tabular-nums;">Back in {{ squeezeCount }}s</span>
+          <div style="position:absolute; left:calc(100% - 24px - 64%); top:calc(50% + 230px); z-index:6; display:flex; align-items:center; padding:7px 18px 7px 14px; background:#DB0640; clip-path:polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%); font-size:12px; font-weight:500; letter-spacing:.14em; color:#fff; animation:rb-fade .35s ease;">ADVERTISEMENT</div>
+          <div style="position:absolute; right:24px; top:calc(50% + 232px); z-index:6; font-size:13px; font-weight:500; color:rgba(255,255,255,.6); font-variant-numeric:tabular-nums; animation:rb-fade .35s ease;">Back in {{ squeezeCount }}s</div>
+          <div style="position:absolute; left:14px; top:calc(50% + 108px); width:26%; z-index:7; display:flex; align-items:center; justify-content:space-between; animation:rb-fade .35s ease;">
+            <span style="font-size:12.5px; font-weight:500; color:rgba(255,255,255,.7);">You're watching</span>
+            <span style="display:flex; align-items:center; gap:6px; font-size:11px; font-weight:500; letter-spacing:.08em; color:#fff;"><span style="width:7px; height:7px; border-radius:50%; background:#FF3B30; animation:rb-pulse 1.6s infinite;"></span>LIVE</span>
           </div>
         </sc-if>
         <sc-if value="{{ sqPipOn }}" hint-placeholder-val="{{ false }}">
@@ -569,7 +575,7 @@
             <div style="position:absolute; left:36px; bottom:40px; display:flex; align-items:center; gap:14px;">
               <img src="assets/redbull.png" alt="Red Bull" style="height:30px; width:auto; display:block;">
               <div>
-                <div style="font-size:15px; font-weight:600;">redbull.com</div>
+                <div style="font-size:15px; font-weight:500;">redbull.com</div>
                 <div style="font-size:12px; font-weight:400; color:rgba(255,255,255,.6); margin-top:2px;">Sponsored · Gives You Wings</div>
               </div>
             </div>
@@ -598,7 +604,7 @@
 
     <sc-if value="{{ mobileMode }}" hint-placeholder-val="{{ false }}">
     <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
-      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:700; margin-bottom:10px;">CONTENT FORMAT</div>
+      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:10px;">CONTENT FORMAT</div>
       <select class="ctlsel" onchange="{{ onMFormatSel }}" value="{{ mFormatSel }}">
         <option value="live-dvr">Live · with DVR</option>
         <option value="live">Live · no DVR</option>
@@ -609,14 +615,14 @@
     </div>
 
     <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
-      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:700; margin-bottom:8px;">EASE LIVE ENTRY</div>
+      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:8px;">EASE LIVE ENTRY</div>
       <div style="font-size:11.5px; color:#9a9aa4; line-height:1.55;">Single Interactive button (wand icon) in the player controls, both orientations. Landscape opens a split side panel.</div>
     </div>
     </sc-if>
 
     <sc-if value="{{ tvMode }}" hint-placeholder-val="{{ true }}">
     <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
-      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:700; margin-bottom:10px;">CONTENT FORMAT</div>
+      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:10px;">CONTENT FORMAT</div>
       <select class="ctlsel" onchange="{{ onFormatSel }}" value="{{ formatSel }}">
         <option value="live-dvr">Live · with DVR</option>
         <option value="live">Live · no DVR</option>
@@ -627,7 +633,7 @@
     </div>
 
     <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
-      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:700; margin-bottom:10px;">EASE LIVE ENTRY</div>
+      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:10px;">EASE LIVE ENTRY</div>
       <div style="display:flex; flex-direction:column; gap:5px;">
         <sc-for list="{{ entryOpts }}" as="o" hint-placeholder-count="2">
           <div data-entry="{{ o.id }}" onclick="{{ onEntryPick }}" style="display:flex; gap:11px; align-items:flex-start; padding:10px 11px; border-radius:11px; background:{{ o.bg }}; border:1px solid {{ o.border }}; cursor:pointer;">
@@ -635,7 +641,7 @@
               <div style="width:8px; height:8px; border-radius:50%; background:{{ o.dot }};"></div>
             </div>
             <div style="min-width:0;">
-              <div style="font-size:12.5px; font-weight:600; color:#fff;">{{ o.title }}</div>
+              <div style="font-size:12.5px; font-weight:500; color:#fff;">{{ o.title }}</div>
               <div style="font-size:11px; color:#8a8a94; line-height:1.5; margin-top:2px;">{{ o.sub }}</div>
             </div>
           </div>
@@ -644,19 +650,26 @@
     </div>
 
     <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
-      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:700; margin-bottom:12px;">SCRUB BAR</div>
+      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:12px;">SCRUB BAR</div>
       <div style="display:flex; justify-content:space-between; font-size:11px; color:#9a9aa4; margin-bottom:6px;"><span>Height</span><span style="font-variant-numeric:tabular-nums;">{{ scrubH }}px</span></div>
       <input type="range" min="4" max="16" step="1" value="{{ scrubH }}" oninput="{{ onScrubH }}" style="width:100%;">
-      <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:8px;">Timestamps sit below the bar. Live DVR shows only the behind-live time on the left; VOD shows elapsed and remaining.</div>
+      <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:8px;">Timestamps sit below the bar. Live DVR shows the behind-live time on the left only when you are behind or paused; VOD shows elapsed and remaining.</div>
+    </div>
+
+    <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
+      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:12px;">INTERACTIVE SPLIT</div>
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:#9a9aa4; margin-bottom:6px;"><span>Video width when split</span><span style="font-variant-numeric:tabular-nums;">{{ splitW }}%</span></div>
+      <input type="range" min="40" max="70" step="1" value="{{ splitW }}" oninput="{{ onSplitW }}" style="width:100%;">
+      <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:8px;">How far the video squeezes when the interactive experience opens. The panel takes the remaining width.</div>
     </div>
 
     <sc-if value="{{ btnEditorShown }}" hint-placeholder-val="{{ false }}">
     <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
-      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:700; margin-bottom:10px;">EASE LIVE BUTTONS</div>
+      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:10px;">EASE LIVE BUTTONS</div>
       <div style="display:flex; flex-direction:column; gap:10px;">
         <sc-for list="{{ btnEditors }}" as="e" hint-placeholder-count="3">
           <div style="background:#101014; border:1px solid #26262c; border-radius:11px; padding:11px;">
-            <div style="font-size:10px; letter-spacing:.12em; color:#6b6b76; font-weight:700; margin-bottom:8px;">BUTTON {{ e.num }}</div>
+            <div style="font-size:10px; letter-spacing:.12em; color:#6b6b76; font-weight:500; margin-bottom:8px;">BUTTON {{ e.num }}</div>
             <div style="display:flex; gap:7px;">
               <select class="ctlsel" data-btn="{{ e.idx }}" onchange="{{ onBtnIcon }}" value="{{ e.icon }}" style="width:44%;">
                 <option value="stats">Bars</option>
@@ -669,7 +682,7 @@
                 <option value="music">Music</option>
                 <option value="person">Person</option>
               </select>
-              <input type="text" data-btn="{{ e.idx }}" oninput="{{ onBtnLabel }}" value="{{ e.label }}" maxlength="14" style="flex:1; min-width:0; padding:10px 12px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12.5px; font-weight:600; font-family:inherit; outline:none;">
+              <input type="text" data-btn="{{ e.idx }}" oninput="{{ onBtnLabel }}" value="{{ e.label }}" maxlength="14" style="flex:1; min-width:0; padding:10px 12px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12.5px; font-weight:500; font-family:inherit; outline:none;">
             </div>
           </div>
         </sc-for>
@@ -681,14 +694,14 @@
 
     <sc-if value="{{ showRemote }}" hint-placeholder-val="{{ true }}">
       <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:18px;">
-        <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:700; margin-bottom:16px;">REMOTE</div>
+        <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:16px;">REMOTE</div>
         <div style="display:flex; flex-direction:column; align-items:center; gap:18px;">
           <div style="position:relative; width:172px; height:172px; border-radius:50%; background:#1d1d22; border:1px solid rgba(255,255,255,.1);">
             <button class="deckbtn" onclick="{{ dpadUp }}" style="position:absolute; top:9px; left:50%; transform:translateX(-50%); width:54px; height:46px; border-radius:16px 16px 6px 6px; background:#26262c; border:1px solid #34343c; color:#fff; font-size:15px; cursor:pointer;">▲</button>
             <button class="deckbtn" onclick="{{ dpadDown }}" style="position:absolute; bottom:9px; left:50%; transform:translateX(-50%); width:54px; height:46px; border-radius:6px 6px 16px 16px; background:#26262c; border:1px solid #34343c; color:#fff; font-size:15px; cursor:pointer;">▼</button>
             <button class="deckbtn" onclick="{{ dpadLeft }}" style="position:absolute; left:9px; top:50%; transform:translateY(-50%); width:46px; height:54px; border-radius:16px 6px 6px 16px; background:#26262c; border:1px solid #34343c; color:#fff; font-size:15px; cursor:pointer;">◀</button>
             <button class="deckbtn" onclick="{{ dpadRight }}" style="position:absolute; right:9px; top:50%; transform:translateY(-50%); width:46px; height:54px; border-radius:6px 16px 16px 6px; background:#26262c; border:1px solid #34343c; color:#fff; font-size:15px; cursor:pointer;">▶</button>
-            <button class="deckbtn" onclick="{{ doSelect }}" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:62px; height:62px; border-radius:50%; background:#fff; border:none; color:#111; font-size:12px; font-weight:700; cursor:pointer;">OK</button>
+            <button class="deckbtn" onclick="{{ doSelect }}" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:62px; height:62px; border-radius:50%; background:#fff; border:none; color:#111; font-size:12px; font-weight:500; cursor:pointer;">OK</button>
           </div>
           <div style="display:flex; gap:14px; justify-content:center; width:100%;">
             <button class="deckbtn" onclick="{{ doBack }}" title="Back" style="width:50px; height:50px; border-radius:50%; background:#26262c; border:1px solid #34343c; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer;"><svg width="17" height="17" viewBox="0 0 16 16"><path d="M10 3l-5 5 5 5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
@@ -701,7 +714,7 @@
     </sc-if>
 
     <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
-      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:700; margin-bottom:12px;">DEMO TRIGGERS</div>
+      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:12px;">DEMO TRIGGERS</div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
         <button class="deckbtn" onclick="{{ scToast }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer; opacity:{{ elTrigOp }}; pointer-events:{{ elTrigPe }};">Toast alert</button>
         <button class="deckbtn" onclick="{{ scAuto }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer; opacity:{{ elTrigOp }}; pointer-events:{{ elTrigPe }};">Auto overlay</button>
@@ -717,7 +730,7 @@
     </div>
 
     <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
-      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:700; margin-bottom:6px;">AD TRIGGERS</div>
+      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:6px;">AD TRIGGERS</div>
       <div style="font-size:11px; color:#8a8a94; line-height:1.5; margin-bottom:12px;">Squeeze-back formats: the video keeps playing while the ad runs alongside.</div>
       <sc-if value="{{ tvMode }}" hint-placeholder-val="{{ true }}">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
@@ -738,12 +751,12 @@
 
     <sc-if value="{{ showInspector }}" hint-placeholder-val="{{ true }}">
       <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px; font-family:ui-monospace,'SF Mono',monospace;">
-        <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:700; margin-bottom:12px;">INTERACTION INSPECTOR</div>
+        <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:12px;">INTERACTION INSPECTOR</div>
         <div style="display:flex; flex-direction:column; gap:10px;">
           <div style="display:flex; gap:14px;">
             <div style="flex:1;">
               <div style="font-size:10px; color:#6b6b76; margin-bottom:4px;">ACTIVE LAYER</div>
-              <div style="display:inline-flex; background:{{ layerBg }}; color:{{ layerColor }}; padding:4px 9px; border-radius:6px; font-size:12px; font-weight:700;">{{ layerLabel }}</div>
+              <div style="display:inline-flex; background:{{ layerBg }}; color:{{ layerColor }}; padding:4px 9px; border-radius:6px; font-size:12px; font-weight:500;">{{ layerLabel }}</div>
             </div>
             <div style="flex:1;">
               <div style="font-size:10px; color:#6b6b76; margin-bottom:4px;">PLAYBACK</div>
@@ -752,7 +765,7 @@
           </div>
           <div>
             <div style="font-size:10px; color:#6b6b76; margin-bottom:4px;">FOCUS OWNER</div>
-            <div style="font-size:13px; font-weight:700; color:#fff;">{{ focusLabel }}</div>
+            <div style="font-size:13px; font-weight:500; color:#fff;">{{ focusLabel }}</div>
           </div>
           <div>
             <div style="font-size:10px; color:#6b6b76; margin-bottom:4px;">FOCUS PATH</div>
@@ -772,10 +785,10 @@
 
     <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
       <div style="display:flex; align-items:center; justify-content:space-between;">
-        <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:700;">LIQUID GLASS</div>
-        <button id="lg-toggle" class="deckbtn" style="padding:7px 16px; border-radius:9px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:11.5px; font-weight:600; cursor:pointer;">On</button>
+        <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500;">LIQUID GLASS</div>
+        <button id="lg-toggle" class="deckbtn" style="padding:7px 16px; border-radius:9px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:11.5px; font-weight:500; cursor:pointer;">On</button>
       </div>
-      <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:9px;">WebGL glass refraction on the player buttons (ybouane/liquidglass). Turn off if playback stutters.</div>
+      <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:9px;">Refraction on the player buttons via SVG displacement on the live backdrop. Toggle off to compare.</div>
     </div>
 
     <div style="display:flex; align-items:center; justify-content:space-between; padding:2px 4px 6px; font-size:10.5px; color:#4a4a54;">
@@ -818,6 +831,7 @@ class Component extends DCLogic {
       ad:false, adCount:8, adSent:false, adQr:true,
       squeeze:null, squeezeCount:15,
       scrubH:6,
+      splitW:58,
       userBehind:false, seeking:false,
       elBtns:[{icon:'stats',label:'Stats'},{icon:'board',label:'Standings'},{icon:'vote',label:'Vote'}],
       mFormat:'live-dvr',
@@ -917,6 +931,7 @@ class Component extends DCLogic {
     this.onEntryPick = (e)=>{ const v=e.currentTarget.dataset.entry; this.setState({entry:v, focusKey:'seek'}); this.pushLog('Entry option: '+v); };
     this.onBtnIcon = (e)=>{ const i=parseInt(e.currentTarget.dataset.btn,10); this.setState(s=>{ const b=s.elBtns.map(x=>Object.assign({},x)); b[i].icon=e.target.value; return {elBtns:b}; }); };
     this.onScrubH = (e)=>{ this.setState({scrubH: parseInt(e.target.value,10)||6}); };
+    this.onSplitW = (e)=>{ this.setState({splitW: parseInt(e.target.value,10)||58}); };
     this.onBtnLabel = (e)=>{ const i=parseInt(e.currentTarget.dataset.btn,10); const v=e.target.value; this.setState(s=>{ const b=s.elBtns.map(x=>Object.assign({},x)); b[i].label=v; return {elBtns:b}; }); };
     this.onMOrient = (e)=>{ const o=e.currentTarget.dataset.orient; this.setState({mOrient:o}); this.mCmd(o); };
     this.onChildOrient = (o)=>{ if(o!==this.state.mOrient) this.setState({mOrient:o}); };
@@ -1061,7 +1076,7 @@ class Component extends DCLogic {
     if(cur) cur.setAttribute('data-foc','1');
   }
   cssEsc(s){ return String(s).replace(/"/g,'\\"'); }
-  mmss(s){ s=Math.max(0,Math.round(s||0)); const m=Math.floor(s/60); const r=s%60; return m+':'+(r<10?'0':'')+r; }
+  mmss(s){ s=Math.max(0,Math.round(s||0)); const m=Math.floor(s/60); const r=s%60; return (m<10?'0':'')+m+':'+(r<10?'0':'')+r; }
   clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
 
   isTransient(fk){ return this.TRANSIENT.indexOf(fk)>=0; }
@@ -1070,7 +1085,7 @@ class Component extends DCLogic {
     clearTimeout(this.hideT);
     this.hideT = setTimeout(()=>{
       const s=this.state;
-      if(s.activeLayer==='controls' && s.controlsVisible && !s.toast && !s.scrubbing && !s.menu && this.isTransient(s.focusKey)){
+      if(s.activeLayer==='controls' && s.controlsVisible && s.playing && !s.toast && !s.scrubbing && !s.menu && this.isTransient(s.focusKey)){
         this.setState({controlsVisible:false, focusKey: s.skipOn ? 'skip-now' : 'seek'});
         this.pushLog('Controls hidden · clean playback');
         setTimeout(()=>this.maybeShowRating(), 40);
@@ -1675,8 +1690,13 @@ class Component extends DCLogic {
       scrubHpx: s.scrubH+'px',
       scrubH: s.scrubH,
       onScrubH: this.onScrubH,
-      tsLeft: isLiveDvr ? (behindLive?('−'+this.mmss(s.behindS)):'LIVE') : (s.format==='linear' ? '14:00' : this.mmss(pos)),
+      splitW: s.splitW,
+      splitWpct: s.splitW+'%',
+      splitWfrac: (s.splitW/100).toFixed(3),
+      onSplitW: this.onSplitW,
+      tsLeft: isLiveDvr ? ((behindLive || !s.playing) ? ('−'+this.mmss(s.behindS)) : '') : (s.format==='linear' ? '14:00' : this.mmss(pos)),
       tsRight: isLiveDvr ? '' : (s.format==='linear' ? '15:00' : ('−'+this.mmss(Math.max(0,dur-pos)))),
+      pausedGlyph: !s.playing,
       behindLive, scrubTimeLabel, liveMarkShown: isLiveDvr, seeking: s.seeking, chromeOp, chromePe,
 
       tabInfoBg:ti.bg, tabInfoColor:ti.color,

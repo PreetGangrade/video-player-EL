@@ -9,8 +9,9 @@
     "format": {"editor": "enum", "options": ["live-dvr", "live", "vod", "linear"], "default": "live-dvr", "tsType": "string"}
   });
   var tpl = null, js = null;
-  fetch('assets/mobile-template.html').then(function(r){ return r.text(); }).then(function(t){ tpl = t; go(); });
-  fetch('assets/mobile-logic.js').then(function(r){ return r.text(); }).then(function(t){ js = t; go(); });
+  var bust = '?v=' + Date.now();
+  fetch('assets/mobile-template.html' + bust, {cache: 'no-store'}).then(function(r){ return r.text(); }).then(function(t){ tpl = t; go(); });
+  fetch('assets/mobile-logic.js' + bust, {cache: 'no-store'}).then(function(r){ return r.text(); }).then(function(t){ js = t; go(); });
   var tries = 0;
   function go(){
     if(tpl === null || js === null) return;

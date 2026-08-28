@@ -1,199 +1,140 @@
-// Liquid Glass chrome — naughtyduk/liquidGL applied to the player buttons.
-// liquidGL renders every lens on one shared fixed canvas and refracts a
-// snapshot of the page, compositing <video> elements live each frame.
-// The player buttons are React-managed and constantly re-render, so instead
-// of glassifying them directly we keep a fixed pool of lens divs on <body>,
-// bind them per-frame to whichever buttons are visible, and draw the button
-// icons/labels crisply in a layer above the shared canvas.
+// Liquid Glass chrome — SVG displacement refraction on the live backdrop.
+// Each button gets a generated displacement map (a rounded-rect lens with an
+// eased edge bevel) applied through backdrop-filter: url(#...). The browser
+// compositor refracts whatever is really behind the element, including the
+// playing video, at full resolution and zero per-frame cost. This is the
+// technique behind the well-known web "liquid glass" demos; it needs no page
+// capture, so it is immune to the staleness/pixelation issues of the
+// canvas-snapshot libraries. Chromium-only (backdrop-filter: url()).
 (function () {
-  const POOL = 16;
-  const LENS_Z = 60;   // liquidGL adopts the lens z-index for its canvas
-  const LABEL_Z = 70;  // crisp content above the glass canvas
-  const TV_SELECTOR = '.elpill, .iconctl, [data-fk="tab-info"], [data-fk="tab-next"], [data-fk="skip-now"], [data-fk="vote-cast"], [data-fk="vote-change"]';
-  const MOBILE_SELECTOR = '.lgx';
+  const SELECTOR = '.elpill, .iconctl, [data-fk="tab-info"], [data-fk="tab-next"], [data-fk="skip-now"], [data-fk="vote-cast"], [data-fk="vote-change"], .lgx';
 
-  const style = document.createElement('style');
-  style.textContent = `
-    [data-lgh="1"]{ background:transparent !important; border-color:transparent !important;
-      box-shadow:none !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
-      color:transparent !important; }
-    .lgl-lens{ position:fixed; left:-9999px; top:0; width:40px; height:40px; border-radius:20px;
-      pointer-events:none; z-index:${LENS_Z}; }
-    #lgl-labels{ position:fixed; inset:0; pointer-events:none; z-index:${LABEL_Z}; color:#fff;
-      font-family:-apple-system,'SF Pro Display','SF Pro Text',BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
-    .lg-scaler{ position:absolute; transform-origin:top left; pointer-events:none; }
-    .lg-label-root{ background:transparent !important; border-color:transparent !important;
-      box-shadow:none !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
-      margin:0 !important; position:static !important; }
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('style', 'position:absolute; width:0; height:0; overflow:hidden;');
+  svg.setAttribute('aria-hidden', 'true');
+  const defs = document.createElementNS(svgNS, 'defs');
+  svg.appendChild(defs);
+  const styleEl = document.createElement('style');
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.appendChild(svg);
+    document.head.appendChild(styleEl);
+  });
+
+  styleEl.textContent = `
+    [data-lgf]{ position:relative; }
+    [data-lgf]::after{ content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+      background:linear-gradient(165deg, rgba(255,255,255,.20), rgba(255,255,255,0) 36%, rgba(255,255,255,0) 66%, rgba(255,255,255,.07));
+      box-shadow:inset 0 1px 1px rgba(255,255,255,.34), inset 0 -1px 1px rgba(255,255,255,.08); }
   `;
-  document.head.appendChild(style);
+  const baseCss = styleEl.textContent;
+  const rules = new Map(); // shape key -> css rule text
+
+  // Displacement map: R/G encode the sampling offset. Interior is neutral;
+  // an eased bevel at the rim samples outward, which reads as a thick glass
+  // edge bending the backdrop.
+  function makeFilter(key, w, h, r) {
+    const SS = 2; // supersample the map
+    const cw = Math.max(2, Math.round(w * SS));
+    const ch = Math.max(2, Math.round(h * SS));
+    const canvas = document.createElement('canvas');
+    canvas.width = cw; canvas.height = ch;
+    const ctx = canvas.getContext('2d');
+    const img = ctx.createImageData(cw, ch);
+    const data = img.data;
+    const bx = w / 2, by = h / 2;
+    const rr = Math.min(r, bx, by);
+    const bevel = Math.max(5, Math.min(w, h) * 0.42);
+
+    function sdf(px, py) { // distance inside (>0) a rounded rect centred at 0
+      const qx = Math.abs(px) - (bx - rr);
+      const qy = Math.abs(py) - (by - rr);
+      const ox = Math.max(qx, 0), oy = Math.max(qy, 0);
+      const outside = Math.hypot(ox, oy) + Math.min(Math.max(qx, qy), 0) - rr;
+      return -outside;
+    }
+
+    for (let y = 0; y < ch; y++) {
+      for (let x = 0; x < cw; x++) {
+        const px = (x + 0.5) / SS - bx;
+        const py = (y + 0.5) / SS - by;
+        const d = sdf(px, py);
+        let nx = 0, ny = 0;
+        if (d < bevel) {
+          const e = 0.75;
+          const gx = sdf(px + e, py) - sdf(px - e, py);
+          const gy = sdf(px, py + e) - sdf(px, py - e);
+          const len = Math.hypot(gx, gy) || 1;
+          const t = 1 - Math.max(0, Math.min(1, d / bevel));
+          const mag = t * t * (3 - 2 * t); // smoothstep ease into the rim
+          nx = -(gx / len) * mag; // sample outward past the edge
+          ny = -(gy / len) * mag;
+        }
+        const i = (y * cw + x) * 4;
+        data[i] = Math.round(128 + nx * 127);
+        data[i + 1] = Math.round(128 + ny * 127);
+        data[i + 2] = 128;
+        data[i + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    const url = canvas.toDataURL('image/png');
+
+    const scale = Math.max(10, Math.min(38, Math.min(w, h) * 0.5));
+    const filter = document.createElementNS(svgNS, 'filter');
+    filter.setAttribute('id', key);
+    filter.setAttribute('x', '0'); filter.setAttribute('y', '0');
+    filter.setAttribute('width', String(w)); filter.setAttribute('height', String(h));
+    filter.setAttribute('filterUnits', 'userSpaceOnUse');
+    filter.setAttribute('color-interpolation-filters', 'sRGB');
+    const feImage = document.createElementNS(svgNS, 'feImage');
+    feImage.setAttribute('href', url);
+    feImage.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', url);
+    feImage.setAttribute('x', '0'); feImage.setAttribute('y', '0');
+    feImage.setAttribute('width', String(w)); feImage.setAttribute('height', String(h));
+    feImage.setAttribute('preserveAspectRatio', 'none');
+    feImage.setAttribute('result', 'map');
+    const feDisp = document.createElementNS(svgNS, 'feDisplacementMap');
+    feDisp.setAttribute('in', 'SourceGraphic');
+    feDisp.setAttribute('in2', 'map');
+    feDisp.setAttribute('scale', String(scale));
+    feDisp.setAttribute('xChannelSelector', 'R');
+    feDisp.setAttribute('yChannelSelector', 'G');
+    filter.appendChild(feImage);
+    filter.appendChild(feDisp);
+    defs.appendChild(filter);
+
+    const bf = `url(#${key}) blur(0.8px) saturate(1.55) brightness(1.05)`;
+    rules.set(key, `[data-lgf="${key}"]{ -webkit-backdrop-filter:${bf} !important; backdrop-filter:${bf} !important; }`);
+    styleEl.textContent = baseCss + [...rules.values()].join('\n');
+  }
 
   let enabled = true;
-  let booted = false;
-  let recaptureAt = 0;
-  const slots = [];
-  let labelLayer = null;
 
-  function ensurePool() {
-    labelLayer = document.createElement('div');
-    labelLayer.id = 'lgl-labels';
-    labelLayer.setAttribute('data-liquid-ignore', '');
-    document.body.appendChild(labelLayer);
-    for (let i = 0; i < POOL; i++) {
-      const el = document.createElement('div');
-      el.className = 'lgl-lens';
-      el.setAttribute('data-liquid-ignore', '');
-      document.body.appendChild(el);
-      const label = document.createElement('div');
-      label.className = 'lg-scaler';
-      label.style.left = '-9999px';
-      labelLayer.appendChild(label);
-      slots.push({ el, label, target: null, sig: '', content: '' });
-    }
-  }
-
-  function renderer() { return window.__liquidGLRenderer__; }
-
-  function requestRecapture(delay) {
-    recaptureAt = Math.max(recaptureAt, performance.now()) + (delay || 0);
-  }
-
-  function collectTargets() {
-    const out = [];
-    for (const [label, sel] of [['TV stage', TV_SELECTOR], ['Mobile stage', MOBILE_SELECTOR]]) {
+  function scan() {
+    if (!enabled) return;
+    for (const label of ['TV stage', 'Mobile stage']) {
       const stage = document.querySelector('[data-screen-label="' + label + '"]');
       if (!stage) continue;
-      stage.querySelectorAll(sel).forEach((t) => {
-        if (t.closest('.lg-scaler')) return;
+      stage.querySelectorAll(SELECTOR).forEach((t) => {
         if (!t.isConnected || t.offsetParent === null) return;
-        // the button itself must never be part of the refracted snapshot
-        if (!t.hasAttribute('data-liquid-ignore')) t.setAttribute('data-liquid-ignore', '');
-        if (t.getAttribute('data-foc') === '1') { t.removeAttribute('data-lgh'); return; }
-        const r = t.getBoundingClientRect();
-        if (r.width < 8 || r.height < 8) return;
-        let node = t, op = 1;
-        while (node && node !== stage) { op *= parseFloat(getComputedStyle(node).opacity || '1'); node = node.parentElement; }
-        if (op < 0.15) { t.removeAttribute('data-lgh'); return; }
-        out.push({ t, r, op });
+        const w = t.offsetWidth, h = t.offsetHeight;
+        if (w < 8 || h < 8) return;
+        const br = parseFloat(getComputedStyle(t).borderTopLeftRadius) || h / 2;
+        const r = Math.round(Math.min(br, h / 2, w / 2));
+        const key = 'lgf' + Math.round(w) + 'x' + Math.round(h) + 'r' + r;
+        if (!rules.has(key)) makeFilter(key, Math.round(w), Math.round(h), r);
+        if (t.getAttribute('data-lgf') !== key) t.setAttribute('data-lgf', key);
       });
     }
-    return out;
-  }
-
-  function bind() {
-    const targets = enabled ? collectTargets() : [];
-    for (let i = 0; i < slots.length; i++) {
-      const slot = slots[i];
-      const hit = targets[i];
-      if (!hit) {
-        if (slot.target) { slot.target.removeAttribute('data-lgh'); slot.target = null; slot.sig = ''; slot.content = ''; }
-        if (slot.el.style.left !== '-9999px') { slot.el.style.left = '-9999px'; slot.label.style.left = '-9999px'; }
-        continue;
-      }
-      const { t, r, op } = hit;
-      slot.label.style.opacity = op.toFixed(2);
-      const radius = Math.min(r.height / 2, parseFloat(getComputedStyle(t).borderTopLeftRadius) || r.height / 2);
-      const sig = [r.left.toFixed(1), r.top.toFixed(1), r.width.toFixed(1), r.height.toFixed(1), radius.toFixed(1)].join('|');
-      if (slot.target !== t) { slot.target = t; slot.content = ''; }
-      if (t.getAttribute('data-lgh') !== '1') t.setAttribute('data-lgh', '1');
-      if (slot.sig !== sig) {
-        slot.sig = sig;
-        slot.el.style.left = r.left.toFixed(1) + 'px';
-        slot.el.style.top = r.top.toFixed(1) + 'px';
-        slot.el.style.width = r.width.toFixed(1) + 'px';
-        slot.el.style.height = r.height.toFixed(1) + 'px';
-        slot.el.style.borderRadius = radius.toFixed(1) + 'px';
-        slot.label.style.left = r.left.toFixed(1) + 'px';
-        slot.label.style.top = r.top.toFixed(1) + 'px';
-      }
-      const contentSig = t.innerHTML;
-      if (slot.content !== contentSig) {
-        slot.content = contentSig;
-        slot.label.innerHTML = '';
-        const ow = t.offsetWidth || 1, oh = t.offsetHeight || 1;
-        slot.label.style.width = ow + 'px';
-        slot.label.style.height = oh + 'px';
-        slot.label.style.transform = 'scale(' + (r.width / ow) + ',' + (r.height / oh) + ')';
-        const clone = t.cloneNode(true);
-        clone.removeAttribute('data-fk');
-        clone.removeAttribute('data-lgh');
-        clone.removeAttribute('data-foc');
-        clone.removeAttribute('data-liquid-ignore');
-        clone.classList.add('lg-label-root');
-        clone.style.width = ow + 'px';
-        clone.style.height = oh + 'px';
-        slot.label.appendChild(clone);
-      } else {
-        // keep the scale in sync even when only geometry changed
-        const ow = t.offsetWidth || 1, oh = t.offsetHeight || 1;
-        slot.label.style.transform = 'scale(' + (r.width / ow) + ',' + (r.height / oh) + ')';
-      }
-    }
-  }
-
-  function boot() {
-    ensurePool();
-    // never bake the transient player chrome into the snapshot
-    document.querySelectorAll('#ctl-transient').forEach((el) => el.setAttribute('data-liquid-ignore', ''));
-    bind(); // set ignore attributes before the first snapshot
-    window.liquidGL({
-      target: '.lgl-lens',
-      snapshot: 'body',
-      resolution: 2.5,
-      refraction: 0.035,
-      aberration: 0.35,
-      bevelDepth: 0.14,
-      bevelWidth: 0.32,
-      frost: 1,
-      shadow: false,
-      specular: true,
-      reveal: 'none',
-      tilt: false,
-      magnify: 1.04,
-    });
-    // re-snapshot when the page structure changes (overlay opening, squeeze
-    // layouts, device switch) so the refracted background stays truthful
-    const mo = new MutationObserver((muts) => {
-      for (const m of muts) {
-        if (m.type !== 'childList') continue;
-        const t = m.target;
-        if (t && t.nodeType === 1 && (t.closest('#lgl-labels') || t.classList.contains('lgl-lens'))) continue;
-        requestRecapture(600);
-        return;
-      }
-    });
-    mo.observe(document.body, { subtree: true, childList: true });
-    booted = true;
-  }
-
-  function tick() {
-    try {
-      if (!booted) {
-        const stage = document.querySelector('[data-screen-label="TV stage"], [data-screen-label="Mobile stage"]');
-        const vid = stage && stage.querySelector('video');
-        if (stage && vid && vid.readyState >= 3 && window.liquidGL) boot();
-      } else {
-        bind();
-        const r = renderer();
-        if (r && r.canvas) r.canvas.style.display = enabled ? '' : 'none';
-        if (enabled && recaptureAt && performance.now() > recaptureAt && r && r.captureSnapshot) {
-          recaptureAt = 0;
-          r.captureSnapshot();
-        }
-      }
-    } catch (e) { /* keep the loop alive */ }
-    requestAnimationFrame(tick);
   }
 
   function setEnabled(on) {
     enabled = on;
     const btn = document.getElementById('lg-toggle');
     if (btn) btn.textContent = on ? 'On' : 'Off';
-    if (!on) {
-      document.querySelectorAll('[data-lgh="1"]').forEach((el) => el.removeAttribute('data-lgh'));
-    } else {
-      requestRecapture(100);
-    }
+    if (!on) document.querySelectorAll('[data-lgf]').forEach((el) => el.removeAttribute('data-lgf'));
+    else scan();
   }
 
   document.addEventListener('click', (e) => {
@@ -201,5 +142,10 @@
     if (btn) setEnabled(!enabled);
   });
 
+  let last = 0;
+  function tick(ts) {
+    if (ts - last > 250) { last = ts; try { scan(); } catch (e) {} }
+    requestAnimationFrame(tick);
+  }
   requestAnimationFrame(tick);
 })();

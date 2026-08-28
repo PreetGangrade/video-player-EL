@@ -399,6 +399,7 @@ class Component extends DCLogic {
       adClock: '0:0'+Math.max(0, Math.min(9, s.adCount)),
       adVideoRef: this.adVideoRef,
       sqVideoRef: this.sqVideoRef,
+      sqMode: s.squeeze||'',
       sqStackOpen: s.squeeze==='stack',
       sqBannerOpen: s.squeeze==='banner',
       squeezeCount: s.squeezeCount,
