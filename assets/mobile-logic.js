@@ -61,7 +61,7 @@ class Component extends DCLogic {
     this.segIdxAt=(t)=>{ let idx=0; for(let i=0;i<this.SEGMENTS.length;i++){ if(t>=this.SEGMENTS[i].t) idx=i; } return idx; };
     this.videoRef=(el)=>{
       if(el && el!==this.videoEl){
-        this.videoEl=el; el.muted=true; el.loop=true; el.playsInline=true; el.preload='auto';
+        this.videoEl=el; el.muted=!this._soundOn; el.loop=true; el.playsInline=true; el.preload='auto';
         el.addEventListener('timeupdate', ()=>{
           const seg=this.segIdxAt(el.currentTime||0);
           const patch={};
@@ -207,6 +207,8 @@ class Component extends DCLogic {
     else if(name==='portrait'){ if(this.state.orientation!=='portrait') this.setState({orientation:'portrait', panel:'none', lsPanel:false, ctrlSel:null, scrubbing:false}); }
     else if(name==='rating'){ clearTimeout(this.ratingHoldT); clearTimeout(this.ratingT); this.setState({ratingPending:true, ratingPhase:'hidden'}); if(!this.state.pControls && !this.state.lsControls){ setTimeout(()=>this.maybeShowRating(), 80); } }
     else if(name==='ad'){ this.endSqueeze(true); clearInterval(this.adT); this.setState({ad:true, adModal:false, adSent:false, toast:false, ctrlSel:null, adCount:8, playing:false}); this.adT=setInterval(()=>{ this.setState(s=>{ if(s.adModal) return {}; const v=s.adCount-1; if(v<=0){ clearInterval(this.adT); setTimeout(()=>this.setState({ad:false, playing:true}),20); return {adCount:0}; } return {adCount:v}; }); },1000); }
+    else if(name==='sound-on'){ if(this.videoEl) this.videoEl.muted=false; this._soundOn=true; }
+    else if(name==='sound-off'){ if(this.videoEl) this.videoEl.muted=true; this._soundOn=false; }
     else if(name==='ad-split'){ this.startSqueeze('stack'); }
     else if(name==='ad-banner'){ this.startSqueeze('banner'); }
   }

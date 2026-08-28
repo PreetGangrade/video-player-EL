@@ -7,7 +7,7 @@
 // capture, so it is immune to the staleness/pixelation issues of the
 // canvas-snapshot libraries. Chromium-only (backdrop-filter: url()).
 (function () {
-  const SELECTOR = '.elpill, .iconctl, [data-fk="tab-info"], [data-fk="tab-next"], [data-fk="skip-now"], [data-fk="vote-cast"], [data-fk="vote-change"], .lgx';
+  const SELECTOR = '.elpill, .iconctl, .cardbtn, [data-fk="tab-info"], [data-fk="tab-next"], [data-fk="skip-now"], [data-fk="vote-cast"], [data-fk="vote-change"], [data-fk="toast-accept"], [data-fk="toast-dismiss"], [data-fk="ad-send"], [data-fk="ad-skip"], .lgx';
 
   const svgNS = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(svgNS, 'svg');
