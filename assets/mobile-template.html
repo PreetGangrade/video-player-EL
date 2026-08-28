@@ -17,10 +17,46 @@
   .mtap{transition:transform .12s ease, background-color .15s ease, color .15s ease, border-color .15s ease; cursor:pointer; -webkit-tap-highlight-color:transparent;}
   .mtap:active{transform:scale(.95);}
   .device{transition:width .42s cubic-bezier(.2,.7,.3,1), height .42s cubic-bezier(.2,.7,.3,1);}
-  [data-sq]{transition:width .4s cubic-bezier(.2,.7,.3,1), margin .4s cubic-bezier(.2,.7,.3,1), border-radius .4s ease;}
-  [data-sq="stack"]{width:60% !important; margin:16px auto 0 !important; border-radius:10px !important; order:2; box-shadow:0 14px 40px rgba(0,0,0,.55);}
-  .sqstack{order:1;}
-  [data-sq="stack"] ~ div[style*="flex: 1 1"]{order:3;}
+  /* One coordinated move: the top spacer, the video's box and the ad share the
+     same committed curve, so panel opens and squeezes read as a single layout
+     change. Ads are transform-only (they slide in as finished containers) and
+     exits travel back along the entrance path (data-sqx / data-adout). */
+  .vslide{transition:height .65s cubic-bezier(.3,0,.18,1);}
+  [data-sq]{transition:width .65s cubic-bezier(.3,0,.18,1), margin .65s cubic-bezier(.3,0,.18,1), border-radius .65s cubic-bezier(.3,0,.18,1), box-shadow .65s ease;}
+  [data-sq="stack"]{width:60% !important; margin:0 auto !important; border-radius:10px !important; box-shadow:0 14px 40px rgba(0,0,0,.55);}
+  [data-sq="half"]{width:calc(100% - 32px) !important; margin:0 auto !important; border-radius:12px !important; box-shadow:0 14px 40px rgba(0,0,0,.55);}
+  @keyframes psq-t{from{transform:translateY(-560px)}}
+  @keyframes psq-b{from{transform:translateY(560px)}}
+  .psq-t{animation:psq-t .65s cubic-bezier(.3,0,.18,1) both; transition:transform .65s cubic-bezier(.3,0,.18,1), opacity .4s ease; will-change:transform;}
+  .psq-b{animation:psq-b .65s cubic-bezier(.3,0,.18,1) both; transition:transform .65s cubic-bezier(.3,0,.18,1), opacity .4s ease; will-change:transform;}
+  .psq-f{animation:m-fadein .4s ease .35s both; transition:opacity .35s ease;}
+  @keyframes lsq-in-r{from{transform:translateX(440px)}}
+  @keyframes lsq-in-l{from{transform:translateX(-440px)}}
+  @keyframes lsq-in-r2{from{transform:translateX(580px)}}
+  @keyframes lsq-in-b{from{transform:translateY(120px)}}
+  .lsq-r{animation:lsq-in-r .55s cubic-bezier(.3,0,.18,1) both; transition:transform .55s cubic-bezier(.3,0,.18,1), opacity .4s ease; will-change:transform;}
+  .lsq-l{animation:lsq-in-l .55s cubic-bezier(.3,0,.18,1) both; transition:transform .55s cubic-bezier(.3,0,.18,1), opacity .4s ease; will-change:transform;}
+  .lsq-r2{animation:lsq-in-r2 .55s cubic-bezier(.3,0,.18,1) both; transition:transform .55s cubic-bezier(.3,0,.18,1), opacity .4s ease; will-change:transform;}
+  .lsq-b{animation:lsq-in-b .55s cubic-bezier(.3,0,.18,1) both; transition:transform .55s cubic-bezier(.3,0,.18,1), opacity .4s ease;}
+  .lsq-c{animation:m-fadein .55s cubic-bezier(.3,0,.18,1) both; transition:opacity .5s ease;}
+  .lsq-f{animation:m-fadein .4s ease .3s both; transition:opacity .35s ease;}
+  [data-sqx="1"]{animation:none !important;}
+  [data-sqx="1"].psq-t{transform:translateY(-560px);}
+  [data-sqx="1"].psq-b{transform:translateY(560px);}
+  [data-sqx="1"].psq-f{opacity:0;}
+  [data-sqx="1"].lsq-r{transform:translateX(440px);}
+  [data-sqx="1"].lsq-l{transform:translateX(-440px);}
+  [data-sqx="1"].lsq-r2{transform:translateX(580px);}
+  [data-sqx="1"].lsq-b{transform:translateY(120px);}
+  [data-sqx="1"].lsq-c,[data-sqx="1"].lsq-f{opacity:0;}
+  @keyframes lsq-panel{from{transform:translateX(360px)}}
+  .lspanel{animation:lsq-panel .45s cubic-bezier(.3,0,.18,1) both;}
+  @keyframes m-adin{from{transform:translateY(56px); opacity:0}}
+  .adsheet{animation:m-adin .5s cubic-bezier(.3,0,.18,1) both; transition:transform .4s cubic-bezier(.3,0,.18,1), opacity .35s ease;}
+  .adsheet[data-adout="1"]{animation:none !important; transform:translateY(40px); opacity:0;}
+  .adfade{animation:m-fadein .4s ease both; transition:opacity .35s ease;}
+  .adfade[data-adout="1"]{animation:none !important; opacity:0;}
+  @media (prefers-reduced-motion: reduce){ .vslide,[data-sq],.psq-t,.psq-f,.lsq-r,.lsq-r2,.lsq-b,.lsq-c,.lsq-f,.lspanel,.adsheet,.adfade{transition:none; animation:none;} }
   input[type=range]{-webkit-appearance:none; appearance:none; height:4px; border-radius:3px; background:rgba(255,255,255,.28); outline:none;}
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:13px; height:13px; border-radius:50%; background:#fff;}
 </style>
@@ -79,9 +115,9 @@
                 <div class="mtap" style="width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.8979 5.90283C18.9613 5.90283 19.6168 6.55827 19.6168 7.62168V14.3633C19.6168 15.4267 18.9613 16.0822 17.8979 16.0822H15.6323L14.68 15.0053H17.8778C18.2925 15.0053 18.54 14.7579 18.54 14.3499V7.64175C18.54 7.22708 18.2925 6.97962 17.8778 6.97962H5.73891C5.32425 6.97962 5.07679 7.22708 5.07679 7.64175V14.3499C5.07679 14.7579 5.32425 15.0053 5.73891 15.0053H8.94339L7.99115 16.0822H5.71885C4.65544 16.0822 4 15.4267 4 14.3633V7.62168C4 6.55827 4.65544 5.90283 5.71885 5.90283H17.8979Z" fill="currentColor"/><path d="M15.8989 18.5769C16.2132 18.5769 16.3336 18.2559 16.1329 18.0285L12.1 13.4605C11.9462 13.2866 11.6786 13.2866 11.5248 13.4605L7.4919 18.0285C7.29125 18.2559 7.41164 18.5769 7.72598 18.5769H15.8989Z" fill="currentColor"/></svg></div>
               </div>
             </div>
-            <div class="lgx" style="display:flex; gap:9px; align-items:center; height:42px; padding:0 5px; border-radius:22px; background:rgba(28,28,32,.85); border:1px solid rgba(255,255,255,.14);">
+            <div class="lgx" style="display:flex; align-items:center; height:42px; padding:0 4px; border-radius:21px; background:rgba(28,28,32,.85); border:1px solid rgba(255,255,255,.14);">
               <div style="width:{{ volW }}; opacity:{{ volOp }}; overflow:hidden; transition:width .28s cubic-bezier(.2,.7,.3,1), opacity .2s ease;">
-                <div onPointerDown="{{ volDown }}" style="width:96px; padding:7px 0 7px 10px; cursor:pointer; touch-action:none;">
+                <div onPointerDown="{{ volDown }}" style="width:96px; padding:7px 6px 7px 12px; cursor:pointer; touch-action:none;">
                   <div style="height:4px; border-radius:3px; background:rgba(255,255,255,.3); position:relative;">
                     <div style="position:absolute; left:0; top:0; height:100%; width:{{ volLeft }}; background:#fff; border-radius:3px;"></div>
                     <div style="position:absolute; top:50%; left:{{ volLeft }}; width:12px; height:12px; border-radius:50%; background:#fff; transform:translate(-50%,-50%); box-shadow:0 1px 4px rgba(0,0,0,.5);"></div>
@@ -94,29 +130,27 @@
           </sc-if>
           </div>
 
-          <!-- maturity rating — below the close icon (portrait) -->
-          <sc-if value="{{ ratingIn }}" hint-placeholder-val="{{ true }}">
-          <div style="position:absolute; top:108px; left:18px; z-index:15; display:flex; align-items:center; gap:8px; text-shadow:0 2px 14px rgba(0,0,0,.6); pointer-events:none; animation:m-ratein {{ rateInDur }} cubic-bezier(.2,.7,.3,1) forwards;">
-            <div style="display:flex; align-items:center; justify-content:center; min-width:34px; height:24px; padding:0 7px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:12px; font-weight:500;">TV-G</div>
-            <div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.9); max-width:150px; line-height:1.25;">General audiences · all ages</div>
-          </div>
-          </sc-if>
-          <sc-if value="{{ ratingOutP }}" hint-placeholder-val="{{ false }}">
-          <div style="position:absolute; top:108px; left:18px; z-index:15; display:flex; align-items:center; gap:8px; text-shadow:0 2px 14px rgba(0,0,0,.6); pointer-events:none; animation:m-rateout {{ rateOutDur }} cubic-bezier(.2,.7,.3,1) forwards;">
-            <div style="display:flex; align-items:center; justify-content:center; min-width:34px; height:24px; padding:0 7px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:12px; font-weight:500;">TV-G</div>
-            <div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.9); max-width:150px; line-height:1.25;">General audiences · all ages</div>
-          </div>
-          </sc-if>
-
-          <!-- video -->
-          <sc-if value="{{ panelNone }}" hint-placeholder-val="{{ true }}"><div style="flex:1;"></div></sc-if>
-          <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ false }}"><div style="height:102px; flex:none;"></div></sc-if>
+          <!-- video — the top spacer animates, so panel opens read as one move -->
+          <div class="vslide" style="flex:none; height:{{ vidTopPad }};"></div>
 
           <div data-sq="{{ sqMode }}" style="flex:none; position:relative; width:100%; aspect-ratio:16/9; background:#26262c; overflow:hidden;">
             <video ref="{{ videoRef }}" src="assets/feature.mp4" poster="assets/splash-tv.png" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
             <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,.5) 100%);"></div>
             <div onClick="{{ pTap }}" style="position:absolute; inset:0; z-index:1;"></div>
-            <img src="assets/corner-rbtv.png" alt="Red Bull TV" style="position:absolute; top:12px; right:14px; height:34px; width:auto; opacity:.35; filter:drop-shadow(0 2px 5px rgba(0,0,0,.5));" />
+            <img src="assets/corner-rbtv.png" alt="Red Bull TV" style="position:absolute; top:12px; right:14px; height:{{ pBugH }}; width:auto; opacity:.35; filter:drop-shadow(0 2px 5px rgba(0,0,0,.5)); transition:height .65s cubic-bezier(.3,0,.18,1);" />
+            <!-- maturity rating lives ON the video (top-left) and travels with it -->
+            <sc-if value="{{ ratingIn }}" hint-placeholder-val="{{ true }}">
+            <div style="position:absolute; top:17px; left:14px; z-index:5; display:flex; align-items:center; gap:8px; text-shadow:0 2px 14px rgba(0,0,0,.6); pointer-events:none; animation:m-ratein {{ rateInDur }} cubic-bezier(.2,.7,.3,1) forwards;">
+              <div style="display:flex; align-items:center; justify-content:center; min-width:34px; height:24px; padding:0 7px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:12px; font-weight:500;">TV-G</div>
+              <div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.9); max-width:150px; line-height:1.25;">General audiences · all ages</div>
+            </div>
+            </sc-if>
+            <sc-if value="{{ ratingOutP }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute; top:17px; left:14px; z-index:5; display:flex; align-items:center; gap:8px; text-shadow:0 2px 14px rgba(0,0,0,.6); pointer-events:none; animation:m-rateout {{ rateOutDur }} cubic-bezier(.2,.7,.3,1) forwards;">
+              <div style="display:flex; align-items:center; justify-content:center; min-width:34px; height:24px; padding:0 7px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:12px; font-weight:500;">TV-G</div>
+              <div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.9); max-width:150px; line-height:1.25;">General audiences · all ages</div>
+            </div>
+            </sc-if>
             <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:26px; z-index:46; pointer-events:none;">
               <sc-if value="{{ showTransport }}" hint-placeholder-val="{{ true }}">
               <div class="lgx mtap" onClick="{{ back10 }}" style="width:54px; height:54px; border-radius:50%; background:rgba(255,255,255,.12); -webkit-backdrop-filter:blur(16px) saturate(180%); backdrop-filter:blur(16px) saturate(180%); border:1px solid rgba(255,255,255,.35); box-shadow:inset 0 1px 1px rgba(255,255,255,.45), inset 0 -6px 12px rgba(255,255,255,.06), 0 8px 22px rgba(0,0,0,.28); display:flex; align-items:center; justify-content:center; pointer-events:auto;">
@@ -131,36 +165,6 @@
               </div>
               </sc-if>
             </div>
-            <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ false }}">
-              <div style="position:absolute; left:0; right:0; bottom:0; padding:0 16px 12px; z-index:47;">
-                <sc-if value="{{ scrubbing }}" hint-placeholder-val="{{ false }}">
-                  <div style="position:absolute; bottom:42px; left:{{ scrubLeft }}; transform:translateX(-50%); width:128px;">
-                    <div style="width:128px; height:72px; border-radius:9px; overflow:hidden; border:2px solid #fff; box-shadow:0 10px 28px rgba(0,0,0,.6); background:#3a3a40; display:flex; align-items:center; justify-content:center;">
-                      <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="2.5" y="5" width="19" height="14" rx="2.2" fill="rgba(255,255,255,.22)"/><circle cx="8" cy="10" r="1.9" fill="rgba(255,255,255,.55)"/><path d="M4 18l5-5.5 3.2 3.6L16 12l4 5.5" stroke="rgba(255,255,255,.55)" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </div>
-                    <div style="text-align:center; font-size:12px; font-weight:500; color:#fff; margin-top:5px; font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ scrubTime }}</div>
-                  </div>
-                </sc-if>
-                <div>
-                  <div onPointerDown="{{ scrubDown }}" style="padding:6px 0; cursor:pointer; touch-action:none;">
-                    <div style="height:{{ trackH }}; border-radius:3px; background:{{ trackColor }}; position:relative; transition:height .14s ease, background-color .14s ease;">
-                      <div style="position:absolute; left:0; top:0; height:100%; width:{{ scrubLeft }}; background:{{ fillColor }}; border-radius:3px 0 0 3px; transition:background-color .14s ease;"></div>
-                      <sc-if value="{{ liveMarkShown }}" hint-placeholder-val="{{ false }}"><div style="position:absolute; top:50%; left:65%; transform:translate(-50%,-50%); width:3px; height:11px; border-radius:2px; background:#FF3B30; box-shadow:0 0 8px rgba(255,59,48,.7); z-index:2;"></div></sc-if>
-                      <div style="position:absolute; top:50%; left:{{ scrubLeft }}; width:3px; height:{{ trackH }}; border-radius:2px; background:{{ knobColor }}; transform:translate(-50%,-50%); box-shadow:0 1px 4px rgba(0,0,0,.5); transition:width .14s ease, height .14s ease, background-color .14s ease;"></div>
-                    </div>
-                  </div>
-                  <div style="display:flex; align-items:center; justify-content:space-between; margin-top:3px;">
-                    <span style="font-size:11px; font-weight:500; color:#fff; font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeNow }}</span>
-                    <span style="display:flex; align-items:center; gap:8px;">
-                      <span style="font-size:11px; font-weight:500; color:rgba(255,255,255,.65); font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeDur }}</span>
-                      <sc-if value="{{ goLiveShown }}" hint-placeholder-val="{{ false }}">
-                        <div class="mtap" onClick="{{ goLive }}" title="Jump to live" style="width:26px; height:26px; flex:none; border-radius:50%; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); display:flex; align-items:center; justify-content:center; animation:m-fade .25s ease;"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M5 5l9 7-9 7z"></path><rect x="16" y="5" width="3" height="14" rx="1.2"></rect></svg></div>
-                      </sc-if>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </sc-if>
 
 
 
@@ -192,34 +196,36 @@
             </sc-if>
           </div>
 
-          <!-- ===== portrait AD SQUEEZE: content keeps playing, ad stacks under the video ===== -->
+          <!-- ===== portrait AD SQUEEZE: the ad card slides down from the top as a finished
+               container while the video settles into its slot below — one curve, transform-only.
+               'stack' = full-bleed ad hero + smaller video; 'half' = two equal stacked videos. -->
           <sc-if value="{{ sqStackOpen }}" hint-placeholder-val="{{ false }}">
-            <div class="sqstack" style="flex:none; animation:m-fade .3s ease;">
-              <div style="position:relative; width:100%; aspect-ratio:16/9; overflow:hidden; background:#000;">
-                <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
-              </div>
-              <div style="display:flex; align-items:flex-start; justify-content:space-between; padding:0 16px 0 0;">
-                <div style="display:flex; align-items:center; padding:5px 14px 5px 12px; background:#DB0640; clip-path:polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%); font-size:10px; font-weight:500; letter-spacing:.14em; color:#fff;">ADVERTISEMENT</div>
-                <div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; margin-top:6px;">Back in {{ squeezeCount }}s</div>
-              </div>
+            <div class="psq-t" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:292px; left:0; right:0; aspect-ratio:16/9; overflow:hidden; background:#000; z-index:5;">
+              <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
             </div>
           </sc-if>
-          <sc-if value="{{ sqBannerOpen }}" hint-placeholder-val="{{ false }}">
-            <div style="flex:none; margin:12px 16px 0; border-radius:13px; padding:11px 13px; background:linear-gradient(90deg, rgba(255,255,255,.12), rgba(255,255,255,.04)); border:1px solid rgba(255,255,255,.16); display:flex; align-items:center; gap:11px; animation:m-fade .3s ease;">
-              <div style="position:relative; width:86px; aspect-ratio:16/9; flex:none; border-radius:8px; overflow:hidden;">
-                <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
+          <sc-if value="{{ sqHalfOpen }}" hint-placeholder-val="{{ false }}">
+            <div class="{{ halfAdClass }}" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:{{ halfAdTop }}; left:16px; right:16px; aspect-ratio:16/9; border-radius:12px; overflow:hidden; background:#000; box-shadow:0 14px 40px rgba(0,0,0,.5); z-index:5;">
+              <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
+            </div>
+          </sc-if>
+          <!-- quiet countdown + centered play/pause (10ft pattern) -->
+          <sc-if value="{{ sqCaptionShown }}" hint-placeholder-val="{{ false }}">
+            <div class="psq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:0; right:0; bottom:56px; z-index:44; text-align:center; font-size:12px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; pointer-events:none;">Advertisement · Back in {{ squeezeCount }}s</div>
+          </sc-if>
+          <sc-if value="{{ sqCtlShown }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute; left:0; right:0; bottom:88px; display:flex; justify-content:center; z-index:45; animation:m-fadein .2s ease;">
+              <div class="lgx mtap" onClick="{{ togglePlay }}" style="width:54px; height:54px; border-radius:50%; background:rgba(255,255,255,.12); -webkit-backdrop-filter:blur(16px) saturate(180%); backdrop-filter:blur(16px) saturate(180%); border:1px solid rgba(255,255,255,.35); box-shadow:inset 0 1px 1px rgba(255,255,255,.45), inset 0 -6px 12px rgba(255,255,255,.06), 0 8px 22px rgba(0,0,0,.28); display:flex; align-items:center; justify-content:center; pointer-events:auto;">
+                <sc-if value="{{ playing }}" hint-placeholder-val="{{ true }}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.67179 20.4143H9.10916C10.0392 20.4143 10.5309 19.9226 10.5309 18.9818V4.42179C10.5309 3.44899 10.0392 3 9.10916 3H6.67179C5.74175 3 5.25 3.49175 5.25 4.42179V18.9818C5.25 19.9226 5.74175 20.4143 6.67179 20.4143ZM14.4435 20.4143H16.8702C17.8109 20.4143 18.292 19.9226 18.292 18.9818V4.42179C18.292 3.44899 17.8109 3 16.8702 3H14.4435C13.5028 3 13.0111 3.49175 13.0111 4.42179V18.9818C13.0111 19.9226 13.5028 20.4143 14.4435 20.4143Z" fill="currentColor"/></svg></sc-if>
+                <sc-if value="{{ paused }}" hint-placeholder-val="{{ false }}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.82983 20.1474C7.21679 20.1474 7.54571 19.9926 7.93267 19.7701L19.2126 13.2498C20.0155 12.7758 20.2961 12.4662 20.2961 11.9535C20.2961 11.4408 20.0155 11.1312 19.2126 10.6669L7.93267 4.1369C7.54571 3.9144 7.21679 3.76929 6.82983 3.76929C6.11395 3.76929 5.66895 4.31103 5.66895 5.15267V18.7544C5.66895 19.596 6.11395 20.1474 6.82983 20.1474Z" fill="currentColor"/></svg></sc-if>
               </div>
-              <div style="flex:1; min-width:0;">
-                <div style="font-size:12.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Summer Edition, out now</div>
-                <div style="font-size:10.5px; color:rgba(255,255,255,.6); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Ad · redbull.com · video keeps playing</div>
-              </div>
-              <div style="font-size:10.5px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; white-space:nowrap;">{{ squeezeCount }}s</div>
             </div>
           </sc-if>
 
-          <!-- ===== full-screen portrait ad (native sponsor card, no QR) ===== -->
+          <!-- ===== full-screen portrait ad (native sponsor card, no QR) — slides in as a
+               sheet below the chrome row, and leaves the way it came ===== -->
           <sc-if value="{{ adOpen }}" hint-placeholder-val="{{ false }}">
-            <div style="position:absolute; top:102px; left:0; right:0; bottom:0; z-index:50; background:#08080a; display:flex; flex-direction:column;">
+            <div class="adsheet" data-adout="{{ adOutAttr }}" style="position:absolute; top:120px; left:0; right:0; bottom:0; z-index:50; background:#08080a; display:flex; flex-direction:column;">
               <!-- ad footage -->
               <div style="position:relative; width:100%; aspect-ratio:16/9; background:#000; overflow:hidden; flex:none;">
                 <video ref="{{ adVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
@@ -277,8 +283,11 @@
                 </div>
                 </sc-if>
                 <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-                  <div style="font-size:22px; font-weight:500; letter-spacing:-.01em;">{{ titleText }}</div>
-                  <div style="display:flex; gap:8px; align-items:center; flex:none;">
+                  <div style="flex:1; min-width:0; font-size:19px; font-weight:500; letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ titleText }}</div>
+                  <div style="display:flex; gap:8px; align-items:center; justify-content:flex-end; flex:none; width:124px;">
+                    <sc-if value="{{ goLiveShown }}" hint-placeholder-val="{{ false }}">
+                      <div class="lgx mtap" onClick="{{ goLive }}" title="Jump to live" style="width:36px; height:36px; flex:none; border-radius:50%; background:rgba(255,255,255,.14); -webkit-backdrop-filter:blur(20px) saturate(160%); backdrop-filter:blur(20px) saturate(160%); border:1px solid rgba(255,255,255,.22); box-shadow:inset 0 1px 0 rgba(255,255,255,.2); color:#fff; display:flex; align-items:center; justify-content:center; animation:m-fadein .25s ease;"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M5 5l9 7-9 7z"></path><rect x="16" y="5" width="3" height="14" rx="1.2"></rect></svg></div>
+                    </sc-if>
                     <sc-if value="{{ igTabBtn }}" hint-placeholder-val="{{ false }}">
                       <div class="lgx mtap" onClick="{{ openELBtn }}" title="Interactive" style="width:36px; height:36px; flex:none; border-radius:50%; background:rgba(255,255,255,.14); -webkit-backdrop-filter:blur(20px) saturate(160%); backdrop-filter:blur(20px) saturate(160%); border:1px solid rgba(255,255,255,.22); box-shadow:inset 0 1px 0 rgba(255,255,255,.2); color:#fff; display:flex; align-items:center; justify-content:center;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2"></path><path d="M15 16v-2"></path><path d="M8 9h2"></path><path d="M20 9h2"></path><path d="M17.8 11.8L19 13"></path><path d="M17.8 6.2L19 5"></path><path d="M3 21l9-9"></path><path d="M12.2 6.2L11 5"></path></svg></div>
                     </sc-if>
@@ -301,18 +310,13 @@
                   <div onPointerDown="{{ scrubDown }}" style="padding:6px 0; cursor:pointer; touch-action:none;">
                     <div style="height:{{ trackH }}; border-radius:3px; background:{{ trackColor }}; position:relative; transition:height .14s ease, background-color .14s ease;">
                       <div style="position:absolute; left:0; top:0; height:100%; width:{{ scrubLeft }}; background:{{ fillColor }}; border-radius:3px 0 0 3px; transition:background-color .14s ease;"></div>
-                      <sc-if value="{{ liveMarkShown }}" hint-placeholder-val="{{ false }}"><div style="position:absolute; top:50%; left:65%; transform:translate(-50%,-50%); width:3px; height:11px; border-radius:2px; background:#FF3B30; box-shadow:0 0 8px rgba(255,59,48,.7); z-index:2;"></div></sc-if>
+                      <sc-if value="{{ liveMarkShown }}" hint-placeholder-val="{{ false }}"><div style="position:absolute; top:50%; left:65%; transform:translate(-50%,-50%); width:3px; height:{{ liveMarkH }}; border-radius:2px; background:#FF3B30; box-shadow:0 0 8px rgba(255,59,48,.7); z-index:2;"></div></sc-if>
                       <div style="position:absolute; top:50%; left:{{ scrubLeft }}; width:3px; height:{{ trackH }}; border-radius:2px; background:{{ knobColor }}; transform:translate(-50%,-50%); box-shadow:0 1px 5px rgba(0,0,0,.5); transition:width .14s ease, height .14s ease, background-color .14s ease;"></div>
                     </div>
                   </div>
                   <div style="display:flex; align-items:center; justify-content:space-between; margin-top:3px;">
                     <span style="font-size:11px; font-weight:500; color:#fff; font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeNow }}</span>
-                    <span style="display:flex; align-items:center; gap:8px;">
-                      <span style="font-size:11px; font-weight:500; color:rgba(255,255,255,.65); font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeDur }}</span>
-                      <sc-if value="{{ goLiveShown }}" hint-placeholder-val="{{ false }}">
-                        <div class="mtap" onClick="{{ goLive }}" title="Jump to live" style="width:26px; height:26px; flex:none; border-radius:50%; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); display:flex; align-items:center; justify-content:center; animation:m-fade .25s ease;"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff"><path d="M5 5l9 7-9 7z"></path><rect x="16" y="5" width="3" height="14" rx="1.2"></rect></svg></div>
-                      </sc-if>
-                    </span>
+                    <span style="font-size:11px; font-weight:500; color:rgba(255,255,255,.65); font-variant-numeric:tabular-nums; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.6);">{{ timeDur }}</span>
                   </div>
                 </div>
               </div>
@@ -336,14 +340,13 @@
                 <sc-if value="{{ nextTabShown }}" hint-placeholder-val="{{ false }}">
                   <div class="mtap" onClick="{{ openNext }}" style="padding:10px 22px; border-radius:30px; font-size:15px; font-weight:500; background:{{ tabNextBg }}; color:{{ tabNextColor }}; border:1px solid {{ tabNextBorder }};">Up next</div>
                 </sc-if>
-                <div class="lgx mtap" onClick="{{ closePanel }}" title="Collapse" style="margin-left:auto; width:40px; height:40px; flex:none; border-radius:50%; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16); display:flex; align-items:center; justify-content:center;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
               </div>
               </sc-if>
 
               <div style="flex:1; min-height:0; overflow:hidden;">
                 <!-- INFO -->
                 <sc-if value="{{ panelInfo }}" hint-placeholder-val="{{ false }}">
-                  <div style="display:flex; flex-direction:column; height:100%; min-height:0; animation:m-fade .26s ease;">
+                  <div style="display:flex; flex-direction:column; height:100%; min-height:0; animation:m-fadein .35s ease .08s both;">
                     <div style="font-size:22px; font-weight:500; margin-bottom:9px;">{{ titleText }}</div>
                     <div style="font-size:15px; line-height:1.5; color:rgba(255,255,255,.66); margin-bottom:16px;">The best battles from the Red Bull Dance Your Style USA Qualifier. Vote for your favorite dancer and follow every round through the interactive experience.</div>
                     <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
@@ -351,23 +354,28 @@
                       <span style="border:1px solid rgba(255,255,255,.3); color:#fff; font-size:12px; font-weight:500; padding:4px 9px; border-radius:8px;">4K</span>
                       <span style="font-size:14px; color:rgba(255,255,255,.7);">Los Angeles</span>
                     </div>
-                    <div style="flex:1;"></div>
                     <div class="mtap" onClick="{{ togglePlay }}" style="display:flex; align-items:center; justify-content:center; gap:9px; padding:15px; border-radius:32px; background:#fff; color:#101013; font-size:16px; font-weight:500; margin-bottom:11px; flex:none;"><svg width="13" height="13" viewBox="0 0 12 12"><path d="M2 1.4l8 4.6-8 4.6z" fill="currentColor"/></svg>Start over</div>
                     <div class="mtap" style="text-align:center; padding:15px; border-radius:32px; background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.06) 55%, rgba(255,255,255,.1)); border:1px solid rgba(255,255,255,.24); box-shadow:inset 0 1px 1px rgba(255,255,255,.4); color:#fff; font-size:16px; font-weight:500; flex:none;">More Details</div>
+                    <div style="flex:1;"></div>
                   </div>
                 </sc-if>
 
                 <!-- EASE LIVE · Dance Your Style (portrait panel) -->
                 <sc-if value="{{ panelIG }}" hint-placeholder-val="{{ true }}">
-                  <div style="display:flex; flex-direction:column; height:100%; min-height:0; animation:m-fade .26s ease;">
-                    <div style="display:flex; gap:8px; align-items:center; margin-bottom:14px; flex:none;">
-                      <div style="flex:1; display:flex; gap:5px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); border-radius:999px; padding:5px;">
-                        <div class="mtap" onClick="{{ setVote }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ segVoteBg }}; color:{{ segVoteColor }};">Vote</div>
-                        <div class="mtap" onClick="{{ setAbout }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ segAboutBg }}; color:{{ segAboutColor }};">About</div>
-                        <div class="mtap" onClick="{{ setMusic }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ segMusicBg }}; color:{{ segMusicColor }};">Music</div>
-                        <div class="mtap" onClick="{{ setPeople }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ segPeopleBg }}; color:{{ segPeopleColor }};">People</div>
+                  <div style="display:flex; flex-direction:column; height:100%; min-height:0; animation:m-fadein .35s ease .08s both;">
+                    <!-- title header first (10ft pattern), tabs one layer below -->
+                    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; flex:none;">
+                      <div style="min-width:0;">
+                        <div style="font-size:20px; font-weight:500; letter-spacing:-.01em;">Dance Your Style</div>
+                        <div style="font-size:12px; font-weight:400; color:rgba(255,255,255,.55); margin-top:3px;">USA Qualifier · Best Moments · Los Angeles</div>
                       </div>
                       <div class="lgx mtap" onClick="{{ closePanel }}" title="Collapse" style="width:42px; height:42px; flex:none; border-radius:50%; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16); display:flex; align-items:center; justify-content:center;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 6l5 5 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    </div>
+                    <div style="display:flex; gap:5px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); border-radius:999px; padding:5px; margin-bottom:14px; flex:none;">
+                      <div class="mtap" onClick="{{ setVote }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ segVoteBg }}; color:{{ segVoteColor }};">Vote</div>
+                      <div class="mtap" onClick="{{ setAbout }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ segAboutBg }}; color:{{ segAboutColor }};">About</div>
+                      <div class="mtap" onClick="{{ setMusic }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ segMusicBg }}; color:{{ segMusicColor }};">Music</div>
+                      <div class="mtap" onClick="{{ setPeople }}" style="flex:1; text-align:center; padding:10px 4px; border-radius:999px; font-size:13px; font-weight:500; background:{{ segPeopleBg }}; color:{{ segPeopleColor }};">People</div>
                     </div>
                     <div style="flex:1; min-height:0; overflow-y:auto;">
                       <sc-if value="{{ mVote }}" hint-placeholder-val="{{ true }}">
@@ -503,13 +511,13 @@
         <div style="position:absolute; inset:0; background:#000;">
           <sc-if value="{{ ratingShow }}" hint-placeholder-val="{{ true }}">
           <sc-if value="{{ ratingIn }}" hint-placeholder-val="{{ true }}">
-          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); height:100%; aspect-ratio:16/9; z-index:51; pointer-events:none;"><div style="position:absolute; top:54px; left:18px; display:flex; align-items:center; gap:9px; text-shadow:0 2px 14px rgba(0,0,0,.6); animation:m-ratein {{ rateInDur }} cubic-bezier(.2,.7,.3,1) forwards;"><div style="display:flex; align-items:center; justify-content:center; min-width:36px; height:26px; padding:0 8px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:13px; font-weight:500;">TV-G</div><div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.9); max-width:200px; line-height:1.25;">General audiences · all ages</div></div></div>
+          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); height:100%; aspect-ratio:16/9; z-index:51; pointer-events:none;"><div style="position:absolute; top:19px; left:18px; display:flex; align-items:center; gap:9px; text-shadow:0 2px 14px rgba(0,0,0,.6); animation:m-ratein {{ rateInDur }} cubic-bezier(.2,.7,.3,1) forwards;"><div style="display:flex; align-items:center; justify-content:center; min-width:36px; height:26px; padding:0 8px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:13px; font-weight:500;">TV-G</div><div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.9); max-width:200px; line-height:1.25;">General audiences · all ages</div></div></div>
           </sc-if>
           <sc-if value="{{ ratingOutP }}" hint-placeholder-val="{{ false }}">
-          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); height:100%; aspect-ratio:16/9; z-index:51; pointer-events:none;"><div style="position:absolute; top:54px; left:18px; display:flex; align-items:center; gap:9px; text-shadow:0 2px 14px rgba(0,0,0,.6); animation:m-rateout {{ rateOutDur }} cubic-bezier(.2,.7,.3,1) forwards;"><div style="display:flex; align-items:center; justify-content:center; min-width:36px; height:26px; padding:0 8px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:13px; font-weight:500;">TV-G</div><div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.9); max-width:200px; line-height:1.25;">General audiences · all ages</div></div></div>
+          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); height:100%; aspect-ratio:16/9; z-index:51; pointer-events:none;"><div style="position:absolute; top:19px; left:18px; display:flex; align-items:center; gap:9px; text-shadow:0 2px 14px rgba(0,0,0,.6); animation:m-rateout {{ rateOutDur }} cubic-bezier(.2,.7,.3,1) forwards;"><div style="display:flex; align-items:center; justify-content:center; min-width:36px; height:26px; padding:0 8px; border-radius:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25); font-size:13px; font-weight:500;">TV-G</div><div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.9); max-width:200px; line-height:1.25;">General audiences · all ages</div></div></div>
           </sc-if>
           </sc-if>
-          <video ref="{{ videoRef }}" src="assets/feature.mp4" poster="assets/splash-tv.png" style="position:absolute; top:50%; left:{{ vLeft }}; transform:{{ vTf }}; height:{{ vH }}; width:{{ vW }}; aspect-ratio:16/9; object-fit:cover; border-radius:{{ vR }}; transition:left .42s cubic-bezier(.2,.7,.3,1), width .42s cubic-bezier(.2,.7,.3,1), height .42s cubic-bezier(.2,.7,.3,1), border-radius .42s ease;"></video>
+          <video ref="{{ videoRef }}" src="assets/feature.mp4" poster="assets/splash-tv.png" style="position:absolute; top:0; left:75.33px; width:693.33px; height:390px; object-fit:cover; transform-origin:0 0; will-change:transform; z-index:{{ lsVidZ }}; transform:{{ lsVidTf }}; border-radius:{{ lsVidR }}; transition:transform .55s cubic-bezier(.3,0,.18,1), border-radius .55s cubic-bezier(.3,0,.18,1);"></video>
           <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.5) 0%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 54%, rgba(0,0,0,.66) 100%);"></div>
 
           <!-- tap layer: reveal / hide controls -->
@@ -518,8 +526,10 @@
           <!-- 16:9 control box, aligned to the video edges -->
           <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); height:100%; aspect-ratio:16/9; z-index:3; pointer-events:none;">
 
-            <!-- corner bug, top-right of the video -->
+            <!-- corner bug, top-right of the video (hidden while an ad squeeze owns the layout) -->
+            <sc-if value="{{ bugShownLs }}" hint-placeholder-val="{{ true }}">
             <img src="assets/corner-rbtv.png" alt="Red Bull TV" style="position:absolute; top:14px; right:18px; height:36px; width:auto; opacity:.35; filter:drop-shadow(0 2px 6px rgba(0,0,0,.55));" />
+            </sc-if>
 
             <!-- skip intro pill (landscape) -->
             <sc-if value="{{ skipShown }}" hint-placeholder-val="{{ false }}">
@@ -535,9 +545,9 @@
                   <div class="mtap" style="width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.8979 5.90283C18.9613 5.90283 19.6168 6.55827 19.6168 7.62168V14.3633C19.6168 15.4267 18.9613 16.0822 17.8979 16.0822H15.6323L14.68 15.0053H17.8778C18.2925 15.0053 18.54 14.7579 18.54 14.3499V7.64175C18.54 7.22708 18.2925 6.97962 17.8778 6.97962H5.73891C5.32425 6.97962 5.07679 7.22708 5.07679 7.64175V14.3499C5.07679 14.7579 5.32425 15.0053 5.73891 15.0053H8.94339L7.99115 16.0822H5.71885C4.65544 16.0822 4 15.4267 4 14.3633V7.62168C4 6.55827 4.65544 5.90283 5.71885 5.90283H17.8979Z" fill="currentColor"/><path d="M15.8989 18.5769C16.2132 18.5769 16.3336 18.2559 16.1329 18.0285L12.1 13.4605C11.9462 13.2866 11.6786 13.2866 11.5248 13.4605L7.4919 18.0285C7.29125 18.2559 7.41164 18.5769 7.72598 18.5769H15.8989Z" fill="currentColor"/></svg></div>
                 </div>
                 <div style="flex:1;"></div>
-                <div class="lgx" style="display:flex; gap:6px; align-items:center; height:40px; padding:0 4px; border-radius:21px; background:rgba(28,28,32,.85); border:1px solid rgba(255,255,255,.14);">
+                <div class="lgx" style="display:flex; align-items:center; height:40px; padding:0 4px; border-radius:20px; background:rgba(28,28,32,.85); border:1px solid rgba(255,255,255,.14);">
                   <div style="width:{{ volW }}; opacity:{{ volOp }}; overflow:hidden; transition:width .28s cubic-bezier(.2,.7,.3,1), opacity .2s ease;">
-                    <div onPointerDown="{{ volDown }}" style="width:92px; padding:8px 0 8px 10px; cursor:pointer; touch-action:none;">
+                    <div onPointerDown="{{ volDown }}" style="width:96px; padding:8px 6px 8px 12px; cursor:pointer; touch-action:none;">
                       <div style="height:4px; border-radius:3px; background:rgba(255,255,255,.3); position:relative;">
                         <div style="position:absolute; left:0; top:0; height:100%; width:{{ volLeft }}; background:#fff; border-radius:3px;"></div>
                         <div style="position:absolute; top:50%; left:{{ volLeft }}; width:12px; height:12px; border-radius:50%; background:#fff; transform:translate(-50%,-50%); box-shadow:0 1px 4px rgba(0,0,0,.5);"></div>
@@ -592,7 +602,7 @@
                   <div onPointerDown="{{ scrubDown }}" style="padding:7px 0; cursor:pointer; touch-action:none;">
                     <div style="height:{{ trackH }}; border-radius:3px; background:{{ trackColor }}; position:relative; transition:height .14s ease, background-color .14s ease;">
                       <div style="position:absolute; left:0; top:0; height:100%; width:{{ scrubLeft }}; background:{{ fillColor }}; border-radius:3px 0 0 3px; transition:background-color .14s ease;"></div>
-                      <sc-if value="{{ liveMarkShown }}" hint-placeholder-val="{{ false }}"><div style="position:absolute; top:50%; left:65%; transform:translate(-50%,-50%); width:3px; height:11px; border-radius:2px; background:#FF3B30; box-shadow:0 0 8px rgba(255,59,48,.7); z-index:2;"></div></sc-if>
+                      <sc-if value="{{ liveMarkShown }}" hint-placeholder-val="{{ false }}"><div style="position:absolute; top:50%; left:65%; transform:translate(-50%,-50%); width:3px; height:{{ liveMarkH }}; border-radius:2px; background:#FF3B30; box-shadow:0 0 8px rgba(255,59,48,.7); z-index:2;"></div></sc-if>
                       <div style="position:absolute; top:50%; left:{{ scrubLeft }}; width:3px; height:{{ trackH }}; border-radius:2px; background:{{ knobColor }}; transform:translate(-50%,-50%); box-shadow:0 1px 4px rgba(0,0,0,.5); transition:width .14s ease, height .14s ease, background-color .14s ease;"></div>
                     </div>
                   </div>
@@ -658,7 +668,7 @@
                 </div>
               </sc-if>
               <sc-if value="{{ lsShowMeta }}" hint-placeholder-val="{{ true }}">
-                <div style="position:absolute; left:0; right:0; bottom:126px; box-sizing:border-box; display:flex; align-items:flex-end; justify-content:space-between; gap:16px;">
+                <div style="position:absolute; left:0; right:0; bottom:96px; box-sizing:border-box; display:flex; align-items:flex-end; justify-content:space-between; gap:16px;">
                   <div>
                     <sc-if value="{{ badgeShown }}" hint-placeholder-val="{{ true }}">
                     <div style="display:flex; align-items:center; gap:7px; background:rgba(22,22,26,.5); -webkit-backdrop-filter:blur(20px) saturate(150%); backdrop-filter:blur(20px) saturate(150%); border:1px solid rgba(255,255,255,.18); padding:6px 13px; border-radius:30px; width:max-content; margin-bottom:9px;">
@@ -683,57 +693,90 @@
               </sc-if>
             </div>
           </div>
-          <!-- landscape AD SQUEEZE: video squeezes left, ad panel right / banner bottom -->
-          <sc-if value="{{ sqStackOpen }}" hint-placeholder-val="{{ false }}">
-            <div style="position:absolute; top:0; right:0; bottom:0; width:40%; z-index:39; display:flex; flex-direction:column; gap:10px; padding:16px; background:#0d0d10; border-left:1px solid rgba(255,255,255,.14); animation:m-fade .3s ease;">
-              <div style="position:relative; width:100%; aspect-ratio:16/9; border-radius:11px; overflow:hidden; box-shadow:0 14px 40px rgba(0,0,0,.5);">
+          <!-- landscape AD SQUEEZES mirror the 10-foot formats: 50/50, L-shape, ad focus,
+               PiP. Ads slide in from their own edge on the curve the video's transform uses. -->
+          <sc-if value="{{ sqHalfOpen }}" hint-placeholder-val="{{ false }}">
+            <div class="{{ halfLsClass }}" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:87.5px; width:382px; aspect-ratio:16/9; border-radius:12px; overflow:hidden; box-shadow:0 18px 50px rgba(0,0,0,.5); z-index:39; {{ halfLsAnchor }}">
+              <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
+            </div>
+          </sc-if>
+          <sc-if value="{{ sqLshapeOpen }}" hint-placeholder-val="{{ false }}">
+            <div class="lsq-r" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:26px; right:32px; bottom:26px; width:224.5px; z-index:39; display:flex; flex-direction:column; gap:12px;">
+              <div style="position:relative; width:100%; aspect-ratio:16/9; border-radius:10px; overflow:hidden; box-shadow:0 14px 36px rgba(0,0,0,.5);">
                 <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
               </div>
-              <div style="flex:1; min-height:0; display:flex; flex-direction:column; justify-content:flex-end; gap:3px;">
-                <div style="font-size:11.5px; font-weight:500;">redbull.com</div>
-                <div style="font-size:9.5px; color:rgba(255,255,255,.55);">Sponsored · Gives You Wings</div>
-                <div style="font-size:9.5px; font-weight:500; color:rgba(255,255,255,.5); font-variant-numeric:tabular-nums; margin-top:5px;">Your video continues · back in {{ squeezeCount }}s</div>
+              <div style="flex:1;"></div>
+              <div>
+                <div style="font-size:12.5px; font-weight:500;">Red Bull Gives You Wings</div>
+                <div style="font-size:10px; font-weight:400; color:rgba(255,255,255,.55); margin-top:2px;">redbull.com · Sponsored</div>
+              </div>
+            </div>
+            <div class="lsq-b" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:32px; top:284px; width:430px; height:80px; border-radius:10px; padding:0 18px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); display:flex; align-items:center; z-index:39;">
+              <div>
+                <div style="font-size:13px; font-weight:500;">Summer Edition, out now</div>
+                <div style="font-size:10.5px; font-weight:400; color:rgba(255,255,255,.55); margin-top:2px;">Advertisement · your video keeps playing</div>
               </div>
             </div>
           </sc-if>
-          <sc-if value="{{ sqBannerOpen }}" hint-placeholder-val="{{ false }}">
-            <div style="position:absolute; left:16px; right:16px; bottom:14px; z-index:39; border-radius:13px; padding:10px 14px; background:linear-gradient(90deg, rgba(255,255,255,.14), rgba(10,10,12,.82)); -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,.16); display:flex; align-items:center; gap:12px; animation:m-toastin .35s cubic-bezier(.2,.7,.3,1);">
-              <div style="position:relative; width:96px; aspect-ratio:16/9; flex:none; border-radius:8px; overflow:hidden;">
-                <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
+          <sc-if value="{{ sqFocusOpen }}" hint-placeholder-val="{{ false }}">
+            <div class="lsq-r2" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:47.9px; right:32px; width:523.3px; aspect-ratio:16/9; border-radius:10px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.6); z-index:39;">
+              <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
+            </div>
+            <div class="lsq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:32px; top:271px; width:241.6px; z-index:41; display:flex; align-items:center; justify-content:space-between;">
+              <span style="font-size:11px; font-weight:500; color:rgba(255,255,255,.75);">You're watching</span>
+              <span style="display:flex; align-items:center; gap:5px; font-size:10px; font-weight:500; letter-spacing:.08em; color:#fff;"><span style="width:6px; height:6px; border-radius:50%; background:#FF3B30; animation:m-pulse 1.6s infinite;"></span>LIVE</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ sqPipOpen }}" hint-placeholder-val="{{ false }}">
+            <div class="lsq-c" data-sqx="{{ sqOutAttr }}" style="position:absolute; inset:0; background:#000; z-index:38;">
+              <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
+              <div style="position:absolute; left:0; right:0; bottom:0; height:120px; background:linear-gradient(180deg, transparent, rgba(0,0,0,.55)); pointer-events:none;"></div>
+              <div class="lsq-f" style="position:absolute; left:32px; top:20px; text-shadow:0 1px 8px rgba(0,0,0,.55);">
+                <div style="font-size:13px; font-weight:500;">Red Bull Gives You Wings</div>
+                <div style="font-size:10.5px; font-weight:400; color:rgba(255,255,255,.6); margin-top:2px;">redbull.com · Sponsored</div>
               </div>
-              <div style="flex:1; min-width:0;">
-                <div style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Summer Edition, out now</div>
-                <div style="font-size:10.5px; color:rgba(255,255,255,.6); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Ad · redbull.com · your video keeps playing</div>
+            </div>
+            <div class="lsq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:592.6px; width:219.4px; top:356px; z-index:41; display:flex; align-items:center; justify-content:space-between;">
+              <span style="font-size:10.5px; font-weight:500; color:rgba(255,255,255,.75); text-shadow:0 1px 6px rgba(0,0,0,.6);">You're watching</span>
+              <span style="display:flex; align-items:center; gap:5px; font-size:9.5px; font-weight:500; letter-spacing:.08em; color:#fff; text-shadow:0 1px 6px rgba(0,0,0,.6);"><span style="width:6px; height:6px; border-radius:50%; background:#FF3B30; animation:m-pulse 1.6s infinite;"></span>LIVE</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ sqCaptionShown }}" hint-placeholder-val="{{ false }}">
+            <div class="lsq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:0; right:0; bottom:10px; z-index:45; text-align:center; font-size:11px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6); pointer-events:none;">Advertisement · Back in {{ squeezeCount }}s</div>
+          </sc-if>
+          <sc-if value="{{ sqCtlShown }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute; left:0; right:0; bottom:40px; display:flex; justify-content:center; z-index:46; animation:m-fadein .2s ease;">
+              <div class="lgx mtap" onClick="{{ togglePlay }}" style="width:50px; height:50px; border-radius:50%; background:rgba(255,255,255,.12); -webkit-backdrop-filter:blur(16px) saturate(180%); backdrop-filter:blur(16px) saturate(180%); border:1px solid rgba(255,255,255,.35); box-shadow:inset 0 1px 1px rgba(255,255,255,.45), inset 0 -6px 12px rgba(255,255,255,.06), 0 8px 22px rgba(0,0,0,.28); display:flex; align-items:center; justify-content:center; pointer-events:auto;">
+                <sc-if value="{{ playing }}" hint-placeholder-val="{{ true }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.67179 20.4143H9.10916C10.0392 20.4143 10.5309 19.9226 10.5309 18.9818V4.42179C10.5309 3.44899 10.0392 3 9.10916 3H6.67179C5.74175 3 5.25 3.49175 5.25 4.42179V18.9818C5.25 19.9226 5.74175 20.4143 6.67179 20.4143ZM14.4435 20.4143H16.8702C17.8109 20.4143 18.292 19.9226 18.292 18.9818V4.42179C18.292 3.44899 17.8109 3 16.8702 3H14.4435C13.5028 3 13.0111 3.49175 13.0111 4.42179V18.9818C13.0111 19.9226 13.5028 20.4143 14.4435 20.4143Z" fill="currentColor"/></svg></sc-if>
+                <sc-if value="{{ paused }}" hint-placeholder-val="{{ false }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.82983 20.1474C7.21679 20.1474 7.54571 19.9926 7.93267 19.7701L19.2126 13.2498C20.0155 12.7758 20.2961 12.4662 20.2961 11.9535C20.2961 11.4408 20.0155 11.1312 19.2126 10.6669L7.93267 4.1369C7.54571 3.9144 7.21679 3.76929 6.82983 3.76929C6.11395 3.76929 5.66895 4.31103 5.66895 5.15267V18.7544C5.66895 19.596 6.11395 20.1474 6.82983 20.1474Z" fill="currentColor"/></svg></sc-if>
               </div>
-              <div style="font-size:11px; font-weight:500; color:rgba(255,255,255,.6); font-variant-numeric:tabular-nums; white-space:nowrap;">{{ squeezeCount }}s</div>
             </div>
           </sc-if>
 
           <!-- landscape Ease Live side panel — stays in landscape (10ft pattern) -->
           <sc-if value="{{ lsPanelOpen }}" hint-placeholder-val="{{ false }}">
-            <div style="position:absolute; top:0; right:0; bottom:0; width:{{ lsPanelW }}; z-index:40; display:flex; flex-direction:column; background:{{ lsPanelBg }}; -webkit-backdrop-filter:blur(34px) saturate(170%); backdrop-filter:blur(34px) saturate(170%); border-left:1px solid rgba(255,255,255,.16); box-shadow:inset 1px 0 0 rgba(255,255,255,.1), inset 0 1px 1px rgba(255,255,255,.14), -24px 0 60px rgba(0,0,0,.5); animation:m-fade .26s ease;">
-              <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px 0;">
-                <div></div>
-                <div class="mtap" onClick="{{ closeLsPanel }}" style="width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center;"><svg width="13" height="13" viewBox="0 0 16 16"><line x1="4" y1="4" x2="12" y2="12" stroke="#fff" stroke-width="2" stroke-linecap="round"></line><line x1="12" y1="4" x2="4" y2="12" stroke="#fff" stroke-width="2" stroke-linecap="round"></line></svg></div>
+            <div class="lspanel" style="position:absolute; top:0; right:0; bottom:0; width:{{ lsPanelW }}; z-index:40; display:flex; flex-direction:column; background:{{ lsPanelBg }}; -webkit-backdrop-filter:blur(34px) saturate(170%); backdrop-filter:blur(34px) saturate(170%); border-left:1px solid rgba(255,255,255,.16); box-shadow:inset 1px 0 0 rgba(255,255,255,.1), inset 0 1px 1px rgba(255,255,255,.14), -24px 0 60px rgba(0,0,0,.5);">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:17px 18px 13px;">
+                <div style="min-width:0;">
+                  <div style="font-size:16px; font-weight:500; letter-spacing:-.01em;">Dance Your Style</div>
+                  <div style="font-size:10.5px; color:rgba(255,255,255,.5); margin-top:3px;">USA Qualifier · Best Moments · Los Angeles</div>
+                </div>
+                <div class="mtap" onClick="{{ closeLsPanel }}" style="width:30px; height:30px; flex:none; border-radius:50%; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center;"><svg width="13" height="13" viewBox="0 0 16 16"><line x1="4" y1="4" x2="12" y2="12" stroke="#fff" stroke-width="2" stroke-linecap="round"></line><line x1="12" y1="4" x2="4" y2="12" stroke="#fff" stroke-width="2" stroke-linecap="round"></line></svg></div>
               </div>
-              <div style="padding:8px 16px 10px;">
-                <div style="font-size:16px; font-weight:500; letter-spacing:-.01em;">Dance Your Style</div>
-                <div style="font-size:10.5px; color:rgba(255,255,255,.5); margin-top:2px;">USA Qualifier · Best Moments · Los Angeles</div>
-              </div>
-              <div style="margin:0 16px 10px; display:flex; gap:4px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:999px; padding:4px; box-shadow:inset 0 1px 1px rgba(255,255,255,.1); flex:none;">
+              <div style="margin:0 18px 14px; display:flex; gap:4px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:999px; padding:4px; box-shadow:inset 0 1px 1px rgba(255,255,255,.1); flex:none;">
                 <div class="mtap" onClick="{{ setVote }}" style="flex:1; text-align:center; padding:7px 2px; border-radius:999px; font-size:10.5px; font-weight:500; background:{{ segVoteBg }}; color:{{ segVoteColor }};">Vote</div>
                 <div class="mtap" onClick="{{ setAbout }}" style="flex:1; text-align:center; padding:7px 2px; border-radius:999px; font-size:10.5px; font-weight:500; background:{{ segAboutBg }}; color:{{ segAboutColor }};">About</div>
                 <div class="mtap" onClick="{{ setMusic }}" style="flex:1; text-align:center; padding:7px 2px; border-radius:999px; font-size:10.5px; font-weight:500; background:{{ segMusicBg }}; color:{{ segMusicColor }};">Music</div>
                 <div class="mtap" onClick="{{ setPeople }}" style="flex:1; text-align:center; padding:7px 2px; border-radius:999px; font-size:10.5px; font-weight:500; background:{{ segPeopleBg }}; color:{{ segPeopleColor }};">People</div>
               </div>
-              <div style="flex:1; min-height:0; overflow-y:auto; padding:0 16px 14px;">
+              <div style="flex:1; min-height:0; overflow-y:auto; padding:2px 18px 18px;">
                 <sc-if value="{{ mVote }}" hint-placeholder-val="{{ true }}">
                   <sc-if value="{{ voteFormShown }}" hint-placeholder-val="{{ true }}">
-                    <div style="font-size:13px; font-weight:500; margin-bottom:3px;">Who wins this battle?</div>
-                    <div style="font-size:10px; color:rgba(255,255,255,.55); margin-bottom:10px;">Pick your favorite: the crowd decides</div>
-                    <div style="display:flex; flex-direction:column; gap:7px;">
+                    <div style="font-size:14px; font-weight:500; margin-bottom:4px;">Who wins this battle?</div>
+                    <div style="font-size:10.5px; color:rgba(255,255,255,.55); margin-bottom:13px;">Pick your favorite: the crowd decides</div>
+                    <div style="display:flex; flex-direction:column; gap:9px;">
                       <sc-for list="{{ voteCards }}" as="o" hint-placeholder-count="2">
-                        <div class="mtap" data-i="{{ o.idx }}" onClick="{{ onVoteSel }}" style="border-radius:11px; border:1px solid {{ o.border }}; background:{{ o.bg }}; padding:9px 11px; display:flex; align-items:center; gap:9px;">
+                        <div class="mtap" data-i="{{ o.idx }}" onClick="{{ onVoteSel }}" style="border-radius:12px; border:1px solid {{ o.border }}; background:{{ o.bg }}; padding:11px 12px; display:flex; align-items:center; gap:10px;">
                           <div style="width:32px; height:32px; flex:none; border-radius:50%; background:rgba(255,255,255,.12); border:{{ o.avatarBorder }}; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:500; color:{{ o.avatarColor }};">{{ o.initials }}</div>
                           <div style="flex:1; min-width:0;">
                             <div style="font-size:12px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ o.name }}</div>
@@ -745,7 +788,7 @@
                         </div>
                       </sc-for>
                     </div>
-                    <div class="mtap" onClick="{{ castVote }}" style="margin-top:10px; padding:10px; border-radius:22px; text-align:center; font-size:12px; font-weight:500; background:{{ castBg }}; color:{{ castColor }}; opacity:{{ castOp }};">Cast vote</div>
+                    <div class="mtap" onClick="{{ castVote }}" style="margin-top:14px; padding:11px; border-radius:23px; text-align:center; font-size:12px; font-weight:500; background:{{ castBg }}; color:{{ castColor }}; opacity:{{ castOp }};">Cast vote</div>
                   </sc-if>
                   <sc-if value="{{ voteDoneShown }}" hint-placeholder-val="{{ false }}">
                     <div style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:18px 6px 6px; animation:m-fade .3s ease;">
@@ -832,7 +875,7 @@
 
           <!-- ad insert — landscape: footage stays full-bleed, native lower-third (no QR) -->
           <sc-if value="{{ adOpen }}" hint-placeholder-val="{{ false }}">
-            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); height:100%; aspect-ratio:16/9; z-index:31; overflow:hidden; background:#000;">
+            <div class="adfade" data-adout="{{ adOutAttr }}" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); height:100%; aspect-ratio:16/9; z-index:31; overflow:hidden; background:#000;">
               <video ref="{{ adVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
               <div style="position:absolute; left:0; right:0; bottom:0; height:56%; background:linear-gradient(180deg, transparent, rgba(0,0,0,.72)); pointer-events:none;"></div>
               <!-- ad chip (top-left) -->

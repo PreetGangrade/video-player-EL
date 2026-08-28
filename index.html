@@ -16,26 +16,26 @@
 <helmet>
 <style>
   *{box-sizing:border-box;}
-  html,body{margin:0;background:#08080a;}
-  #bgvideo{position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition:left .6s cubic-bezier(.3,0,.18,1), top .6s cubic-bezier(.3,0,.18,1), width .6s cubic-bezier(.3,0,.18,1), transform .6s cubic-bezier(.3,0,.18,1), border-radius .6s cubic-bezier(.3,0,.18,1);}
-  #bgvideo[data-split="1"]{left:28px; top:50%; transform:translateY(-50%); width:var(--splitw, 58%); height:auto; aspect-ratio:16/9; border-radius:14px;}
-  #bgvideo[data-ad="1"]{left:56px; top:50%; transform:translateY(-50%); width:60%; height:auto; aspect-ratio:16/9; border-radius:16px;}
-  #bgvideo[data-squeeze="split"]{left:48px; top:50%; transform:translateY(-50%); width:45.3%; height:auto; aspect-ratio:16/9; border-radius:12px;}
-  #bgvideo[data-squeeze="side"]{left:48px; top:50%; transform:translateY(-50%); width:61%; height:auto; aspect-ratio:16/9; border-radius:12px;}
-  #bgvideo[data-squeeze="lshape"]{left:48px; top:48px; transform:none; width:62%; height:auto; aspect-ratio:16/9; border-radius:12px;}
-  #bgvideo[data-squeeze="adfocus"]{left:0; top:50%; transform:translateY(-50%); width:27%; height:auto; aspect-ratio:16/9; border-radius:0 10px 10px 0; box-shadow:0 18px 50px rgba(0,0,0,.55); z-index:6;}
-  #bgvideo[data-squeeze="adfocus"][data-sqpos="right"]{left:73%; border-radius:10px 0 0 10px;}
-  #bgvideo[data-squeeze="pip"]{left:calc(74% - 48px); top:445px; transform:none; width:26%; height:auto; aspect-ratio:16/9; border-radius:12px; box-shadow:0 18px 50px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.24); z-index:6;}
+  html,body{margin:0;background:#15151b;}
+  /* The video's squeeze is pure transform (translate + scale): GPU-composited,
+     no re-layout of the video box, one committed 600ms curve. Radii are
+     pre-divided by the scale factor so the visual corner stays constant. */
+  #bgvideo{position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transform-origin:0 0; will-change:transform; transition:transform .6s cubic-bezier(.3,0,.18,1), border-radius .6s cubic-bezier(.3,0,.18,1);}
+  #bgvideo[data-split="1"]{transform:translate(28px, calc((720px - 720px * var(--splitwn, .62)) / 2)) scale(var(--splitwn, .62)); border-radius:calc(14px / var(--splitwn, .62));}
+  #bgvideo[data-ad="1"]{transform:translate(56px, 144px) scale(.6); border-radius:27px;}
+  #bgvideo[data-squeeze="split"]{transform:translate(48px, 196.875px) scale(.453125); border-radius:26px;}
+  #bgvideo[data-squeeze="lshape"]{transform:translate(48px, 48px) scale(.62); border-radius:19px;}
+  #bgvideo[data-squeeze="adfocus"]{transform:translate(48px, 256.95px) scale(.28625); border-radius:35px; box-shadow:0 63px 175px rgba(0,0,0,.55); z-index:6;}
+  #bgvideo[data-squeeze="adfocus"][data-sqpos="right"]{transform:translate(865.6px, 256.95px) scale(.28625);}
+  #bgvideo[data-squeeze="pip"]{transform:translate(899.2px, 445px) scale(.26); border-radius:46px; box-shadow:0 69px 192px rgba(0,0,0,.6), 0 0 0 4px rgba(255,255,255,.24); z-index:6;}
   #bug[data-split="1"] img{height:calc(44px * var(--splitwn, .58)) !important;}
-  #bug[data-squeeze="split"]{top:212px; right:calc(54.7% + 20px);}
+  #bug[data-squeeze="split"]{top:213px; right:670px;}
   #bug[data-squeeze="split"] img{height:20px !important;}
-  #bug[data-squeeze="side"]{top:161px; right:calc(39% + 27px);}
-  #bug[data-squeeze="side"] img{height:27px !important;}
   #bug[data-squeeze="lshape"]{top:69px; right:calc(38% + 27px);}
   #bug[data-squeeze="lshape"] img{height:27px !important;}
-  #bug[data-squeeze="adfocus"]{top:272px; right:calc(73% + 12px); z-index:7;}
+  #bug[data-squeeze="adfocus"]{top:268px; right:calc(71.375% + 12px); z-index:7;}
   #bug[data-squeeze="adfocus"] img{height:12px !important;}
-  #bug[data-squeeze="adfocus"][data-sqpos="right"]{right:12px;}
+  #bug[data-squeeze="adfocus"][data-sqpos="right"]{right:60px;}
   #bug[data-squeeze="pip"]{top:454px; right:calc(26% + 36px); z-index:7;}
   #bug[data-squeeze="pip"] img{height:12px !important;}
   [data-fk]{transition:transform .14s cubic-bezier(.2,.7,.3,1), box-shadow .14s ease, background-color .16s ease, border-color .16s ease, color .16s ease; outline:none; cursor:pointer;}
@@ -55,7 +55,7 @@
   .shelftile[data-foc="1"] .tsub{color:rgba(16,16,19,.55) !important;}
   [data-fk="skip-now"][data-foc="1"]{background:#fff !important; color:#101013 !important; border-color:#fff !important; transform:scale(1.06); box-shadow:0 14px 40px rgba(0,0,0,.55);}
   [data-fk="seek"][data-foc="1"]{transform:none; box-shadow:none;}
-  [data-fk="seek"] .track{height:var(--sbh, 6px); background:rgba(255,255,255,.26); transition:height .16s ease, background-color .16s ease;}
+  [data-fk="seek"] .track{height:var(--sbh, 6px); background:rgba(255,255,255,.22); -webkit-backdrop-filter:blur(14px) saturate(160%); backdrop-filter:blur(14px) saturate(160%); box-shadow:inset 0 1px 1px rgba(255,255,255,.25); transition:height .16s ease, background-color .16s ease;}
   [data-fk="seek"] .fill{background:rgba(255,255,255,.55); transition:background-color .16s ease;}
   [data-fk="seek"] .knob{width:4px; height:calc(var(--sbh, 6px) + 10px); transition:height .16s ease, width .16s ease, box-shadow .16s ease;}
   [data-fk="seek"][data-foc="1"] .track{height:calc(var(--sbh, 6px) + 4px); background:rgba(255,255,255,.42);}
@@ -86,16 +86,37 @@
   @keyframes toast-count{from{transform:scaleX(1)}to{transform:scaleX(0)}}
   @keyframes skip-ring{from{stroke-dashoffset:0}to{stroke-dashoffset:98}}
   @keyframes hint-in{0%{opacity:0; transform:translate(-50%,-8px)}12%{opacity:1; transform:translate(-50%,0)}82%{opacity:1}100%{opacity:0}}
-  @keyframes sq-el{from{opacity:0; transform:translateY(16px)}to{opacity:1; transform:translateY(0)}}
-  .sq-1{animation:sq-el .55s cubic-bezier(.22,1,.36,1) .18s both;}
-  .sq-2{animation:sq-el .55s cubic-bezier(.22,1,.36,1) .32s both;}
-  .sq-3{animation:sq-el .55s cubic-bezier(.22,1,.36,1) .46s both;}
-  @media (prefers-reduced-motion: reduce){ .sq-1,.sq-2,.sq-3{animation:none;} #bgvideo,#bug{transition:none;} }
+  /* Squeeze motion: the ad and the video move as ONE layout change — the ad
+     slides in from offscreen (no fade on media) on the same 600ms curve the
+     video's transform uses, and leaves along the same path. All transforms,
+     all compositor-friendly. */
+  @keyframes sq-in-split{from{transform:translateX(628px)}}
+  @keyframes sq-in-col{from{transform:translateX(412px)}}
+  @keyframes sq-in-banner{from{transform:translateY(202px)}}
+  @keyframes sq-in-afr{from{transform:translateX(842px)}}
+  @keyframes sq-in-afl{from{transform:translateX(-842px)}}
+  @keyframes sq-in-fade{from{opacity:0}}
+  .sqe-split{animation:sq-in-split .6s cubic-bezier(.3,0,.18,1) both;}
+  .sqe-col{animation:sq-in-col .6s cubic-bezier(.3,0,.18,1) both;}
+  .sqe-banner{animation:sq-in-banner .6s cubic-bezier(.3,0,.18,1) both;}
+  .sqe-afr{animation:sq-in-afr .6s cubic-bezier(.3,0,.18,1) both;}
+  .sqe-afl{animation:sq-in-afl .6s cubic-bezier(.3,0,.18,1) both;}
+  .sqe-c{animation:sq-in-fade .6s cubic-bezier(.3,0,.18,1) both;}
+  .sqe-f{animation:sq-in-fade .4s ease .35s both;}
+  .sqe-split,.sqe-col,.sqe-banner,.sqe-afr,.sqe-afl,.sqe-c,.sqe-f{transition:transform .6s cubic-bezier(.3,0,.18,1), opacity .6s cubic-bezier(.3,0,.18,1); will-change:transform;}
+  [data-sqx="1"]{animation:none !important;}
+  [data-sqx="1"].sqe-split{transform:translateX(628px);}
+  [data-sqx="1"].sqe-col{transform:translateX(412px);}
+  [data-sqx="1"].sqe-banner{transform:translateY(202px);}
+  [data-sqx="1"].sqe-afr{transform:translateX(842px);}
+  [data-sqx="1"].sqe-afl{transform:translateX(-842px);}
+  [data-sqx="1"].sqe-c,[data-sqx="1"].sqe-f{opacity:0;}
+  @media (prefers-reduced-motion: reduce){ .sqe-split,.sqe-col,.sqe-banner,.sqe-afr,.sqe-afl,.sqe-c,.sqe-f{animation:none; transition:opacity .2s ease;} #bgvideo,#bug{transition:none;} }
 </style>
 <script src="assets/mobile.js"></script>
 </helmet>
 
-<div ref="{{ rootRef }}" style="display:flex; height:100vh; width:100vw; background:#08080a; color:#fff; font-family:'Bull Text',-apple-system,'SF Pro Display',BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; overflow:hidden;">
+<div ref="{{ rootRef }}" style="display:flex; height:100vh; width:100vw; background:#15151b; color:#fff; font-family:'Bull Text',-apple-system,'SF Pro Display',BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; overflow:hidden;">
 
   <div style="flex:1; min-width:0; display:flex; flex-direction:column;">
     <div style="flex:none; display:flex; align-items:center; gap:12px; padding:14px 24px 0; position:relative; z-index:2;">
@@ -113,9 +134,9 @@
 
   <!-- ============ TV STAGE ============ -->
   <sc-if value="{{ tvMode }}" hint-placeholder-val="{{ true }}">
-  <div data-screen-label="TV stage" style="flex:1; min-width:0; min-height:0; display:flex; align-items:center; justify-content:center; padding:24px; position:relative;">
+  <div data-screen-label="TV stage" style="flex:1; min-width:0; min-height:0; display:flex; align-items:center; justify-content:center; padding:24px; position:relative; background:radial-gradient(115% 115% at 50% 42%, #1c1c23 0%, #15151b 64%);">
 
-    <div ref="{{ tvFitRef }}" style="position:relative; border-radius:14px; overflow:hidden; background:#000; box-shadow:0 40px 120px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.06);">
+    <div ref="{{ tvFitRef }}" style="position:relative; border-radius:14px; overflow:hidden; background:#000; box-shadow:0 40px 120px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.09);">
       <div ref="{{ tvScreenRef }}" style="--splitw:{{ splitWpct }}; --splitwn:{{ splitWfrac }}; position:absolute; top:0; left:0; width:1280px; height:720px; transform-origin:top left;">
 
         <video id="bgvideo" ref="{{ videoRef }}" src="assets/feature.mp4" poster="assets/splash-tv.png" data-split="{{ videoSplit }}" data-ad="{{ adActive }}" data-squeeze="{{ squeezeMode }}" data-sqpos="{{ sqPos }}"></video>
@@ -216,10 +237,7 @@
                     <div style="position:absolute; top:0; height:100%; left:{{ seekWidth }}; right:35%; background:rgba(8,8,10,.4); z-index:1;"></div>
                   </sc-if>
                   <sc-if value="{{ liveMarkShown }}" hint-placeholder-val="{{ false }}">
-                    <div style="position:absolute; top:50%; left:65%; transform:translate(-50%,-50%); width:6px; height:calc(var(--sbh, 6px) + 12px); border-radius:4px; background:#8B5CF6; z-index:3;"></div>
-                  </sc-if>
-                  <sc-if value="{{ phLabelShown }}" hint-placeholder-val="{{ false }}">
-                    <div style="position:absolute; top:calc(var(--sbh, 6px) + 10px); left:{{ seekWidth }}; transform:translateX(-50%); font-size:16px; font-weight:500; color:#fff; font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6); white-space:nowrap; z-index:3;">{{ tsPlayhead }}</div>
+                    <div style="position:absolute; top:50%; left:65%; transform:translate(-50%,-50%); width:6px; height:calc(var(--sbh, 6px) + 12px); border-radius:4px; background:#FF3B30; box-shadow:0 0 10px rgba(255,59,48,.6); z-index:5;"></div>
                   </sc-if>
                   <sc-if value="{{ vodMarksShown }}" hint-placeholder-val="{{ false }}">
                     <sc-for list="{{ adMarks }}" as="a" hint-placeholder-count="2">
@@ -234,7 +252,7 @@
                       </svg>
                     </div>
                   </sc-if>
-                  <sc-if value="{{ knobShown }}" hint-placeholder-val="{{ true }}"><div class="knob" style="position:absolute; top:50%; left:{{ seekWidth }}; border-radius:3px; background:#DB0640; transform:translate(-50%,-50%); box-shadow:0 1px 8px rgba(0,0,0,.55); z-index:4;"></div></sc-if>
+                  <sc-if value="{{ knobShown }}" hint-placeholder-val="{{ true }}"><div class="knob" style="position:absolute; top:50%; left:{{ seekWidth }}; border-radius:3px; background:{{ knobColor }}; transform:translate(-50%,-50%); box-shadow:0 1px 8px rgba(0,0,0,.55); z-index:4;"></div></sc-if>
                 </div>
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px; min-height:20px;">
                   <span style="display:flex; align-items:center; gap:9px;">
@@ -377,7 +395,7 @@
                       </sc-for>
                     </div>
                     <div style="flex:1;"></div>
-                    <div data-fk="vote-cast" onclick="{{ onItemClick }}" style="padding:15px; border-radius:30px; text-align:center; font-size:15px; font-weight:500; background:{{ castBg }}; color:{{ castColor }}; opacity:{{ castOp }};">Cast vote</div>
+                    <div data-fk="{{ castFk }}" onclick="{{ onItemClick }}" style="padding:14px; border-radius:30px; text-align:center; font-size:15px; font-weight:500; background:{{ castBg }}; color:{{ castColor }}; border:1px solid {{ castBorder }}; cursor:{{ castCursor }}; transition:background-color .16s ease, color .16s ease, border-color .16s ease;">Cast vote</div>
                   </div>
                 </sc-if>
                 <sc-if value="{{ voteDoneShown }}" hint-placeholder-val="{{ false }}">
@@ -509,92 +527,75 @@
         </sc-if>
 
         <!-- ===== LAYER: AD SQUEEZE (content keeps playing beside the ad) =====
-             48px stage gutters, 24px gaps; media leads the entrance, meta follows -->
+             48px stage gutters, 24px gaps; the ad and the video's box share one
+             coordinated 600ms move and leave along the same path. During a squeeze
+             the only player controls are play/pause + Dismiss ad (transient strip). -->
         <sc-if value="{{ sqSplitOn }}" hint-placeholder-val="{{ false }}">
-          <div style="position:absolute; top:50%; right:48px; transform:translateY(-50%); width:45.3%; z-index:5;">
-            <div class="sq-1" style="position:relative; width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden; box-shadow:0 24px 70px rgba(0,0,0,.55);">
+          <div style="position:absolute; top:50%; right:48px; transform:translateY(-50%); width:45.3125%; z-index:5;">
+            <div class="sqe-split" data-sqx="{{ sqOutAttr }}" style="position:relative; width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden; box-shadow:0 24px 70px rgba(0,0,0,.55);">
               <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
-            </div>
-            <div class="sq-2" style="display:flex; align-items:center; justify-content:space-between; margin-top:14px;">
-              <span style="font-size:13px; font-weight:400; color:rgba(255,255,255,.55);">Advertisement · Red Bull</span>
-              <span style="display:flex; align-items:center; gap:12px;">
-                <span style="font-size:13px; font-weight:500; color:rgba(255,255,255,.6); font-variant-numeric:tabular-nums;">Back in {{ squeezeCount }}s</span>
-                <div data-fk="sq-close" class="iconctl" onclick="{{ onItemClick }}" title="Dismiss ad" style="width:36px; height:36px; border-radius:50%;"><svg width="14" height="14" viewBox="0 0 16 16"><line x1="4" y1="4" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line><line x1="12" y1="4" x2="4" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line></svg></div>
-              </span>
-            </div>
-          </div>
-        </sc-if>
-        <sc-if value="{{ sqSideOn }}" hint-placeholder-val="{{ false }}">
-          <div style="position:absolute; top:50%; right:48px; transform:translateY(-50%); width:26.6%; z-index:5; display:flex; flex-direction:column; gap:20px;">
-            <div class="sq-1" style="position:relative; width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden; box-shadow:0 20px 56px rgba(0,0,0,.5);">
-              <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
-            </div>
-            <div class="sq-2">
-              <div style="font-size:16px; font-weight:500;">Red Bull Gives You Wings</div>
-              <div style="font-size:13px; font-weight:400; color:rgba(255,255,255,.55); margin-top:4px;">redbull.com · Sponsored</div>
-            </div>
-            <div class="sq-3" style="display:flex; align-items:center; justify-content:space-between;">
-              <span style="font-size:13px; font-weight:500; color:rgba(255,255,255,.6); font-variant-numeric:tabular-nums;">Back in {{ squeezeCount }}s</span>
-              <div data-fk="sq-close" class="iconctl" onclick="{{ onItemClick }}" title="Dismiss ad" style="width:36px; height:36px; border-radius:50%;"><svg width="14" height="14" viewBox="0 0 16 16"><line x1="4" y1="4" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line><line x1="12" y1="4" x2="4" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line></svg></div>
             </div>
           </div>
         </sc-if>
         <sc-if value="{{ sqLOn }}" hint-placeholder-val="{{ false }}">
-          <div style="position:absolute; top:48px; right:48px; bottom:48px; width:26.6%; z-index:5; display:flex; flex-direction:column; gap:20px;">
-            <div class="sq-1" style="position:relative; width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden; box-shadow:0 20px 56px rgba(0,0,0,.5);">
+          <div class="sqe-col" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:48px; right:48px; bottom:48px; width:26.6%; z-index:5; display:flex; flex-direction:column; gap:20px;">
+            <div style="position:relative; width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden; box-shadow:0 20px 56px rgba(0,0,0,.5);">
               <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
             </div>
             <div style="flex:1;"></div>
-            <div class="sq-2">
+            <div>
               <div style="font-size:16px; font-weight:500;">Red Bull Gives You Wings</div>
               <div style="font-size:13px; font-weight:400; color:rgba(255,255,255,.55); margin-top:4px;">redbull.com · Sponsored</div>
             </div>
           </div>
-          <div class="sq-2" style="position:absolute; left:48px; width:62%; top:518px; height:154px; z-index:5; border-radius:12px; padding:0 28px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); display:flex; align-items:center; justify-content:space-between;">
+          <div class="sqe-banner" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:48px; width:62%; top:518px; height:154px; z-index:5; border-radius:12px; padding:0 28px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); display:flex; align-items:center;">
             <div>
               <div style="font-size:17px; font-weight:500;">Summer Edition, out now</div>
               <div style="font-size:13px; font-weight:400; color:rgba(255,255,255,.55); margin-top:4px;">Advertisement · your video keeps playing</div>
             </div>
-            <span style="display:flex; align-items:center; gap:12px;">
-              <span style="font-size:13px; font-weight:500; color:rgba(255,255,255,.6); font-variant-numeric:tabular-nums;">Back in {{ squeezeCount }}s</span>
-              <div data-fk="sq-close" class="iconctl" onclick="{{ onItemClick }}" title="Dismiss ad" style="width:36px; height:36px; border-radius:50%;"><svg width="14" height="14" viewBox="0 0 16 16"><line x1="4" y1="4" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line><line x1="12" y1="4" x2="4" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line></svg></div>
-            </span>
           </div>
         </sc-if>
         <sc-if value="{{ sqFocusOn }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute; top:50%; transform:translateY(-50%); width:62%; z-index:5; {{ afAdAnchor }}">
-            <div class="sq-1" style="position:relative; width:100%; aspect-ratio:16/9; border-radius:10px; overflow:hidden; box-shadow:0 28px 80px rgba(0,0,0,.65);">
+            <div class="{{ afAdEnter }}" data-sqx="{{ sqOutAttr }}" style="position:relative; width:100%; aspect-ratio:16/9; border-radius:10px; overflow:hidden; box-shadow:0 28px 80px rgba(0,0,0,.65);">
               <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
             </div>
           </div>
-          <div class="sq-2" style="position:absolute; top:calc(50% + 233px); width:62%; z-index:6; display:flex; align-items:center; justify-content:space-between; {{ afAdAnchor }}">
-            <span style="font-size:13px; font-weight:400; color:rgba(255,255,255,.55);">Advertisement · Red Bull</span>
-            <span style="display:flex; align-items:center; gap:12px;">
-              <span style="font-size:13px; font-weight:500; color:rgba(255,255,255,.6); font-variant-numeric:tabular-nums;">Back in {{ squeezeCount }}s</span>
-              <div data-fk="sq-close" class="iconctl" onclick="{{ onItemClick }}" title="Dismiss ad" style="width:36px; height:36px; border-radius:50%;"><svg width="14" height="14" viewBox="0 0 16 16"><line x1="4" y1="4" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line><line x1="12" y1="4" x2="4" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line></svg></div>
-            </span>
-          </div>
-          <div class="sq-3" style="position:absolute; top:calc(50% + 109px); width:24%; z-index:7; display:flex; align-items:center; justify-content:space-between; {{ afVidAnchor }}">
+          <div class="sqe-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:calc(50% + 117px); width:28.625%; z-index:7; display:flex; align-items:center; justify-content:space-between; {{ afVidAnchor }}">
             <span style="font-size:13px; font-weight:500; color:rgba(255,255,255,.75);">You're watching</span>
             <span style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; letter-spacing:.08em; color:#fff;"><span style="width:7px; height:7px; border-radius:50%; background:#FF3B30; animation:rb-pulse 1.6s infinite;"></span>LIVE</span>
           </div>
         </sc-if>
         <sc-if value="{{ sqPipOn }}" hint-placeholder-val="{{ false }}">
-          <div style="position:absolute; inset:0; z-index:2; background:#000; animation:rb-fade .4s ease;">
+          <div class="sqe-c" data-sqx="{{ sqOutAttr }}" style="position:absolute; inset:0; z-index:2; background:#000;">
             <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
             <div style="position:absolute; left:0; right:0; bottom:0; height:180px; background:linear-gradient(180deg, transparent, rgba(0,0,0,.6)); pointer-events:none;"></div>
-            <div class="sq-2" style="position:absolute; left:48px; bottom:48px;">
+            <div class="sqe-f" style="position:absolute; left:48px; top:44px; text-shadow:0 1px 8px rgba(0,0,0,.55);">
               <div style="font-size:16px; font-weight:500;">Red Bull Gives You Wings</div>
               <div style="font-size:13px; font-weight:400; color:rgba(255,255,255,.6); margin-top:4px;">redbull.com · Sponsored</div>
             </div>
-            <div class="sq-2" style="position:absolute; top:48px; right:48px; display:flex; align-items:center; gap:12px;">
-              <span style="font-size:13px; font-weight:500; color:rgba(255,255,255,.7); font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6);">Back in {{ squeezeCount }}s</span>
-              <div data-fk="sq-close" class="iconctl" onclick="{{ onItemClick }}" title="Dismiss ad" style="width:36px; height:36px; border-radius:50%;"><svg width="14" height="14" viewBox="0 0 16 16"><line x1="4" y1="4" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line><line x1="12" y1="4" x2="4" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line></svg></div>
-            </div>
           </div>
-          <div class="sq-3" style="position:absolute; left:calc(74% - 48px); width:26%; top:644px; z-index:7; display:flex; align-items:center; justify-content:space-between;">
+          <div class="sqe-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:calc(74% - 48px); width:26%; top:644px; z-index:7; display:flex; align-items:center; justify-content:space-between;">
             <span style="font-size:12.5px; font-weight:500; color:rgba(255,255,255,.75); text-shadow:0 1px 6px rgba(0,0,0,.6);">You're watching</span>
             <span style="display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:500; letter-spacing:.08em; color:#fff; text-shadow:0 1px 6px rgba(0,0,0,.6);"><span style="width:7px; height:7px; border-radius:50%; background:#FF3B30; animation:rb-pulse 1.6s infinite;"></span>LIVE</span>
+          </div>
+        </sc-if>
+
+        <!-- persistent quiet countdown (all squeeze layouts except L-shape) -->
+        <sc-if value="{{ sqCaptionShown }}" hint-placeholder-val="{{ false }}">
+          <div class="sqe-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:0; right:0; bottom:18px; z-index:6; text-align:center; font-size:13px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6); pointer-events:none;">Advertisement · Back in {{ squeezeCount }}s</div>
+        </sc-if>
+
+        <!-- squeeze control section: play/pause only, centered (Dismiss lives in the operator panel) -->
+        <sc-if value="{{ sqStripShown }}" hint-placeholder-val="{{ false }}">
+          <div id="sq-strip" style="position:absolute; inset:0; z-index:9; pointer-events:none; animation:rb-fade .25s ease;">
+            <div style="position:absolute; left:0; right:0; bottom:0; height:170px; background:linear-gradient(180deg, transparent, rgba(0,0,0,.5));"></div>
+            <div style="position:absolute; left:0; right:0; bottom:48px; display:flex; justify-content:center;">
+              <div data-fk="sq-play" class="iconctl" onclick="{{ onItemClick }}" title="Play / pause" style="width:58px; height:58px; border-radius:50%; pointer-events:auto;">
+                <sc-if value="{{ playingIcon }}" hint-placeholder-val="{{ true }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4.5" width="4" height="15" rx="1.4"></rect><rect x="14" y="4.5" width="4" height="15" rx="1.4"></rect></svg></sc-if>
+                <sc-if value="{{ pausedIcon }}" hint-placeholder-val="{{ false }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="margin-left:3px;"><path d="M6 4.5l13 7.5-13 7.5z"></path></svg></sc-if>
+              </div>
+            </div>
           </div>
         </sc-if>
 
@@ -606,7 +607,7 @@
   <!-- ============ MOBILE EXPERIENCE ============ -->
   <sc-if value="{{ mobileMode }}" hint-placeholder-val="{{ false }}">
     <div data-screen-label="Mobile stage" style="flex:1; min-width:0; min-height:0;">
-      <dc-import name="Interactive Overlay Mobile" hosted="{{ true }}" on-orient="{{ onChildOrient }}" cmd="{{ mCmdName }}" cmd-seq="{{ mCmdSeq }}" format="{{ mFormatSel }}" hint-size="100%,100%" style="width:100%; height:100%;"></dc-import>
+      <dc-import name="Interactive Overlay Mobile" hosted="{{ true }}" on-orient="{{ onChildOrient }}" cmd="{{ mCmdName }}" cmd-seq="{{ mCmdSeq }}" format="{{ mFormatSel }}" scrubh="{{ mScrubH }}" lssplit="{{ mSplitW }}" sqpos="{{ mSqPos }}" hint-size="100%,100%" style="width:100%; height:100%;"></dc-import>
     </div>
   </sc-if>
   </div>
@@ -629,6 +630,20 @@
     <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
       <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:8px;">EASE LIVE ENTRY</div>
       <div style="font-size:11.5px; color:#9a9aa4; line-height:1.55;">Single Interactive button (wand icon) in the player controls, both orientations. Landscape opens a split side panel.</div>
+    </div>
+
+    <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
+      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:12px;">SCRUB BAR</div>
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:#9a9aa4; margin-bottom:6px;"><span>Height</span><span style="font-variant-numeric:tabular-nums;">{{ mScrubH }}px</span></div>
+      <input type="range" min="3" max="10" step="1" value="{{ mScrubH }}" oninput="{{ onMScrubH }}" style="width:100%;">
+      <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:8px;">Height of the mobile scrub bar track. The live-edge marker and scrub head scale with it.</div>
+    </div>
+
+    <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
+      <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:12px;">INTERACTIVE SPLIT</div>
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:#9a9aa4; margin-bottom:6px;"><span>Video width when split</span><span style="font-variant-numeric:tabular-nums;">{{ mSplitW }}%</span></div>
+      <input type="range" min="40" max="70" step="1" value="{{ mSplitW }}" oninput="{{ onMSplitW }}" style="width:100%;">
+      <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:8px;">Landscape: how far the video squeezes when the interactive panel opens beside it. The panel takes the rest.</div>
     </div>
     </sc-if>
 
@@ -672,7 +687,7 @@
       <div style="font-size:10px; letter-spacing:.16em; color:#6b6b76; font-weight:500; margin-bottom:12px;">SCRUB BAR</div>
       <div style="display:flex; justify-content:space-between; font-size:11px; color:#9a9aa4; margin-bottom:6px;"><span>Height</span><span style="font-variant-numeric:tabular-nums;">{{ scrubH }}px</span></div>
       <input type="range" min="4" max="16" step="1" value="{{ scrubH }}" oninput="{{ onScrubH }}" style="width:100%;">
-      <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:8px;">Timestamps sit below the bar. Live DVR shows the behind-live time on the left only when you are behind or paused; VOD shows elapsed and remaining.</div>
+      <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:8px;">Timestamps sit below the bar, matching mobile. Live DVR shows LIVE at the edge and the behind-live time when in the buffer; the scrub head is red at the edge, white behind it. VOD shows elapsed and remaining.</div>
     </div>
 
     <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
@@ -754,10 +769,10 @@
       <sc-if value="{{ tvMode }}" hint-placeholder-val="{{ true }}">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
           <button class="deckbtn" onclick="{{ scSqSplit }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer;">Squeeze · 50 / 50</button>
-          <button class="deckbtn" onclick="{{ scSqSide }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer;">Squeeze · side panel</button>
           <button class="deckbtn" onclick="{{ scSqL }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer;">Squeeze · L-shape</button>
           <button class="deckbtn" onclick="{{ scSqFocus }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer;">Squeeze · ad focus</button>
           <button class="deckbtn" onclick="{{ scSqPip }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer;">Squeeze · video PiP</button>
+          <button class="deckbtn" onclick="{{ scSqEnd }}" style="grid-column:1 / -1; padding:11px 8px; border-radius:10px; background:#26161a; border:1px solid #4a2530; color:#ff9db5; font-size:12px; font-weight:500; cursor:pointer; opacity:{{ sqEndOp }}; pointer-events:{{ sqEndPe }};">Dismiss active ad</button>
         </div>
         <div style="font-size:11px; color:#8a8a94; font-weight:500; margin:14px 0 8px;">AD FOCUS · YOUR VIDEO SITS</div>
         <div style="display:flex; gap:6px; background:#1d1d22; border-radius:10px; padding:4px;">
@@ -768,8 +783,18 @@
       <sc-if value="{{ mobileMode }}" hint-placeholder-val="{{ false }}">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
           <button class="deckbtn" onclick="{{ scSqSplit }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer;">Squeeze · split</button>
-          <button class="deckbtn" onclick="{{ scSqSide }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer;">Squeeze · banner</button>
+          <button class="deckbtn" onclick="{{ scSqHalf }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer;">Squeeze · 50 / 50</button>
+          <button class="deckbtn" onclick="{{ scSqL }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer; opacity:{{ lsOnlyOp }}; pointer-events:{{ lsOnlyPe }};">Squeeze · L-shape</button>
+          <button class="deckbtn" onclick="{{ scSqFocus }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer; opacity:{{ lsOnlyOp }}; pointer-events:{{ lsOnlyPe }};">Squeeze · ad focus</button>
+          <button class="deckbtn" onclick="{{ scSqPip }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer; opacity:{{ lsOnlyOp }}; pointer-events:{{ lsOnlyPe }};">Squeeze · video PiP</button>
+          <button class="deckbtn" onclick="{{ scSqEnd }}" style="padding:11px 8px; border-radius:10px; background:#26161a; border:1px solid #4a2530; color:#ff9db5; font-size:12px; font-weight:500; cursor:pointer;">Dismiss active ad</button>
         </div>
+        <div style="font-size:11px; color:#8a8a94; font-weight:500; margin:14px 0 8px;">AD 50 / 50 · YOUR VIDEO SITS</div>
+        <div style="display:flex; gap:6px; background:#1d1d22; border-radius:10px; padding:4px;">
+          <div data-msqpos="lead" onclick="{{ onMSqPos }}" style="flex:1; text-align:center; padding:9px; border-radius:7px; font-size:12px; font-weight:500; background:{{ mSqPosLBg }}; color:{{ mSqPosLColor }}; cursor:pointer;">{{ mSqPosLeadLabel }}</div>
+          <div data-msqpos="trail" onclick="{{ onMSqPos }}" style="flex:1; text-align:center; padding:9px; border-radius:7px; font-size:12px; font-weight:500; background:{{ mSqPosRBg }}; color:{{ mSqPosRColor }}; cursor:pointer;">{{ mSqPosTrailLabel }}</div>
+        </div>
+        <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:10px;">L-shape, ad focus and PiP are landscape formats and are disabled in portrait.</div>
       </sc-if>
     </div>
 
@@ -853,9 +878,12 @@ class Component extends DCLogic {
       ratingShown:false,
       ratingPending:true,
       ad:false, adCount:8, adSent:false, adQr:true,
-      squeeze:null, squeezeCount:15,
+      squeeze:null, squeezeCount:15, sqOut:false, sqCtl:false,
       scrubH:6,
-      splitW:58,
+      mScrubH:6,
+      mSplitW:62,
+      mSqPos:'lead',
+      splitW:62,
       sqPos:'left',
       audioOn:false,
       userBehind:false, seeking:false,
@@ -913,7 +941,8 @@ class Component extends DCLogic {
           const seg = this.segIdxAt(t);
           if(seg!==this._seg){
             this._seg = seg;
-            this.setState({currentTime:t, voteSel:null, voted:null});
+            const fk = this.state.focusKey==='vote-cast' ? 'vote-0' : this.state.focusKey;
+            this.setState({currentTime:t, voteSel:null, voted:null, focusKey:fk});
             this.pushLog('New battle · '+this.SEGMENTS[seg].dancer);
           } else {
             this.setState({currentTime:t});
@@ -941,6 +970,7 @@ class Component extends DCLogic {
         this.sqVideoEl = el; el.muted = true; el.loop = true; el.playsInline = true;
         const tryPlay = ()=>{
           if(!el.isConnected || el!==this.sqVideoEl) return;
+          if(!this.state.playing) return;
           const p = el.play(); if(p && p.catch) p.catch(()=>setTimeout(tryPlay, 150));
         };
         el.addEventListener('loadeddata', tryPlay);
@@ -957,6 +987,9 @@ class Component extends DCLogic {
     this.onEntryPick = (e)=>{ const v=e.currentTarget.dataset.entry; this.setState({entry:v, focusKey:'seek'}); this.pushLog('Entry option: '+v); };
     this.onBtnIcon = (e)=>{ const i=parseInt(e.currentTarget.dataset.btn,10); this.setState(s=>{ const b=s.elBtns.map(x=>Object.assign({},x)); b[i].icon=e.target.value; return {elBtns:b}; }); };
     this.onScrubH = (e)=>{ this.setState({scrubH: parseInt(e.target.value,10)||6}); };
+    this.onMScrubH = (e)=>{ this.setState({mScrubH: parseInt(e.target.value,10)||6}); };
+    this.onMSplitW = (e)=>{ this.setState({mSplitW: parseInt(e.target.value,10)||62}); };
+    this.onMSqPos = (e)=>{ this.setState({mSqPos: e.currentTarget.dataset.msqpos}); };
     this.onSplitW = (e)=>{ this.setState({splitW: parseInt(e.target.value,10)||58}); };
     this.onSqPos = (e)=>{ this.setState({sqPos: e.currentTarget.dataset.sqpos}); };
     this.scSound = ()=>{ const next = !this.state.audioOn; this.setState({audioOn: next}); if(this.state.mode==='mobile') this.mCmd(next ? 'sound-on' : 'sound-off'); this.pushLog(next ? 'Sound on' : 'Sound muted'); };
@@ -977,10 +1010,11 @@ class Component extends DCLogic {
     this.scAdQr=()=>{ if(this.state.mode==='mobile'){ this.mCmd('ad'); return; } this.insertAd(true); };
     this.scAdPlain=()=>{ if(this.state.mode==='mobile'){ this.mCmd('ad'); return; } this.insertAd(false); };
     this.scSqSplit=()=>{ if(this.state.mode==='mobile'){ this.mCmd('ad-split'); return; } this.startSqueeze('split'); };
-    this.scSqSide=()=>{ if(this.state.mode==='mobile'){ this.mCmd('ad-banner'); return; } this.startSqueeze('side'); };
-    this.scSqL=()=>{ if(this.state.mode==='mobile'){ this.mCmd('ad-banner'); return; } this.startSqueeze('lshape'); };
-    this.scSqFocus=()=>{ if(this.state.mode==='mobile'){ this.mCmd('ad-split'); return; } this.startSqueeze('adfocus'); };
-    this.scSqPip=()=>{ if(this.state.mode==='mobile'){ this.mCmd('ad-banner'); return; } this.startSqueeze('pip'); };
+    this.scSqHalf=()=>{ if(this.state.mode==='mobile'){ this.mCmd('ad-half'); return; } this.startSqueeze('split'); };
+    this.scSqEnd=()=>{ if(this.state.mode==='mobile'){ this.mCmd('ad-end'); return; } this.endSqueeze(); };
+    this.scSqL=()=>{ if(this.state.mode==='mobile'){ this.mCmd('ad-lshape'); return; } this.startSqueeze('lshape'); };
+    this.scSqFocus=()=>{ if(this.state.mode==='mobile'){ this.mCmd('ad-focus'); return; } this.startSqueeze('adfocus'); };
+    this.scSqPip=()=>{ if(this.state.mode==='mobile'){ this.mCmd('ad-pip'); return; } this.startSqueeze('pip'); };
     this.onMode=(e)=>{ this.setState({mode:e.currentTarget.dataset.dev}); };
     this.toastPrev='seek';
     this.qr=this.buildQR();
@@ -1043,6 +1077,7 @@ class Component extends DCLogic {
     window.removeEventListener('resize', this.onResize);
     if(this.ro) this.ro.disconnect();
     clearTimeout(this.hideT); clearTimeout(this.ratingT); clearTimeout(this.toastT); clearTimeout(this.seekT); clearTimeout(this.skipT);
+    clearTimeout(this.sqOutT); clearTimeout(this.sqHideT); clearTimeout(this.sqIntroT); clearTimeout(this.sqEndT);
     clearInterval(this.adTick); clearInterval(this.sqTick);
   }
   componentDidUpdate(){
@@ -1052,6 +1087,11 @@ class Component extends DCLogic {
       this.videoEl.muted = !this.state.audioOn;
       if(this.state.playing && this.videoEl.paused){ const p=this.videoEl.play(); if(p&&p.catch) p.catch(()=>{}); }
       else if(!this.state.playing && !this.videoEl.paused){ this.videoEl.pause(); }
+    }
+    // pausing during a squeeze pauses the ad too (and the countdown holds)
+    if(this.state.squeeze && !this.state.sqOut && this.sqVideoEl){
+      if(this.state.playing && this.sqVideoEl.paused){ const p=this.sqVideoEl.play(); if(p&&p.catch) p.catch(()=>{}); }
+      else if(!this.state.playing && !this.sqVideoEl.paused){ this.sqVideoEl.pause(); }
     }
   }
 
@@ -1092,12 +1132,18 @@ class Component extends DCLogic {
     screen.style.transform='scale('+sc+')'; fit.style.width=(1280*sc)+'px'; fit.style.height=(720*sc)+'px';
   }
 
-  focusScopeId(){ return 'layer-'+this.state.activeLayer; }
+  focusScopeId(){ const s=this.state; if(s.squeeze && s.sqCtl) return 'sq-strip'; return 'layer-'+s.activeLayer; }
 
   applyFocus(){
     const root=this.rootEl; if(!root) return;
     root.querySelectorAll('[data-foc="1"]').forEach(e=>e.removeAttribute('data-foc'));
     const s=this.state;
+    if(s.squeeze){
+      if(!s.sqCtl || s.sqOut) return;
+      const cur=root.querySelector('#sq-strip [data-fk="'+this.cssEsc(s.focusKey)+'"]');
+      if(cur) cur.setAttribute('data-foc','1');
+      return;
+    }
     if(s.activeLayer==='controls' && !s.controlsVisible && !s.menu){
       if(s.focusKey!=='skip-now') return;
     }
@@ -1188,7 +1234,12 @@ class Component extends DCLogic {
     const label={up:'▲ Up',down:'▼ Down',left:'◀ Left',right:'▶ Right'}[dir];
     this.setState({lastKey:label});
     const s=this.state;
-    if(s.squeeze) return;
+    if(s.squeeze){
+      if(s.sqOut) return;
+      if(!s.sqCtl){ this.wakeSqCtl(); return; }
+      if(dir==='left'||dir==='right') this.move(dir);
+      this.armSqHide(); return;
+    }
     if(s.menu){ if(dir==='up'||dir==='down') this.move(dir); else this.closeMenu(); return; }
     if(s.toast){ if(dir==='left'||dir==='right') this.move(dir); return; }
     if(s.activeLayer==='controls' && !s.controlsVisible){
@@ -1220,6 +1271,7 @@ class Component extends DCLogic {
     const scope=root.querySelector('#'+this.focusScopeId()); if(!scope) return;
     const transientHidden = this.state.activeLayer==='controls' && !this.state.controlsVisible;
     const items=Array.from(scope.querySelectorAll('[data-fk]')).filter(el=>{
+      if(!el.dataset.fk) return false;
       if(el.offsetParent===null) return false;
       if(transientHidden && el.closest('#ctl-transient')) return false;
       return true;
@@ -1259,7 +1311,13 @@ class Component extends DCLogic {
   select(){
     this.setState({lastKey:'● Select'});
     const s=this.state;
-    if(s.squeeze){ this.endSqueeze(); return; }
+    if(s.squeeze){
+      if(s.sqOut) return;
+      if(!s.sqCtl){ this.wakeSqCtl(); return; }
+      this.setState(x=>({playing:!x.playing}));
+      this.pushLog(s.playing ? 'Pause · video and ad' : 'Play');
+      this.armSqHide(); return;
+    }
     if(s.menu){ const i=parseInt((s.focusKey||'menuopt-0').split('-')[1]||'0',10); this.chooseMenu(i); return; }
     if(s.toast){ this.activate(s.focusKey); return; }
     if(s.activeLayer==='controls' && !s.controlsVisible){
@@ -1292,7 +1350,7 @@ class Component extends DCLogic {
     else if(fk==='m-music'){ this.setState({overlayModule:'music', focusKey:'m-music'}); }
     else if(fk==='m-people'){ this.setState({overlayModule:'people', focusKey:'m-people'}); }
     else if(fk==='ov-close'){ this.closeOverlay(); }
-    else if(fk==='sq-close'){ this.endSqueeze(); }
+    else if(fk==='sq-play'){ const was=this.state.playing; this.setState({playing:!was}); this.pushLog(was ? 'Pause · video and ad' : 'Play'); this.armSqHide(); }
     else if(fk==='ad-send'){ this.setState({adSent:true}); this.pushLog('Link sent to phone'); }
     else if(fk==='ad-skip'){ if(this.state.adCount<=5) this.closeAd('skip'); else this.pushLog('Skip locked · available at 5s'); }
     else if(fk.indexOf('vote-')===0){
@@ -1302,9 +1360,12 @@ class Component extends DCLogic {
     }
     else if(fk.indexOf('seg-')===0){
       const i=parseInt(fk.slice(4),10); const t=this.SEGMENTS[i].t;
-      if(this.videoEl){ try{ this.videoEl.currentTime=t; }catch(e){} }
-      this.setState({currentTime:t, playing:true});
-      this.pushLog('Jump → '+this.SEGMENTS[i].dancer);
+      const cur=this.videoEl ? this.videoEl.currentTime : this.state.currentTime;
+      if(this.videoEl){ try{ this.videoEl.currentTime=t; }catch(e){} const p=this.videoEl.play(); if(p&&p.catch) p.catch(()=>{}); }
+      const patch={currentTime:t, playing:true, scrubbing:false};
+      if(this.state.format==='live-dvr') patch.behindS=this.clamp(this.state.behindS+(cur-t), 0, this.DVR_W);
+      this.setState(patch);
+      this.pushLog('Jump → '+this.SEGMENTS[i].dancer+' · '+this.mmss(t));
     }
     if(this.state.activeLayer==='controls' && this.state.controlsVisible && !this.state.toast && !this.state.menu) this.resetHide();
   }
@@ -1418,31 +1479,58 @@ class Component extends DCLogic {
   }
 
   // Ad squeeze — the feature keeps playing while the ad runs alongside.
+  // During a squeeze the only player controls are play/pause + Dismiss ad,
+  // in a transient strip that wakes on any key (sq-strip focus scope).
   startSqueeze(mode){
-    clearInterval(this.sqTick); clearTimeout(this.sqEndT); clearTimeout(this.hideT);
+    clearInterval(this.sqTick); clearTimeout(this.sqEndT); clearTimeout(this.sqOutT); clearTimeout(this.sqHideT); clearTimeout(this.sqIntroT); clearTimeout(this.hideT);
     this.hideRatingNow();
-    this.setState({ mode:'tv', squeeze:mode, squeezeCount:15, controlsVisible:false, menu:null, toast:null, skipOn:false, playing:true, focusKey:'seek' });
+    this.setState({ mode:'tv', squeeze:mode, squeezeCount:15, sqOut:false, sqCtl:false, controlsVisible:false, menu:null, toast:null, skipOn:false, playing:true, focusKey:'sq-play' });
     this.pushLog('Ad squeeze · '+mode+' · content keeps playing');
+    this.sqIntroT=setTimeout(()=>{ if(this.state.squeeze && !this.state.sqOut) this.wakeSqCtl(); }, 700);
     this.sqTick=setInterval(()=>{
       this.setState(s=>{
+        if(!s.playing) return null; // paused: the ad and its countdown hold
         const v=s.squeezeCount-1;
         if(v<=0){ clearInterval(this.sqTick); this.sqEndT=setTimeout(()=>this.endSqueeze(),30); return {squeezeCount:0}; }
         return {squeezeCount:v};
       });
     },1000);
   }
+  wakeSqCtl(){
+    this.setState({sqCtl:true, focusKey:'sq-play'});
+    this.armSqHide();
+  }
+  armSqHide(){
+    clearTimeout(this.sqHideT);
+    this.sqHideT=setTimeout(()=>{ if(this.state.squeeze && this.state.sqCtl) this.setState({sqCtl:false}); }, 4000);
+  }
   endSqueeze(silent){
-    clearInterval(this.sqTick);
-    if(this.sqVideoEl){ try{ this.sqVideoEl.pause(); }catch(e){} }
+    clearInterval(this.sqTick); clearTimeout(this.sqEndT); clearTimeout(this.sqHideT); clearTimeout(this.sqIntroT);
     if(!this.state.squeeze) return;
-    this.setState({squeeze:null});
-    if(!silent) this.pushLog('Ad squeeze ended · full screen');
+    if(silent){
+      clearTimeout(this.sqOutT);
+      if(this.sqVideoEl){ try{ this.sqVideoEl.pause(); }catch(e){} }
+      this.setState({squeeze:null, sqOut:false, sqCtl:false});
+      return;
+    }
+    if(this.state.sqOut) return;
+    // leave along the entrance path: the ad slides back out while the video expands
+    this.setState({sqOut:true, sqCtl:false, focusKey:'seek'});
+    this.pushLog('Ad squeeze ended · full screen');
+    this.sqOutT=setTimeout(()=>{
+      if(this.sqVideoEl){ try{ this.sqVideoEl.pause(); }catch(e){} }
+      this.setState({squeeze:null, sqOut:false});
+    }, 620);
   }
 
   back(){
     this.setState({lastKey:'‹ Back'});
     const s=this.state;
-    if(s.squeeze){ this.endSqueeze(); return; }
+    if(s.squeeze){
+      if(s.sqOut) return;
+      if(s.sqCtl){ clearTimeout(this.sqHideT); this.setState({sqCtl:false}); this.pushLog('Ad controls hidden'); }
+      return;
+    }
     if(s.menu){ this.closeMenu(); return; }
     if(s.toast){ this.dismissToast(); return; }
     if(s.activeLayer==='ad'){ this.closeAd('back'); return; }
@@ -1486,7 +1574,8 @@ class Component extends DCLogic {
       'toast-accept':'Toast · accept','toast-dismiss':'Toast · dismiss',
       'start-over':'Start over','more-details':'More details',
       'm-vote':'Module · Vote','m-about':'Module · About','m-music':'Module · Music','m-people':'Module · Participants','ov-close':'Close overlay',
-      'vote-0':'Vote · card 1','vote-1':'Vote · card 2','vote-cast':'Cast vote','vote-change':'Change vote'
+      'vote-0':'Vote · card 1','vote-1':'Vote · card 2','vote-cast':'Cast vote','vote-change':'Change vote',
+      'sq-play':'Ad · play / pause'
     };
     let focusLabel=labels[s.focusKey]||s.focusKey;
     if(s.focusKey && s.focusKey.indexOf('seg-')===0) focusLabel='Participant · jump';
@@ -1610,7 +1699,9 @@ class Component extends DCLogic {
     const cbF={bg:'#fff',color:'#101013'}, cbI={bg:'rgba(255,255,255,.1)',color:'#fff'};
     const start=(s.focusKey==='start-over')?cbF:cbI; const more=(s.focusKey==='more-details')?cbF:cbI;
     const segA={bg:'rgba(255,255,255,.16)',color:'#fff',shadow:'0 2px 8px rgba(0,0,0,.35)'}; const segI={bg:'transparent',color:'rgba(255,255,255,.5)',shadow:'none'};
-    const mv=s.overlayModule==='vote'?segA:segI; const ma=s.overlayModule==='about'?segA:segI; const mm=s.overlayModule==='music'?segA:segI; const mp=s.overlayModule==='people'?segA:segI;
+    const segF={bg:'#fff',color:'#101013',shadow:'0 2px 10px rgba(0,0,0,.4)'};
+    const mkSeg=(id)=> s.focusKey==='m-'+id ? segF : (s.overlayModule===id ? segA : segI);
+    const mv=mkSeg('vote'); const ma=mkSeg('about'); const mm=mkSeg('music'); const mp=mkSeg('people');
     const taFoc=s.focusKey==='toast-accept'; const tdFoc=s.focusKey==='toast-dismiss';
     const onA={bg:'#fff',color:'#101013'}; const onI={bg:'rgba(255,255,255,.12)',color:'#fff'};
     const ta = taFoc?onA:onI; const td = tdFoc?onA:onI;
@@ -1630,7 +1721,7 @@ class Component extends DCLogic {
 
     const titleMap={'live-dvr':'Red Bull Dance Your Style · USA Qualifier','live':'Red Bull Dance Your Style · USA Qualifier','vod':'Dance Your Style USA: Best Moments','linear':'Dance Your Style: Live Coverage'};
     const formatDescMap={
-      'live-dvr':'The red marker is the live edge, mid-track. Scrub back into the DVR buffer and Jump to Live appears first in the controls. Ease Live active.',
+      'live-dvr':'The red marker is the live edge, mid-track; the scrub head turns white in the DVR buffer. Jump to Live appears first in the controls when behind. Ease Live active.',
       'live':'Pinned to the live edge, no scrubbing. Left/Right won’t seek. Ease Live active.',
       'vod':'Full scrubbing with elapsed / remaining. Skip window on demand. No Ease Live.',
       'linear':'Broadcast channel with program bar and up-next. No transport control. No Ease Live.'
@@ -1649,7 +1740,7 @@ class Component extends DCLogic {
       doSelect:this.doSelect, doBack:this.doBack, doPlay:this.doPlay, doPause:this.doPause,
       scToast:this.scToast, scAuto:this.scAuto, scDotd:this.scDotd, scSkip:this.scSkip, scRating:this.scRating,
       scAdQr:this.scAdQr, scAdPlain:this.scAdPlain,
-      scSqSplit:this.scSqSplit, scSqSide:this.scSqSide, scSqL:this.scSqL,
+      scSqSplit:this.scSqSplit, scSqHalf:this.scSqHalf, scSqL:this.scSqL,
 
       controlsVis: (s.activeLayer==='controls' && s.controlsVisible && !s.toast) ? '1':'0',
       ambient,
@@ -1661,10 +1752,18 @@ class Component extends DCLogic {
       skipShown: s.skipOn && s.activeLayer==='controls' && !s.controlsVisible && !s.toast && !s.menu && !s.squeeze,
       skipLabel: s.format==='vod' ? 'Skip intro' : 'Skip',
       videoSplit: split, overlaySplit: split,
-      squeezeMode: s.squeeze||'',
+      squeezeMode: (s.squeeze && !s.sqOut) ? s.squeeze : '',
       squeezeCount: s.squeezeCount,
-      sqSplitOn: s.squeeze==='split', sqSideOn: s.squeeze==='side', sqLOn: s.squeeze==='lshape',
+      sqOutAttr: s.sqOut ? '1' : '0',
+      sqSplitOn: s.squeeze==='split', sqLOn: s.squeeze==='lshape',
       sqFocusOn: s.squeeze==='adfocus', sqPipOn: s.squeeze==='pip',
+      sqCaptionShown: !!s.squeeze && s.squeeze!=='lshape',
+      sqStripShown: !!s.squeeze && s.sqCtl && !s.sqOut,
+      afAdEnter: s.sqPos==='left' ? 'sqe-afr' : 'sqe-afl',
+      playingIcon: s.playing, pausedIcon: !s.playing,
+      scSqEnd: this.scSqEnd,
+      sqEndOp: (s.squeeze && !s.sqOut) ? '1' : '.35',
+      sqEndPe: (s.squeeze && !s.sqOut) ? 'auto' : 'none',
       scSqFocus: this.scSqFocus, scSqPip: this.scSqPip,
       bugOn: s.ad ? '0':'1',
       adOpen: s.ad, adActive: s.ad ? '1':'0', adCount: s.adCount, controlsShown: !s.ad,
@@ -1699,9 +1798,11 @@ class Component extends DCLogic {
       voteFormShown: s.voted===null,
       voteDoneShown: s.voted!==null,
       voteCards, votedName,
-      castBg: (castFoc || castReady) ? '#fff' : 'rgba(255,255,255,.08)',
-      castColor: (castFoc || castReady) ? '#101013' : '#fff',
-      castOp: castReady ? '1' : '.45',
+      castFk: castReady ? 'vote-cast' : '',
+      castBg: castReady ? (castFoc ? '#fff' : 'rgba(255,255,255,.16)') : 'rgba(255,255,255,.05)',
+      castColor: castReady ? (castFoc ? '#101013' : '#fff') : 'rgba(255,255,255,.32)',
+      castBorder: castReady ? (castFoc ? '#fff' : 'rgba(255,255,255,.28)') : 'rgba(255,255,255,.08)',
+      castCursor: castReady ? 'pointer' : 'default',
       changeBg: changeFoc ? '#fff' : 'rgba(255,255,255,.08)',
       changeColor: changeFoc ? '#101013' : '#fff',
       aboutInitials: initials(seg.dancer),
@@ -1721,19 +1822,30 @@ class Component extends DCLogic {
       scrubHpx: s.scrubH+'px',
       scrubH: s.scrubH,
       onScrubH: this.onScrubH,
+      mScrubH: s.mScrubH,
+      onMScrubH: this.onMScrubH,
+      mSplitW: s.mSplitW,
+      onMSplitW: this.onMSplitW,
+      mSqPos: s.mSqPos,
+      onMSqPos: this.onMSqPos,
+      mSqPosLeadLabel: s.mOrient==='portrait' ? 'Top' : 'Left',
+      mSqPosTrailLabel: s.mOrient==='portrait' ? 'Bottom' : 'Right',
+      mSqPosLBg: s.mSqPos==='lead' ? '#fff' : 'transparent', mSqPosLColor: s.mSqPos==='lead' ? '#111' : 'rgba(255,255,255,.6)',
+      mSqPosRBg: s.mSqPos==='trail' ? '#fff' : 'transparent', mSqPosRColor: s.mSqPos==='trail' ? '#111' : 'rgba(255,255,255,.6)',
+      lsOnlyOp: s.mOrient==='portrait' ? '.35' : '1',
+      lsOnlyPe: s.mOrient==='portrait' ? 'none' : 'auto',
       splitW: s.splitW,
       splitWpct: s.splitW+'%',
       splitWfrac: (s.splitW/100).toFixed(3),
       onSplitW: this.onSplitW,
-      tsLeft: isLiveDvr ? (!s.playing ? ('−'+this.mmss(s.behindS)) : '') : (s.format==='linear' ? '14:00' : this.mmss(pos)),
+      tsLeft: isLiveDvr ? (behindLive ? ('−'+this.mmss(s.behindS)) : '') : (s.format==='linear' ? '14:00' : this.mmss(pos)),
       tsRight: isLiveDvr ? '' : (s.format==='linear' ? '15:00' : ('−'+this.mmss(Math.max(0,dur-pos)))),
       pausedGlyph: !s.playing,
-      knobShown: !(isLiveDvr && !behindLive),
-      phLabelShown: isLiveDvr && behindLive && s.playing,
-      tsPlayhead: '−'+this.mmss(s.behindS),
+      knobShown: true,
+      knobColor: isLiveDvr ? '#ffffff' : '#DB0640',
       sqPos: s.sqPos,
       afAdAnchor: s.sqPos==='left' ? 'right:48px;' : 'left:48px;',
-      afVidAnchor: s.sqPos==='left' ? 'left:14px;' : 'right:14px;',
+      afVidAnchor: s.sqPos==='left' ? 'left:48px;' : 'right:48px;',
       onSqPos: this.onSqPos,
       sqPosLBg: s.sqPos==='left' ? '#fff' : 'transparent', sqPosLColor: s.sqPos==='left' ? '#111' : 'rgba(255,255,255,.6)',
       sqPosRBg: s.sqPos==='right' ? '#fff' : 'transparent', sqPosRColor: s.sqPos==='right' ? '#111' : 'rgba(255,255,255,.6)',

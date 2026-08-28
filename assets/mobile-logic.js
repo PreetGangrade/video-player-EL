@@ -21,6 +21,7 @@ class Component extends DCLogic {
       toast: false,
       battle: false,
       ad: false,
+      adOut: false,
       adCount: 8,
       adModal: false,
       adSent: false,
@@ -32,6 +33,8 @@ class Component extends DCLogic {
       skipOn: false,
       squeeze: null,      // null | 'stack' | 'banner'
       squeezeCount: 15,
+      sqOut: false,       // exit phase: ad travels back along its entrance path
+      sqCtl: false,       // transient play/pause during a squeeze
       curSeg: 0,
     };
     this.RATING_HOLD = 5000;
@@ -91,7 +94,8 @@ class Component extends DCLogic {
     this.setAbout=()=>this.setState({elModule:'about'});
     this.setMusic=()=>this.setState({elModule:'music'});
     this.setPeople=()=>this.setState({elModule:'people'});
-    this.togglePlay=()=>{ this.setState(s=>({playing:!s.playing})); this.armLsHide(); };
+    this.togglePlay=()=>{ this.setState(s=>({playing:!s.playing})); if(this.state.squeeze) this.armSqCtlHide(); this.armLsHide(); };
+    this.armSqCtlHide=()=>{ clearTimeout(this.sqCtlT); this.sqCtlT=setTimeout(()=>{ if(this.state.squeeze && this.state.sqCtl) this.setState({sqCtl:false}); }, 4000); };
     this.goLive=()=>{ this.setState({behindS:0}); };
     this.back10=()=>{ if(this.isLD()){ this.setState(s=>({behindS: Math.min(this.DVR_W, s.behindS+10)})); } else if(this.videoEl){ this.videoEl.currentTime=Math.max(0,this.videoEl.currentTime-10); } this.armLsHide(); };
     this.fwd10=()=>{ if(this.isLD()){ this.setState(s=>({behindS: Math.max(0, s.behindS-10)})); } else if(this.videoEl){ this.videoEl.currentTime=this.videoEl.currentTime+10; } this.armLsHide(); };
@@ -117,7 +121,7 @@ class Component extends DCLogic {
     this.changeVote=()=>{ this.setState({voted:null}); };
     this.jumpSeg=(e)=>{ const i=parseInt(e.currentTarget.dataset.i,10); const t=this.SEGMENTS[i].t; if(this.videoEl){ try{ this.videoEl.currentTime=t; }catch(err){} } this.setState({playing:true}); };
     this.pArmHide=()=>{ clearTimeout(this.pT); this.pT=setTimeout(()=>{ if(!this.state.scrubbing && !this.state.volOpen && !this.state.ctrlSel && !this.state.toast && !this.state.ad){ this.setState({pControls:false, lsControls:false}); setTimeout(()=>this.maybeShowRating(), 60); } }, 5000); };
-    this.pTap=()=>{ if(this.state.scrubbing) return; if(this.state.squeeze) return; if(this.state.panel!=='none'){ this.setState({panel:'none', pControls:true}); this.pArmHide(); return; } const n=!this.state.pControls; this.setState({pControls:n}); if(n){ this.ratingOut(); this.pArmHide(); } else { setTimeout(()=>this.maybeShowRating(), 60); } };
+    this.pTap=()=>{ if(this.state.scrubbing) return; if(this.state.squeeze){ if(this.state.sqOut) return; const n=!this.state.sqCtl; this.setState({sqCtl:n}); if(n) this.armSqCtlHide(); return; } if(this.state.panel!=='none'){ this.setState({panel:'none', pControls:true}); this.pArmHide(); return; } const n=!this.state.pControls; this.setState({pControls:n}); if(n){ this.ratingOut(); this.pArmHide(); } else { setTimeout(()=>this.maybeShowRating(), 60); } };
     this.MENUS={
       cc:{title:'SUBTITLES', opts:['Off','English (Original)','English (CC)','Spanish','French']},
       audio:{title:'AUDIO', opts:['English 5.1','English Stereo','Original mix','Director commentary']},
@@ -164,7 +168,7 @@ class Component extends DCLogic {
       this._vup=()=>{ window.removeEventListener('pointermove',this._vmv); window.removeEventListener('pointerup',this._vup); this.armVolClose(); };
       window.addEventListener('pointermove',this._vmv); window.addEventListener('pointerup',this._vup); };
     this.armLsHide=()=>{ clearTimeout(this.lsT); this.lsT=setTimeout(()=>{ if(!this.state.scrubbing && !this.state.volOpen && !this.state.ctrlSel){ this.setState({lsControls:false, pControls:false}); setTimeout(()=>this.maybeShowRating(), 60); } }, 5000); };
-    this.lsTap=()=>{ if(this.state.scrubbing) return; if(this.state.squeeze) return; if(this.state.lsPanel){ this.closeLsPanel(); return; } if(this.state.panel!=='none'){ this.setState({panel:'none', lsControls:true}); this.armLsHide(); return; } const next=!this.state.lsControls; this.setState({lsControls:next}); if(next){ this.ratingOut(); this.armLsHide(); } else { setTimeout(()=>this.maybeShowRating(), 60); } };
+    this.lsTap=()=>{ if(this.state.scrubbing) return; if(this.state.squeeze){ if(this.state.sqOut) return; const n=!this.state.sqCtl; this.setState({sqCtl:n}); if(n) this.armSqCtlHide(); return; } if(this.state.lsPanel){ this.closeLsPanel(); return; } if(this.state.panel!=='none'){ this.setState({panel:'none', lsControls:true}); this.armLsHide(); return; } const next=!this.state.lsControls; this.setState({lsControls:next}); if(next){ this.ratingOut(); this.armLsHide(); } else { setTimeout(()=>this.maybeShowRating(), 60); } };
   }
 
   componentDidMount(){
@@ -182,6 +186,7 @@ class Component extends DCLogic {
     window.removeEventListener('resize', this.onResize);
     if(this.ro) this.ro.disconnect();
     clearTimeout(this.ratingHoldT); clearTimeout(this.ratingT); clearTimeout(this.pT); clearTimeout(this.lsT); clearTimeout(this.volT); clearTimeout(this.skipT); clearTimeout(this.toastT);
+    clearTimeout(this.sqOutT); clearTimeout(this.sqCtlT); clearTimeout(this.adOutT);
     clearInterval(this.adT); clearInterval(this.sqT);
   }
   componentDidUpdate(prevProps){
@@ -189,6 +194,11 @@ class Component extends DCLogic {
     if(this.videoEl){
       if(this.state.playing && this.videoEl.paused){ const p=this.videoEl.play(); if(p&&p.catch) p.catch(()=>{}); }
       else if(!this.state.playing && !this.videoEl.paused){ this.videoEl.pause(); }
+    }
+    // pausing during a squeeze pauses the ad too (and the countdown holds)
+    if(this.state.squeeze && !this.state.sqOut && this.sqVideoEl){
+      if(this.state.playing && this.sqVideoEl.paused){ const p=this.sqVideoEl.play(); if(p&&p.catch) p.catch(()=>{}); }
+      else if(!this.state.playing && !this.sqVideoEl.paused){ this.sqVideoEl.pause(); }
     }
     if(prevProps && this.props.cmdSeq !== prevProps.cmdSeq && this.props.cmdSeq){ this.runCmd(this.props.cmd); }
     if(prevProps && this.props.format !== prevProps.format){
@@ -206,18 +216,25 @@ class Component extends DCLogic {
     else if(name==='landscape'){ if(this.state.orientation!=='landscape') this.setLandscape(); }
     else if(name==='portrait'){ if(this.state.orientation!=='portrait') this.setState({orientation:'portrait', panel:'none', lsPanel:false, ctrlSel:null, scrubbing:false}); }
     else if(name==='rating'){ clearTimeout(this.ratingHoldT); clearTimeout(this.ratingT); this.setState({ratingPending:true, ratingPhase:'hidden'}); if(!this.state.pControls && !this.state.lsControls){ setTimeout(()=>this.maybeShowRating(), 80); } }
-    else if(name==='ad'){ this.endSqueeze(true); clearInterval(this.adT); this.setState({ad:true, adModal:false, adSent:false, toast:false, ctrlSel:null, adCount:8, playing:false}); this.adT=setInterval(()=>{ this.setState(s=>{ if(s.adModal) return {}; const v=s.adCount-1; if(v<=0){ clearInterval(this.adT); setTimeout(()=>this.setState({ad:false, playing:true}),20); return {adCount:0}; } return {adCount:v}; }); },1000); }
+    else if(name==='ad'){ this.endSqueeze(true); clearInterval(this.adT); clearTimeout(this.adOutT); this.setState({ad:true, adOut:false, adModal:false, adSent:false, toast:false, ctrlSel:null, adCount:8, playing:false}); this.adT=setInterval(()=>{ this.setState(s=>{ if(s.adModal) return {}; const v=s.adCount-1; if(v<=0){ clearInterval(this.adT); setTimeout(()=>this.closeAd(),20); return {adCount:0}; } return {adCount:v}; }); },1000); }
     else if(name==='sound-on'){ if(this.videoEl) this.videoEl.muted=false; this._soundOn=true; }
     else if(name==='sound-off'){ if(this.videoEl) this.videoEl.muted=true; this._soundOn=false; }
-    else if(name==='ad-split'){ this.startSqueeze('stack'); }
-    else if(name==='ad-banner'){ this.startSqueeze('banner'); }
+    else if(name==='ad-split'){ this.startSqueeze(this.state.orientation==='portrait' ? 'stack' : 'half'); }
+    else if(name==='ad-half'){ this.startSqueeze('half'); }
+    else if(name==='ad-lshape'){ this.ensureLs(); this.startSqueeze('lshape'); }
+    else if(name==='ad-focus'){ this.ensureLs(); this.startSqueeze('adfocus'); }
+    else if(name==='ad-pip'){ this.ensureLs(); this.startSqueeze('pip'); }
+    else if(name==='ad-end'){ this.endSqueeze(); }
   }
+  // landscape-only squeeze formats rotate the device first (10ft layouts)
+  ensureLs(){ if(this.state.orientation==='portrait') this.setLandscape(); }
   startSqueeze(mode){
-    clearInterval(this.sqT);
-    this.setState({squeeze:mode, squeezeCount:15, toast:false, ad:false, ctrlSel:null, panel:'none', lsPanel:false, pControls:false, lsControls:false, playing:true});
+    clearInterval(this.sqT); clearTimeout(this.sqOutT); clearTimeout(this.sqCtlT);
+    this.setState({squeeze:mode, squeezeCount:15, sqOut:false, sqCtl:false, toast:false, ad:false, ctrlSel:null, panel:'none', lsPanel:false, pControls:false, lsControls:false, playing:true});
     this.ratingOut();
     this.sqT=setInterval(()=>{
       this.setState(s=>{
+        if(!s.playing) return {}; // paused: the ad and its countdown hold
         const v=s.squeezeCount-1;
         if(v<=0){ clearInterval(this.sqT); setTimeout(()=>this.endSqueeze(),30); return {squeezeCount:0}; }
         return {squeezeCount:v};
@@ -225,18 +242,36 @@ class Component extends DCLogic {
     },1000);
   }
   endSqueeze(silent){
-    clearInterval(this.sqT);
-    if(this.sqVideoEl){ try{ this.sqVideoEl.pause(); }catch(e){} }
+    clearInterval(this.sqT); clearTimeout(this.sqCtlT);
     if(!this.state.squeeze) return;
-    this.setState({squeeze:null});
+    if(silent){
+      clearTimeout(this.sqOutT);
+      if(this.sqVideoEl){ try{ this.sqVideoEl.pause(); }catch(e){} }
+      this.setState({squeeze:null, sqOut:false, sqCtl:false});
+      return;
+    }
+    if(this.state.sqOut) return;
+    this.setState({sqOut:true, sqCtl:false});
+    this.sqOutT=setTimeout(()=>{
+      if(this.sqVideoEl){ try{ this.sqVideoEl.pause(); }catch(e){} }
+      this.setState({squeeze:null, sqOut:false});
+    }, 580);
   }
   elOk(){ const f=this.props.format||'live-dvr'; return f==='live-dvr'||f==='live'; }
   seekOk(){ const f=this.props.format||'live-dvr'; return f==='live-dvr'||f==='vod'; }
   acceptToast(){ this.setState({toast:false}); this.openEL('vote'); }
   dismissToast(){ clearTimeout(this.toastT); this.setState({toast:false}); }
-  closeAd(){ clearInterval(this.adT); this.setState({ad:false, adModal:false, playing:true}); if(this.adVideoEl){ try{ this.adVideoEl.pause(); }catch(e){} } }
+  closeAd(){
+    clearInterval(this.adT);
+    if(!this.state.ad || this.state.adOut) return;
+    this.setState({adOut:true, adModal:false});
+    this.adOutT=setTimeout(()=>{
+      this.setState({ad:false, adOut:false, playing:true});
+      if(this.adVideoEl){ try{ this.adVideoEl.pause(); }catch(e){} }
+    }, 380);
+  }
   adVideoRef=(el)=>{ if(el && el!==this.adVideoEl){ this.adVideoEl=el; el.muted=true; el.loop=true; el.playsInline=true; const tryPlay=()=>{ if(!el.isConnected || el!==this.adVideoEl || !this.state.ad) return; const p=el.play(); if(p&&p.catch) p.catch(()=>setTimeout(tryPlay,150)); }; el.addEventListener('loadeddata', tryPlay); tryPlay(); } };
-  sqVideoRef=(el)=>{ if(el && el!==this.sqVideoEl){ this.sqVideoEl=el; el.muted=true; el.loop=true; el.playsInline=true; const tryPlay=()=>{ if(!el.isConnected || el!==this.sqVideoEl || !this.state.squeeze) return; const p=el.play(); if(p&&p.catch) p.catch(()=>setTimeout(tryPlay,150)); }; el.addEventListener('loadeddata', tryPlay); tryPlay(); } };
+  sqVideoRef=(el)=>{ if(el && el!==this.sqVideoEl){ this.sqVideoEl=el; el.muted=true; el.loop=true; el.playsInline=true; const tryPlay=()=>{ if(!el.isConnected || el!==this.sqVideoEl || !this.state.squeeze || !this.state.playing) return; const p=el.play(); if(p&&p.catch) p.catch(()=>setTimeout(tryPlay,150)); }; el.addEventListener('loadeddata', tryPlay); tryPlay(); } };
   sendPhone(){ this.setState({adModal:true, adSent:true}); }
   closeModal(){ this.setState({adModal:false}); }
   adSkipTap(){ if(this.state.adCount<=5) this.closeAd(); }
@@ -261,6 +296,9 @@ class Component extends DCLogic {
   renderVals(){
     const s=this.state;
     const isPortrait = s.orientation==='portrait';
+    const sbh = Math.max(3, Math.min(12, parseInt(this.props.scrubh,10)||6)); // scrub bar height (panel slider)
+    const lsv = Math.max(40, Math.min(70, parseInt(this.props.lssplit,10)||62)); // landscape split: video width % (matches 10ft default)
+    const sqLead = (this.props.sqpos||'lead')!=='trail'; // 50/50: your video sits top/left (lead) or bottom/right (trail)
     let scrubTime='0:00';
     let timeNow='0:00', timeDur='0:00';
     { const dur = (this.videoEl && this.videoEl.duration) ? this.videoEl.duration : 0; const t=(s.scrubPct/100)*dur; const mm=Math.floor(t/60), ss=Math.floor(t%60); scrubTime = mm+':'+(ss<10?'0':'')+ss;
@@ -270,9 +308,11 @@ class Component extends DCLogic {
     const panelIG = isPortrait && s.panel==='ig';
     const panelNone = isPortrait && s.panel==='none';
 
-    const tabActive={bg:'#fff',color:'#101013',border:'#fff'};
+    // Open-panel tab reads "engaged", not focused-solid: the panel's own primary
+    // action (Start over) owns the solid-white treatment. Tap the tab again to close.
+    const tabEngaged={bg:'rgba(255,255,255,.34)',color:'#fff',border:'rgba(255,255,255,.34)'};
     const tabIdle={bg:'rgba(255,255,255,.08)',color:'#fff',border:'rgba(255,255,255,.16)'};
-    const ti = s.panel==='info' ? tabActive : tabIdle;
+    const ti = s.panel==='info' ? tabEngaged : tabIdle;
 
     const segA={bg:'rgba(255,255,255,.16)',color:'#fff'};
     const segI={bg:'transparent',color:'rgba(255,255,255,.5)'};
@@ -329,7 +369,7 @@ class Component extends DCLogic {
     const isLD = fmt==='live-dvr';
     if(isLD){
       const behind=s.behindS>1;
-      timeNow = behind ? ('−'+mmssL(s.behindS)) : 'LIVE';
+      timeNow = behind ? ('−'+mmssL(s.behindS)) : '';
       timeDur = '';
       const ratio=(s.scrubPct||0)/100;
       scrubTime = ratio>=0.65 ? 'LIVE' : ('−'+mmssL(this.DVR_W*(1-ratio/0.65)));
@@ -342,7 +382,19 @@ class Component extends DCLogic {
     }
     const elOk=this.elOk();
     const seekOk=this.seekOk();
-    const lsSplit = !isPortrait && (s.lsPanel || s.squeeze==='stack');
+    // Landscape video is pure transform (translate + scale, GPU) like the 10ft
+    // stage; radii are pre-divided by the scale so corners stay visually equal.
+    const LSV=693.333, LSX=75.333;
+    const lsPlace=(x,y,w)=>{ const sc=w/LSV; return 'translate('+(x-LSX).toFixed(2)+'px, '+y.toFixed(2)+'px) scale('+sc.toFixed(4)+')'; };
+    const activeSq = (s.squeeze && !s.sqOut) ? s.squeeze : null;
+    let lsVidTf='none', lsVidR='0px', lsVidZ='0';
+    if(!isPortrait){
+      if(activeSq==='half' || activeSq==='stack'){ lsVidTf=lsPlace(sqLead?32:430,87.5,382); lsVidR='22px'; }
+      else if(activeSq==='lshape'){ lsVidTf=lsPlace(32,26,430); lsVidR='19px'; }
+      else if(activeSq==='adfocus'){ lsVidTf=lsPlace(32,127.05,241.6); lsVidR='29px'; }
+      else if(activeSq==='pip'){ lsVidTf=lsPlace(592.6,226.6,219.4); lsVidR='38px'; lsVidZ='40'; }
+      else if(s.lsPanel){ const vw=844*lsv/100; lsVidTf=lsPlace(16,(390-vw*9/16)/2,vw); lsVidR=(12/(vw/LSV)).toFixed(1)+'px'; }
+    }
     const badgeLive = fmt==='live-dvr'||fmt==='live';
     const badgeText = badgeLive ? 'LIVE' : (fmt==='vod' ? 'REPLAY' : 'CH 04 · RED BULL TV');
     return {
@@ -352,7 +404,7 @@ class Component extends DCLogic {
       panelNext: isPortrait && s.panel==='next',
       panelTabsShown: isPortrait && (s.panel==='info' || s.panel==='next'),
       cardNext: s.panel==='next', cardNextIdleShown: fmt==='linear' && s.panel!=='next',
-      tabNextBg: (s.panel==='next'?'#fff':'rgba(255,255,255,.08)'), tabNextColor: (s.panel==='next'?'#101013':'#fff'), tabNextBorder: (s.panel==='next'?'#fff':'rgba(255,255,255,.16)'),
+      tabNextBg: (s.panel==='next'?tabEngaged.bg:tabIdle.bg), tabNextColor: '#fff', tabNextBorder: (s.panel==='next'?tabEngaged.border:tabIdle.border),
       upNext: [
         {time:'15:00', title:'Dance Your Style · World Final', sub:'Live from the arena'},
         {time:'16:30', title:'Behind the Battles', sub:'Backstage with the dancers'},
@@ -401,9 +453,21 @@ class Component extends DCLogic {
       adClock: '0:0'+Math.max(0, Math.min(9, s.adCount)),
       adVideoRef: this.adVideoRef,
       sqVideoRef: this.sqVideoRef,
-      sqMode: s.squeeze||'',
+      sqMode: activeSq||'',
+      sqOutAttr: s.sqOut ? '1' : '0',
+      adOutAttr: s.adOut ? '1' : '0',
       sqStackOpen: s.squeeze==='stack',
-      sqBannerOpen: s.squeeze==='banner',
+      sqHalfOpen: s.squeeze==='half',
+      sqLshapeOpen: s.squeeze==='lshape',
+      sqFocusOpen: s.squeeze==='adfocus',
+      sqPipOpen: s.squeeze==='pip',
+      halfAdTop: sqLead ? '428px' : '215px',
+      halfAdClass: sqLead ? 'psq-b' : 'psq-t',
+      halfLsAnchor: sqLead ? 'right:32px;' : 'left:32px;',
+      halfLsClass: sqLead ? 'lsq-r' : 'lsq-l',
+      pBugH: activeSq==='stack' ? '20px' : (activeSq==='half' ? '31px' : '34px'),
+      sqCaptionShown: !!s.squeeze && s.squeeze!=='lshape',
+      sqCtlShown: !!s.squeeze && s.sqCtl && !s.sqOut,
       squeezeCount: s.squeezeCount,
       menuOpen: !!s.ctrlSel, openMore: this.openMore,
       menuTitle: s.ctrlSel==='more' ? 'SETTINGS' : (s.ctrlSel ? this.MENUS[s.ctrlSel].title : ''),
@@ -415,13 +479,10 @@ class Component extends DCLogic {
 
       isPortrait, isLandscape:!isPortrait,
       showOrientToggle: !this.props.hosted,
-      vLeft: lsSplit ? '16px' : '50%',
-      vTf: lsSplit ? 'translateY(-50%)' : 'translate(-50%,-50%)',
-      vH: lsSplit ? 'auto' : '100%',
-      vW: lsSplit ? '56%' : 'auto',
-      vR: lsSplit ? '12px' : '0px',
-      lsPanelW: '40%',
+      lsVidTf, lsVidR, lsVidZ,
+      lsPanelW: (812 - 844*lsv/100).toFixed(1)+'px',
       lsPanelBg: '#0d0d10',
+      bugShownLs: !s.squeeze,
       devW: isPortrait ? 390 : 844, devH: isPortrait ? 844 : 390, devScale: s.scale,
 
       isLive: s.phase==='live',
@@ -432,13 +493,15 @@ class Component extends DCLogic {
       scrubLeft: fmt==='live' ? '100%' : ((isLD && !s.scrubbing) ? (65*(1-s.behindS/this.DVR_W)).toFixed(1)+'%' : (s.scrubPct||0).toFixed(1)+'%'),
       scrubTime: scrubTime, timeNow: timeNow, timeDur: timeDur,
       liveMarkShown: isLD,
+      liveMarkH: (sbh+7)+'px',
+      vidTopPad: (isPortrait && s.panel!=='none') ? '120px' : (activeSq==='stack' ? '527px' : (activeSq==='half' ? (sqLead ? '215px' : '428px') : '312px')),
       toggleVol: this.toggleVol, volDown: this.volDown, volOpen: s.volOpen,
-      volW: s.volOpen ? '108px' : '0px', volOp: s.volOpen ? 1 : 0, volLeft: (s.volPct||0).toFixed(1)+'%',
+      volW: s.volOpen ? '96px' : '0px', volOp: s.volOpen ? 1 : 0, volLeft: (s.volPct||0).toFixed(1)+'%',
       lsTap: this.lsTap, lsShowChrome: (!isPortrait && s.lsControls && !s.scrubbing && !s.toast && !s.ad && !s.squeeze),
       lsShowScrub: (!isPortrait && s.panel==='none' && !s.squeeze && (s.lsControls || s.scrubbing) && !s.toast && !s.ad && (seekOk || fmt==='linear' || fmt==='live')), lsControlsHidden: (!isPortrait && !s.lsControls),
       trackColor: s.scrubbing ? 'rgba(255,255,255,.42)' : 'rgba(255,255,255,.3)',
       fillColor: s.scrubbing ? '#ffffff' : 'rgba(255,255,255,.6)',
-      trackH: s.scrubbing ? '6px' : '4px',
+      trackH: s.scrubbing ? (sbh+2)+'px' : sbh+'px',
       knobSize: s.scrubbing ? '15px' : '11px',
       knobColor: s.scrubbing ? '#DB0640' : 'rgba(219,6,64,.9)',
       seekTimeColor: s.scrubbing ? '#ffffff' : 'rgba(255,255,255,.7)',
