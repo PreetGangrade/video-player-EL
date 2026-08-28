@@ -440,7 +440,7 @@ class Component extends DCLogic {
       fillColor: s.scrubbing ? '#ffffff' : 'rgba(255,255,255,.6)',
       trackH: s.scrubbing ? '6px' : '4px',
       knobSize: s.scrubbing ? '15px' : '11px',
-      knobColor: s.scrubbing ? '#ffffff' : 'rgba(255,255,255,.8)',
+      knobColor: s.scrubbing ? '#DB0640' : 'rgba(219,6,64,.9)',
       seekTimeColor: s.scrubbing ? '#ffffff' : 'rgba(255,255,255,.7)',
       panelNone, panelInfo, panelIG, panelOpen: isPortrait && s.panel!=='none',
       pMeta: (s.phase==='live' && isPortrait && s.panel==='none' && (s.pControls||s.scrubbing) && !s.toast && !s.ad && !s.squeeze),
