@@ -128,6 +128,16 @@ ad squeeze-back formats, and remote/touch interaction to stakeholders.
   control there); it stays up while a panel is open or a full ad break
   owns the screen. The phone status bar (9:41 / signal / battery) is not
   player chrome and always stays.
+- STAGE SWITCH = ORPHANED AUDIO. A detached <video> keeps playing in Chrome,
+  so switching 10-foot <-> Mobile used to leave the previous stage's feature
+  video running unmuted at full volume under the new one (and nothing ducks
+  it, so it drowned out mobile ads). The TV component parks its media when
+  `mode==='mobile'` (pause + mute in componentDidUpdate/syncAudio) and the
+  mobile component pauses+mutes its three elements in componentWillUnmount.
+  Never assume querySelectorAll('video') sees everything that is audible.
+- Mobile sound is the `sound` PROP ("1"/"0") read via this.soundOn(), not the
+  one-shot sound-on/off command: toggling Sound on the 10-foot stage and then
+  switching to mobile used to leave the whole mobile stage muted.
 - pArmHide / armLsHide RE-ARM when something owns the screen (scrub, volume,
   menu, toast, ad, squeeze, open panel) instead of consuming the timer. The
   old bail-without-reschedule latched pControls true forever after any toast

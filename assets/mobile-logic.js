@@ -58,13 +58,16 @@ class Component extends DCLogic {
       'Vik White':'Signature spins and showmanship: a crowd favorite from the moment the music drops.',
       'Rylee Prodigy':'Young powerhouse mixing technical footwork with fearless improvisation.'
     };
+    // Sound is a PROP, not a one-shot command: toggling it on the 10-foot stage
+    // and then switching to mobile used to leave this component muted forever.
+    this.soundOn=()=>String(this.props.sound)==='1';
     this.rootEl=null; this.deviceEl=null; this.videoEl=null;
     this.rootRef=(el)=>{ if(el) this.rootEl=el; };
     this.deviceRef=(el)=>{ if(el){ this.deviceEl=el; this.fit(); } };
     this.segIdxAt=(t)=>{ let idx=0; for(let i=0;i<this.SEGMENTS.length;i++){ if(t>=this.SEGMENTS[i].t) idx=i; } return idx; };
     this.videoRef=(el)=>{
       if(el && el!==this.videoEl){
-        this.videoEl=el; el.muted=!this._soundOn; el.loop=true; el.playsInline=true; el.preload='auto';
+        this.videoEl=el; el.muted=!this.soundOn(); el.loop=true; el.playsInline=true; el.preload='auto';
         el.addEventListener('timeupdate', ()=>{
           const seg=this.segIdxAt(el.currentTime||0);
           const patch={};
@@ -198,6 +201,9 @@ class Component extends DCLogic {
     clearTimeout(this.ratingHoldT); clearTimeout(this.ratingT); clearTimeout(this.pT); clearTimeout(this.lsT); clearTimeout(this.volT); clearTimeout(this.skipT); clearTimeout(this.toastT);
     clearTimeout(this.sqOutT); clearTimeout(this.sqCtlT); clearTimeout(this.adOutT);
     clearInterval(this.adT); clearInterval(this.sqT);
+    // a detached media element keeps playing: silence ours on the way out so the
+    // mobile audio never runs underneath the 10-foot stage
+    [this.videoEl, this.adVideoEl, this.sqVideoEl].forEach(el=>{ if(el){ try{ el.pause(); el.muted=true; }catch(e){} clearInterval(el._volT); } });
   }
   componentDidUpdate(prevProps){
     this.fit();
@@ -228,8 +234,7 @@ class Component extends DCLogic {
     else if(name==='portrait'){ if(this.state.orientation!=='portrait') this.setState({orientation:'portrait', panel:'none', lsPanel:false, ctrlSel:null, scrubbing:false}); }
     else if(name==='rating'){ clearTimeout(this.ratingHoldT); clearTimeout(this.ratingT); this.setState({ratingPending:true, ratingPhase:'hidden'}); if(!this.state.pControls && !this.state.lsControls){ setTimeout(()=>this.maybeShowRating(), 80); } }
     else if(name==='ad'){ this.endSqueeze(true); clearInterval(this.adT); clearTimeout(this.adOutT); this.setState({ad:true, adOut:false, adModal:false, adSent:false, toast:false, ctrlSel:null, adCount:8, playing:false}); this.adT=setInterval(()=>{ this.setState(s=>{ if(s.adModal) return {}; const v=s.adCount-1; if(v<=0){ clearInterval(this.adT); setTimeout(()=>this.closeAd(),20); return {adCount:0}; } return {adCount:v}; }); },1000); }
-    else if(name==='sound-on'){ this._soundOn=true; this.syncAudio(); }
-    else if(name==='sound-off'){ this._soundOn=false; this.syncAudio(); }
+    else if(name==='sound-on' || name==='sound-off'){ this.syncAudio(); }
     else if(name==='ad-split'){ this.startSqueeze(this.state.orientation==='portrait' ? 'stack' : 'half'); }
     else if(name==='ad-half'){ this.startSqueeze('half'); }
     else if(name==='ad-lshape'){ this.ensureLs(); this.startSqueeze('lshape'); }
@@ -288,7 +293,7 @@ class Component extends DCLogic {
   // element is actually playing we lift the mute (allowed after playback starts).
   primeAd(el, alive){
     el.loop=true; el.playsInline=true; el.preload='auto';
-    el.muted=!this._soundOn; el.volume=0; el._forcedMute=false;
+    el.muted=!this.soundOn(); el.volume=0; el._forcedMute=false;
     this.fadeVol(el, 1, 600);
     const tryPlay=()=>{
       if(!el.isConnected || !alive()) return;
@@ -299,7 +304,7 @@ class Component extends DCLogic {
       });
     };
     el.addEventListener('loadeddata', tryPlay);
-    el.addEventListener('playing', ()=>{ if(el._forcedMute && this._soundOn){ el.muted=false; el._forcedMute=false; } });
+    el.addEventListener('playing', ()=>{ if(el._forcedMute && this.soundOn()){ el.muted=false; el._forcedMute=false; } });
     tryPlay();
   }
   // Ad audio: the content audio ducks to props.duck % while an ad runs and the
@@ -323,8 +328,8 @@ class Component extends DCLogic {
     let dv=parseInt(this.props.duck,10); if(isNaN(dv)) dv=20;
     const duck=Math.max(0,Math.min(100,dv))/100;
     const adActive=(s.squeeze&&!s.sqOut)||(s.ad&&!s.adOut);
-    if(this.videoEl){ this.videoEl.muted=!this._soundOn; this.fadeVol(this.videoEl, adActive?duck:1, 600); }
-    const adMute=(el)=>{ if(el&&el.isConnected) el.muted = !this._soundOn || !!el._forcedMute; };
+    if(this.videoEl){ this.videoEl.muted=!this.soundOn(); this.fadeVol(this.videoEl, adActive?duck:1, 600); }
+    const adMute=(el)=>{ if(el&&el.isConnected) el.muted = !this.soundOn() || !!el._forcedMute; };
     adMute(this.sqVideoEl); adMute(this.adVideoEl);
   }
   sendPhone(){ this.setState({adModal:true, adSent:true}); }
