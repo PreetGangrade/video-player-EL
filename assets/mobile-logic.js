@@ -271,8 +271,27 @@ class Component extends DCLogic {
       if(this.adVideoEl){ try{ this.adVideoEl.pause(); }catch(e){} }
     }, 380);
   }
-  adVideoRef=(el)=>{ if(el && el!==this.adVideoEl){ this.adVideoEl=el; el.muted=!this._soundOn; el.volume=0; el.loop=true; el.playsInline=true; this.fadeVol(el,1,600); const tryPlay=()=>{ if(!el.isConnected || el!==this.adVideoEl || !this.state.ad) return; const p=el.play(); if(p&&p.catch) p.catch(()=>{ if(!el.muted){ el.muted=true; tryPlay(); } else setTimeout(tryPlay,150); }); }; el.addEventListener('loadeddata', tryPlay); tryPlay(); } };
-  sqVideoRef=(el)=>{ if(el && el!==this.sqVideoEl){ this.sqVideoEl=el; el.muted=!this._soundOn; el.volume=0; el.loop=true; el.playsInline=true; this.fadeVol(el,1,600); const tryPlay=()=>{ if(!el.isConnected || el!==this.sqVideoEl || !this.state.squeeze || !this.state.playing) return; const p=el.play(); if(p&&p.catch) p.catch(()=>{ if(!el.muted){ el.muted=true; tryPlay(); } else setTimeout(tryPlay,150); }); }; el.addEventListener('loadeddata', tryPlay); tryPlay(); } };
+  adVideoRef=(el)=>{ if(el && el!==this.adVideoEl){ this.adVideoEl=el; this.primeAd(el, ()=>el===this.adVideoEl && this.state.ad); } };
+  sqVideoRef=(el)=>{ if(el && el!==this.sqVideoEl){ this.sqVideoEl=el; this.primeAd(el, ()=>el===this.sqVideoEl && !!this.state.squeeze && this.state.playing); } };
+  // Ad playback + audio handoff. If the browser refuses unmuted autoplay we fall
+  // back to muted and mark the element, so syncAudio stops fighting it; once the
+  // element is actually playing we lift the mute (allowed after playback starts).
+  primeAd(el, alive){
+    el.loop=true; el.playsInline=true; el.preload='auto';
+    el.muted=!this._soundOn; el.volume=0; el._forcedMute=false;
+    this.fadeVol(el, 1, 600);
+    const tryPlay=()=>{
+      if(!el.isConnected || !alive()) return;
+      const p=el.play();
+      if(p&&p.catch) p.catch(()=>{
+        if(!el.muted){ el._forcedMute=true; el.muted=true; tryPlay(); }
+        else setTimeout(tryPlay,150);
+      });
+    };
+    el.addEventListener('loadeddata', tryPlay);
+    el.addEventListener('playing', ()=>{ if(el._forcedMute && this._soundOn){ el.muted=false; el._forcedMute=false; } });
+    tryPlay();
+  }
   // Ad audio: the content audio ducks to props.duck % while an ad runs and the
   // ad audio fades in; everything eases back when the ad ends. Muted state wins.
   fadeVol(el, target, ms){
@@ -295,8 +314,8 @@ class Component extends DCLogic {
     const duck=Math.max(0,Math.min(100,dv))/100;
     const adActive=(s.squeeze&&!s.sqOut)||(s.ad&&!s.adOut);
     if(this.videoEl){ this.videoEl.muted=!this._soundOn; this.fadeVol(this.videoEl, adActive?duck:1, 600); }
-    if(this.sqVideoEl&&this.sqVideoEl.isConnected) this.sqVideoEl.muted=!this._soundOn;
-    if(this.adVideoEl&&this.adVideoEl.isConnected) this.adVideoEl.muted=!this._soundOn;
+    const adMute=(el)=>{ if(el&&el.isConnected) el.muted = !this._soundOn || !!el._forcedMute; };
+    adMute(this.sqVideoEl); adMute(this.adVideoEl);
   }
   sendPhone(){ this.setState({adModal:true, adSent:true}); }
   closeModal(){ this.setState({adModal:false}); }
