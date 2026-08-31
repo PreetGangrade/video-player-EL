@@ -128,6 +128,12 @@ ad squeeze-back formats, and remote/touch interaction to stakeholders.
   control there); it stays up while a panel is open or a full ad break
   owns the screen. The phone status bar (9:41 / signal / battery) is not
   player chrome and always stays.
+- pArmHide / armLsHide RE-ARM when something owns the screen (scrub, volume,
+  menu, toast, ad, squeeze, open panel) instead of consuming the timer. The
+  old bail-without-reschedule latched pControls true forever after any toast
+  or ad break, and fired unseen behind an open panel so collapsing it wiped
+  every control at once. closePanel now restores pControls + re-arms, and a
+  tap that hides the controls also closes the volume slider.
 - dev-server.py serves MEDIA (.mp4/.png/.jpg/.woff2) as cacheable and only
   html/js/css as no-store. Do NOT put media back on no-store: every <video>
   mount then re-downloads the 86MB feature file, which starves Chrome's

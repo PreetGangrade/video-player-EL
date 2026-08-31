@@ -89,7 +89,9 @@ class Component extends DCLogic {
     this.setPortrait=()=>{ this.setState({orientation:'portrait'}); this.notifyOrient('portrait'); };
     this.setLandscape=()=>{ this.setState({orientation:'landscape', panel:'none', lsPanel:false, lsControls:true, scrubbing:false}); this.notifyOrient('landscape'); this.armLsHide(); };
     this.openInfo=()=>this.setState(s=>({panel: s.panel==='info' ? 'none' : 'info'}));
-    this.closePanel=()=>this.setState({panel:'none'});
+    // collapsing a panel returns to visible controls with a fresh timer, so it
+    // never lands on a bare player
+    this.closePanel=()=>{ this.setState({panel:'none', pControls:true}); this.pArmHide(); };
     this.setVote=()=>this.setState({elModule:'vote'});
     this.setAbout=()=>this.setState({elModule:'about'});
     this.setMusic=()=>this.setState({elModule:'music'});
@@ -120,8 +122,14 @@ class Component extends DCLogic {
     this.castVote=()=>{ if(this.state.voteSel===null) return; this.setState(s=>({voted:s.voteSel})); };
     this.changeVote=()=>{ this.setState({voted:null}); };
     this.jumpSeg=(e)=>{ const i=parseInt(e.currentTarget.dataset.i,10); const t=this.SEGMENTS[i].t; if(this.videoEl){ try{ this.videoEl.currentTime=t; }catch(err){} } this.setState({playing:true}); };
-    this.pArmHide=()=>{ clearTimeout(this.pT); this.pT=setTimeout(()=>{ if(!this.state.scrubbing && !this.state.volOpen && !this.state.ctrlSel && !this.state.toast && !this.state.ad){ this.setState({pControls:false, lsControls:false}); setTimeout(()=>this.maybeShowRating(), 60); } }, 5000); };
-    this.pTap=()=>{ if(this.state.scrubbing) return; if(this.state.squeeze){ if(this.state.sqOut) return; const n=!this.state.sqCtl; this.setState({sqCtl:n}); if(n) this.armSqCtlHide(); return; } if(this.state.panel!=='none'){ this.setState({panel:'none', pControls:true}); this.pArmHide(); return; } const n=!this.state.pControls; this.setState({pControls:n}); if(n){ this.ratingOut(); this.pArmHide(); } else { setTimeout(()=>this.maybeShowRating(), 60); } };
+    // Auto-hide must RE-ARM while something else owns the screen, never just
+    // drop the timer: consuming it left pControls latched true forever after a
+    // toast or an ad break, and fired unseen behind an open panel so collapsing
+    // it wiped every control at once.
+    this.pArmHide=()=>{ clearTimeout(this.pT); this.pT=setTimeout(()=>{ const s=this.state;
+      if(s.scrubbing || s.volOpen || s.ctrlSel || s.toast || s.ad || s.squeeze || s.panel!=='none'){ this.pArmHide(); return; }
+      this.setState({pControls:false, lsControls:false}); setTimeout(()=>this.maybeShowRating(), 60); }, 5000); };
+    this.pTap=()=>{ if(this.state.scrubbing) return; if(this.state.squeeze){ if(this.state.sqOut) return; const n=!this.state.sqCtl; this.setState({sqCtl:n}); if(n) this.armSqCtlHide(); return; } if(this.state.panel!=='none'){ this.setState({panel:'none', pControls:true}); this.pArmHide(); return; } const n=!this.state.pControls; this.setState(n ? {pControls:true} : {pControls:false, volOpen:false}); if(n){ this.ratingOut(); this.pArmHide(); } else { setTimeout(()=>this.maybeShowRating(), 60); } };
     this.MENUS={
       cc:{title:'SUBTITLES', opts:['Off','English (Original)','English (CC)','Spanish','French']},
       audio:{title:'AUDIO', opts:['English 5.1','English Stereo','Original mix','Director commentary']},
@@ -167,7 +175,9 @@ class Component extends DCLogic {
       this._vmv=(ev)=>{ this.setState({volPct:this.volPctFromX(ev.clientX)}); this.armVolClose(); };
       this._vup=()=>{ window.removeEventListener('pointermove',this._vmv); window.removeEventListener('pointerup',this._vup); this.armVolClose(); };
       window.addEventListener('pointermove',this._vmv); window.addEventListener('pointerup',this._vup); };
-    this.armLsHide=()=>{ clearTimeout(this.lsT); this.lsT=setTimeout(()=>{ if(!this.state.scrubbing && !this.state.volOpen && !this.state.ctrlSel){ this.setState({lsControls:false, pControls:false}); setTimeout(()=>this.maybeShowRating(), 60); } }, 5000); };
+    this.armLsHide=()=>{ clearTimeout(this.lsT); this.lsT=setTimeout(()=>{ const s=this.state;
+      if(s.scrubbing || s.volOpen || s.ctrlSel){ this.armLsHide(); return; }
+      this.setState({lsControls:false, pControls:false}); setTimeout(()=>this.maybeShowRating(), 60); }, 5000); };
     this.lsTap=()=>{ if(this.state.scrubbing) return; if(this.state.squeeze){ if(this.state.sqOut) return; const n=!this.state.sqCtl; this.setState({sqCtl:n}); if(n) this.armSqCtlHide(); return; } if(this.state.lsPanel){ this.closeLsPanel(); return; } if(this.state.panel!=='none'){ this.setState({panel:'none', lsControls:true}); this.armLsHide(); return; } const next=!this.state.lsControls; this.setState({lsControls:next}); if(next){ this.ratingOut(); this.armLsHide(); } else { setTimeout(()=>this.maybeShowRating(), 60); } };
   }
 
@@ -427,7 +437,7 @@ class Component extends DCLogic {
     }
     const elOk=this.elOk();
     const seekOk=this.seekOk();
-    const pChromeOn = s.phase==='live' && isPortrait && !s.squeeze && (s.pControls || s.scrubbing || s.panel!=='none' || s.ad);
+    const pChromeOn = s.phase==='live' && isPortrait && !s.squeeze && !s.toast && (s.pControls || s.scrubbing || s.panel!=='none' || s.ad);
     // Landscape video is pure transform (translate + scale, GPU) like the 10ft
     // stage; radii are pre-divided by the scale so corners stay visually equal.
     const LSV=693.333, LSX=75.333;
