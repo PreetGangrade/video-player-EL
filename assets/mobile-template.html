@@ -36,6 +36,8 @@
   @keyframes lsq-in-b{from{transform:translateY(120px)}}
   .lsq-r{animation:lsq-in-r .55s cubic-bezier(.3,0,.18,1) both; transition:transform .55s cubic-bezier(.3,0,.18,1), opacity .4s ease; will-change:transform;}
   .lsq-l{animation:lsq-in-l .55s cubic-bezier(.3,0,.18,1) both; transition:transform .55s cubic-bezier(.3,0,.18,1), opacity .4s ease; will-change:transform;}
+  @keyframes lsq-in-l2{from{transform:translateX(-580px)}}
+  .lsq-l2{animation:lsq-in-l2 .55s cubic-bezier(.3,0,.18,1) both; transition:transform .55s cubic-bezier(.3,0,.18,1), opacity .4s ease; will-change:transform;}
   .lsq-r2{animation:lsq-in-r2 .55s cubic-bezier(.3,0,.18,1) both; transition:transform .55s cubic-bezier(.3,0,.18,1), opacity .4s ease; will-change:transform;}
   .lsq-b{animation:lsq-in-b .55s cubic-bezier(.3,0,.18,1) both; transition:transform .55s cubic-bezier(.3,0,.18,1), opacity .4s ease;}
   .lsq-c{animation:m-fadein .55s cubic-bezier(.3,0,.18,1) both; transition:opacity .5s ease;}
@@ -46,6 +48,7 @@
   [data-sqx="1"].psq-f{opacity:0;}
   [data-sqx="1"].lsq-r{transform:translateX(440px);}
   [data-sqx="1"].lsq-l{transform:translateX(-440px);}
+  [data-sqx="1"].lsq-l2{transform:translateX(-580px);}
   [data-sqx="1"].lsq-r2{transform:translateX(580px);}
   [data-sqx="1"].lsq-b{transform:translateY(120px);}
   [data-sqx="1"].lsq-c,[data-sqx="1"].lsq-f{opacity:0;}
@@ -94,7 +97,9 @@
             </div>
           </sc-if>
 
-          <div style="position:absolute; top:0; left:0; right:0; z-index:10;">
+          <!-- pointer-events:none so the hidden chrome never becomes a dead zone:
+               taps at the top of the screen fall through to the wake layer -->
+          <div style="position:absolute; top:0; left:0; right:0; z-index:10; pointer-events:none;">
           <!-- status bar -->
           <div style="height:52px; flex:none; display:flex; align-items:flex-end; justify-content:space-between; padding:0 30px 7px;">
             <span style="font-size:16px; font-weight:500; letter-spacing:.02em;">9:41</span>
@@ -105,9 +110,10 @@
             </span>
           </div>
 
-          <!-- player chrome row (hidden during splash, like 10ft) -->
+          <!-- player chrome row (hidden during splash, like 10ft; fades with the
+               player controls so clean playback stays clean) -->
           <sc-if value="{{ isLive }}" hint-placeholder-val="{{ false }}">
-          <div style="height:56px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 16px;">
+          <div style="height:56px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 16px; opacity:{{ pChromeOp }}; pointer-events:{{ pChromePe }}; transition:opacity .25s ease;">
             <div style="display:flex; gap:10px; align-items:center;">
               <div class="lgx mtap" style="width:42px; height:42px; border-radius:50%; background:rgba(28,28,32,.85); border:1px solid rgba(255,255,255,.14); display:flex; align-items:center; justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M17.8568 6.48613L17.5252 6.14506C17.3378 5.96336 17.04 5.96336 16.8526 6.14506L12.0018 10.9958L7.16051 6.14506C6.9731 5.96336 6.67525 5.96336 6.48784 6.14506L6.15625 6.48613C6.06465 6.5721 6.0127 6.69212 6.0127 6.81773C6.0127 6.94334 6.06465 7.06336 6.15625 7.14933L11.0544 12.0001L6.15625 16.8509C6.06465 16.9368 6.0127 17.0569 6.0127 17.1825C6.0127 17.3081 6.06465 17.4281 6.15625 17.5141L6.48784 17.8551C6.67525 18.0368 6.9731 18.0368 7.16051 17.8551L12.0018 13.0044L16.8431 17.8551C17.0305 18.0368 17.3284 18.0368 17.5158 17.8551L17.8474 17.5141C17.939 17.4281 17.9909 17.3081 17.9909 17.1825C17.9909 17.0569 17.939 16.9368 17.8474 16.8509L13.0155 12.0001L17.8568 7.14933C17.9484 7.06336 18.0004 6.94334 18.0004 6.81773C18.0004 6.69212 17.9484 6.5721 17.8568 6.48613Z" fill="currentColor"/></svg></div>
               <div class="lgx" style="display:flex; align-items:center; gap:4px; height:42px; padding:0 8px; border-radius:22px; background:rgba(28,28,32,.85); border:1px solid rgba(255,255,255,.14);">
@@ -200,7 +206,7 @@
                container while the video settles into its slot below — one curve, transform-only.
                'stack' = full-bleed ad hero + smaller video; 'half' = two equal stacked videos. -->
           <sc-if value="{{ sqStackOpen }}" hint-placeholder-val="{{ false }}">
-            <div class="psq-t" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:292px; left:0; right:0; aspect-ratio:16/9; overflow:hidden; background:#000; z-index:5;">
+            <div class="{{ stackAdClass }}" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:{{ stackAdTop }}; left:0; right:0; aspect-ratio:16/9; overflow:hidden; background:#000; z-index:5;">
               <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
             </div>
           </sc-if>
@@ -364,7 +370,7 @@
                 <sc-if value="{{ panelIG }}" hint-placeholder-val="{{ true }}">
                   <div style="display:flex; flex-direction:column; height:100%; min-height:0; animation:m-fadein .35s ease .08s both;">
                     <!-- title header first (10ft pattern), tabs one layer below -->
-                    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; flex:none;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex:none;">
                       <div style="min-width:0;">
                         <div style="font-size:20px; font-weight:500; letter-spacing:-.01em;">Dance Your Style</div>
                         <div style="font-size:12px; font-weight:400; color:rgba(255,255,255,.55); margin-top:3px;">USA Qualifier · Best Moments · Los Angeles</div>
@@ -695,7 +701,7 @@
           </div>
           <!-- landscape AD SQUEEZES mirror the 10-foot formats: 50/50, L-shape, ad focus,
                PiP. Ads slide in from their own edge on the curve the video's transform uses. -->
-          <sc-if value="{{ sqHalfOpen }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ sqHalfLsOpen }}" hint-placeholder-val="{{ false }}">
             <div class="{{ halfLsClass }}" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:87.5px; width:382px; aspect-ratio:16/9; border-radius:12px; overflow:hidden; box-shadow:0 18px 50px rgba(0,0,0,.5); z-index:39; {{ halfLsAnchor }}">
               <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
             </div>
@@ -719,10 +725,10 @@
             </div>
           </sc-if>
           <sc-if value="{{ sqFocusOpen }}" hint-placeholder-val="{{ false }}">
-            <div class="lsq-r2" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:47.9px; right:32px; width:523.3px; aspect-ratio:16/9; border-radius:10px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.6); z-index:39;">
+            <div class="{{ afLsClass }}" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:47.9px; width:523.3px; aspect-ratio:16/9; border-radius:10px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.6); z-index:39; {{ afLsAnchor }}">
               <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
             </div>
-            <div class="lsq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:32px; top:271px; width:241.6px; z-index:41; display:flex; align-items:center; justify-content:space-between;">
+            <div class="lsq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:271px; width:241.6px; z-index:41; display:flex; align-items:center; justify-content:space-between; {{ afLsVidRow }}">
               <span style="font-size:11px; font-weight:500; color:rgba(255,255,255,.75);">You're watching</span>
               <span style="display:flex; align-items:center; gap:5px; font-size:10px; font-weight:500; letter-spacing:.08em; color:#fff;"><span style="width:6px; height:6px; border-radius:50%; background:#FF3B30; animation:m-pulse 1.6s infinite;"></span>LIVE</span>
             </div>
@@ -756,7 +762,7 @@
           <!-- landscape Ease Live side panel — stays in landscape (10ft pattern) -->
           <sc-if value="{{ lsPanelOpen }}" hint-placeholder-val="{{ false }}">
             <div class="lspanel" style="position:absolute; top:0; right:0; bottom:0; width:{{ lsPanelW }}; z-index:40; display:flex; flex-direction:column; background:{{ lsPanelBg }}; -webkit-backdrop-filter:blur(34px) saturate(170%); backdrop-filter:blur(34px) saturate(170%); border-left:1px solid rgba(255,255,255,.16); box-shadow:inset 1px 0 0 rgba(255,255,255,.1), inset 0 1px 1px rgba(255,255,255,.14), -24px 0 60px rgba(0,0,0,.5);">
-              <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:17px 18px 13px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:17px 18px 13px;">
                 <div style="min-width:0;">
                   <div style="font-size:16px; font-weight:500; letter-spacing:-.01em;">Dance Your Style</div>
                   <div style="font-size:10.5px; color:rgba(255,255,255,.5); margin-top:3px;">USA Qualifier · Best Moments · Los Angeles</div>

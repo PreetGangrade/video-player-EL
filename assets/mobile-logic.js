@@ -200,6 +200,7 @@ class Component extends DCLogic {
       if(this.state.playing && this.sqVideoEl.paused){ const p=this.sqVideoEl.play(); if(p&&p.catch) p.catch(()=>{}); }
       else if(!this.state.playing && !this.sqVideoEl.paused){ this.sqVideoEl.pause(); }
     }
+    this.syncAudio();
     if(prevProps && this.props.cmdSeq !== prevProps.cmdSeq && this.props.cmdSeq){ this.runCmd(this.props.cmd); }
     if(prevProps && this.props.format !== prevProps.format){
       // format switch = new asset → the rating first-entry recurs
@@ -217,8 +218,8 @@ class Component extends DCLogic {
     else if(name==='portrait'){ if(this.state.orientation!=='portrait') this.setState({orientation:'portrait', panel:'none', lsPanel:false, ctrlSel:null, scrubbing:false}); }
     else if(name==='rating'){ clearTimeout(this.ratingHoldT); clearTimeout(this.ratingT); this.setState({ratingPending:true, ratingPhase:'hidden'}); if(!this.state.pControls && !this.state.lsControls){ setTimeout(()=>this.maybeShowRating(), 80); } }
     else if(name==='ad'){ this.endSqueeze(true); clearInterval(this.adT); clearTimeout(this.adOutT); this.setState({ad:true, adOut:false, adModal:false, adSent:false, toast:false, ctrlSel:null, adCount:8, playing:false}); this.adT=setInterval(()=>{ this.setState(s=>{ if(s.adModal) return {}; const v=s.adCount-1; if(v<=0){ clearInterval(this.adT); setTimeout(()=>this.closeAd(),20); return {adCount:0}; } return {adCount:v}; }); },1000); }
-    else if(name==='sound-on'){ if(this.videoEl) this.videoEl.muted=false; this._soundOn=true; }
-    else if(name==='sound-off'){ if(this.videoEl) this.videoEl.muted=true; this._soundOn=false; }
+    else if(name==='sound-on'){ this._soundOn=true; this.syncAudio(); }
+    else if(name==='sound-off'){ this._soundOn=false; this.syncAudio(); }
     else if(name==='ad-split'){ this.startSqueeze(this.state.orientation==='portrait' ? 'stack' : 'half'); }
     else if(name==='ad-half'){ this.startSqueeze('half'); }
     else if(name==='ad-lshape'){ this.ensureLs(); this.startSqueeze('lshape'); }
@@ -270,8 +271,33 @@ class Component extends DCLogic {
       if(this.adVideoEl){ try{ this.adVideoEl.pause(); }catch(e){} }
     }, 380);
   }
-  adVideoRef=(el)=>{ if(el && el!==this.adVideoEl){ this.adVideoEl=el; el.muted=true; el.loop=true; el.playsInline=true; const tryPlay=()=>{ if(!el.isConnected || el!==this.adVideoEl || !this.state.ad) return; const p=el.play(); if(p&&p.catch) p.catch(()=>setTimeout(tryPlay,150)); }; el.addEventListener('loadeddata', tryPlay); tryPlay(); } };
-  sqVideoRef=(el)=>{ if(el && el!==this.sqVideoEl){ this.sqVideoEl=el; el.muted=true; el.loop=true; el.playsInline=true; const tryPlay=()=>{ if(!el.isConnected || el!==this.sqVideoEl || !this.state.squeeze || !this.state.playing) return; const p=el.play(); if(p&&p.catch) p.catch(()=>setTimeout(tryPlay,150)); }; el.addEventListener('loadeddata', tryPlay); tryPlay(); } };
+  adVideoRef=(el)=>{ if(el && el!==this.adVideoEl){ this.adVideoEl=el; el.muted=!this._soundOn; el.volume=0; el.loop=true; el.playsInline=true; this.fadeVol(el,1,600); const tryPlay=()=>{ if(!el.isConnected || el!==this.adVideoEl || !this.state.ad) return; const p=el.play(); if(p&&p.catch) p.catch(()=>{ if(!el.muted){ el.muted=true; tryPlay(); } else setTimeout(tryPlay,150); }); }; el.addEventListener('loadeddata', tryPlay); tryPlay(); } };
+  sqVideoRef=(el)=>{ if(el && el!==this.sqVideoEl){ this.sqVideoEl=el; el.muted=!this._soundOn; el.volume=0; el.loop=true; el.playsInline=true; this.fadeVol(el,1,600); const tryPlay=()=>{ if(!el.isConnected || el!==this.sqVideoEl || !this.state.squeeze || !this.state.playing) return; const p=el.play(); if(p&&p.catch) p.catch(()=>{ if(!el.muted){ el.muted=true; tryPlay(); } else setTimeout(tryPlay,150); }); }; el.addEventListener('loadeddata', tryPlay); tryPlay(); } };
+  // Ad audio: the content audio ducks to props.duck % while an ad runs and the
+  // ad audio fades in; everything eases back when the ad ends. Muted state wins.
+  fadeVol(el, target, ms){
+    if(!el) return;
+    target=Math.max(0,Math.min(1,target));
+    if(el._volTarget===target) return;
+    el._volTarget=target;
+    clearInterval(el._volT);
+    const from=el.volume, t0=performance.now(), dur=ms||600;
+    el._volT=setInterval(()=>{
+      const k=Math.min(1,(performance.now()-t0)/dur);
+      const e=1-Math.pow(1-k,3);
+      try{ el.volume=from+(target-from)*e; }catch(err){}
+      if(k>=1) clearInterval(el._volT);
+    },40);
+  }
+  syncAudio(){
+    const s=this.state;
+    let dv=parseInt(this.props.duck,10); if(isNaN(dv)) dv=20;
+    const duck=Math.max(0,Math.min(100,dv))/100;
+    const adActive=(s.squeeze&&!s.sqOut)||(s.ad&&!s.adOut);
+    if(this.videoEl){ this.videoEl.muted=!this._soundOn; this.fadeVol(this.videoEl, adActive?duck:1, 600); }
+    if(this.sqVideoEl&&this.sqVideoEl.isConnected) this.sqVideoEl.muted=!this._soundOn;
+    if(this.adVideoEl&&this.adVideoEl.isConnected) this.adVideoEl.muted=!this._soundOn;
+  }
   sendPhone(){ this.setState({adModal:true, adSent:true}); }
   closeModal(){ this.setState({adModal:false}); }
   adSkipTap(){ if(this.state.adCount<=5) this.closeAd(); }
@@ -382,6 +408,7 @@ class Component extends DCLogic {
     }
     const elOk=this.elOk();
     const seekOk=this.seekOk();
+    const pChromeOn = s.phase==='live' && isPortrait && !s.squeeze && (s.pControls || s.scrubbing || s.panel!=='none' || s.ad);
     // Landscape video is pure transform (translate + scale, GPU) like the 10ft
     // stage; radii are pre-divided by the scale so corners stay visually equal.
     const LSV=693.333, LSX=75.333;
@@ -391,7 +418,7 @@ class Component extends DCLogic {
     if(!isPortrait){
       if(activeSq==='half' || activeSq==='stack'){ lsVidTf=lsPlace(sqLead?32:430,87.5,382); lsVidR='22px'; }
       else if(activeSq==='lshape'){ lsVidTf=lsPlace(32,26,430); lsVidR='19px'; }
-      else if(activeSq==='adfocus'){ lsVidTf=lsPlace(32,127.05,241.6); lsVidR='29px'; }
+      else if(activeSq==='adfocus'){ lsVidTf=lsPlace(sqLead?32:570.4,127.05,241.6); lsVidR='29px'; }
       else if(activeSq==='pip'){ lsVidTf=lsPlace(592.6,226.6,219.4); lsVidR='38px'; lsVidZ='40'; }
       else if(s.lsPanel){ const vw=844*lsv/100; lsVidTf=lsPlace(16,(390-vw*9/16)/2,vw); lsVidR=(12/(vw/LSV)).toFixed(1)+'px'; }
     }
@@ -465,6 +492,12 @@ class Component extends DCLogic {
       halfAdClass: sqLead ? 'psq-b' : 'psq-t',
       halfLsAnchor: sqLead ? 'right:32px;' : 'left:32px;',
       halfLsClass: sqLead ? 'lsq-r' : 'lsq-l',
+      sqHalfLsOpen: s.squeeze==='half' || (!isPortrait && s.squeeze==='stack'),
+      stackAdTop: sqLead ? '440px' : '292px',
+      stackAdClass: sqLead ? 'psq-b' : 'psq-t',
+      afLsAnchor: sqLead ? 'right:32px;' : 'left:32px;',
+      afLsClass: sqLead ? 'lsq-r2' : 'lsq-l2',
+      afLsVidRow: sqLead ? 'left:32px;' : 'left:570.4px;',
       pBugH: activeSq==='stack' ? '20px' : (activeSq==='half' ? '31px' : '34px'),
       sqCaptionShown: !!s.squeeze && s.squeeze!=='lshape',
       sqCtlShown: !!s.squeeze && s.sqCtl && !s.sqOut,
@@ -486,6 +519,12 @@ class Component extends DCLogic {
       devW: isPortrait ? 390 : 844, devH: isPortrait ? 844 : 390, devScale: s.scale,
 
       isLive: s.phase==='live',
+      // portrait top chrome (close / PiP / AirPlay / volume) follows the player
+      // controls: it fades out with them on clean playback and during a squeeze
+      // (where play/pause is the only control), and stays up while a panel or a
+      // full ad break owns the screen.
+      pChromeOp: pChromeOn ? '1' : '0',
+      pChromePe: pChromeOn ? 'auto' : 'none',
       scrubbing: s.scrubbing, showTransport: (s.phase==='live' && !s.scrubbing && !s.toast && !s.ad && !s.squeeze && (s.pControls || s.panel!=='none')), scrubDown: this.scrubDown,
       pTap: this.pTap,
       ratingShow: true, ratingIn: (s.ratingPhase==='in'), ratingOutP: (s.ratingPhase==='out'),
@@ -494,7 +533,7 @@ class Component extends DCLogic {
       scrubTime: scrubTime, timeNow: timeNow, timeDur: timeDur,
       liveMarkShown: isLD,
       liveMarkH: (sbh+7)+'px',
-      vidTopPad: (isPortrait && s.panel!=='none') ? '120px' : (activeSq==='stack' ? '527px' : (activeSq==='half' ? (sqLead ? '215px' : '428px') : '312px')),
+      vidTopPad: (isPortrait && s.panel!=='none') ? '120px' : (activeSq==='stack' ? (sqLead ? '292px' : '527px') : (activeSq==='half' ? (sqLead ? '215px' : '428px') : '312px')),
       toggleVol: this.toggleVol, volDown: this.volDown, volOpen: s.volOpen,
       volW: s.volOpen ? '96px' : '0px', volOp: s.volOpen ? 1 : 0, volLeft: (s.volPct||0).toFixed(1)+'%',
       lsTap: this.lsTap, lsShowChrome: (!isPortrait && s.lsControls && !s.scrubbing && !s.toast && !s.ad && !s.squeeze),

@@ -117,9 +117,24 @@ ad squeeze-back formats, and remote/touch interaction to stakeholders.
   match 10ft). The volume pill collapses to a perfect circle (42/40px).
 - Mobile panel AD TRIGGERS mirrors the 10ft section: split (portrait hero),
   50/50, L-shape, ad focus, video PiP, Dismiss active ad, plus an
-  "AD 50 / 50 · YOUR VIDEO SITS" toggle (`sqpos` attr, 'lead'/'trail');
-  its labels read Top/Bottom in portrait and Left/Right in landscape and
-  it flips which slot the video takes in the 50/50.
+  "AD SQUEEZE · YOUR VIDEO SITS" toggle (`sqpos` attr, 'lead'/'trail');
+  its labels read Top/Bottom in portrait and Left/Right in landscape and it
+  applies to split (hero above/below), 50/50 (both orientations) and
+  landscape ad focus (video left/right). Landscape "split" plays the 50/50
+  layout. Mobile CONTENT FORMAT has the same Sound toggle as 10ft.
+- Portrait top chrome (close / PiP / AirPlay / volume) follows the player
+  controls: `pChromeOn` in renderVals fades it out with them on clean
+  playback and keeps it hidden through a squeeze (play/pause is the only
+  control there); it stays up while a panel is open or a full ad break
+  owns the screen. The phone status bar (9:41 / signal / battery) is not
+  player chrome and always stays.
+- Ad audio system (both stages): ad.mp4 HAS a stereo AAC track. While an ad
+  trigger runs, the content audio eases down to the panel's
+  "Content audio during ads" percentage (duckPct state on 10ft, `duck` attr
+  on mobile; default 20%) and the ad video fades in unmuted; both ease back
+  over ~600ms when the ad ends (fadeVol/syncAudio in both components).
+  Everything respects the Sound toggle; unmuted autoplay rejections fall
+  back to muted playback.
 - Info tab placement is FINAL as-is on both orientations: portrait shows
   the open-panel tabs at the TOP of the panel (under the video, engaged
   translucent state, no chevron); landscape tabs ride up with the info

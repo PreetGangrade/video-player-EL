@@ -607,7 +607,7 @@
   <!-- ============ MOBILE EXPERIENCE ============ -->
   <sc-if value="{{ mobileMode }}" hint-placeholder-val="{{ false }}">
     <div data-screen-label="Mobile stage" style="flex:1; min-width:0; min-height:0;">
-      <dc-import name="Interactive Overlay Mobile" hosted="{{ true }}" on-orient="{{ onChildOrient }}" cmd="{{ mCmdName }}" cmd-seq="{{ mCmdSeq }}" format="{{ mFormatSel }}" scrubh="{{ mScrubH }}" lssplit="{{ mSplitW }}" sqpos="{{ mSqPos }}" hint-size="100%,100%" style="width:100%; height:100%;"></dc-import>
+      <dc-import name="Interactive Overlay Mobile" hosted="{{ true }}" on-orient="{{ onChildOrient }}" cmd="{{ mCmdName }}" cmd-seq="{{ mCmdSeq }}" format="{{ mFormatSel }}" scrubh="{{ mScrubH }}" lssplit="{{ mSplitW }}" sqpos="{{ mSqPos }}" duck="{{ duckPct }}" hint-size="100%,100%" style="width:100%; height:100%;"></dc-import>
     </div>
   </sc-if>
   </div>
@@ -625,6 +625,13 @@
         <option value="linear">Linear channel</option>
       </select>
       <div style="font-size:11px; color:#6b6b76; line-height:1.5; margin-top:10px;">{{ mFormatDesc }}</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:13px; border-top:1px solid rgba(255,255,255,.07);">
+        <div>
+          <div style="font-size:11px; color:#9a9aa4; font-weight:500;">Sound</div>
+          <div style="font-size:10.5px; color:#6b6b76; margin-top:2px;">The video has audio; it starts muted for autoplay.</div>
+        </div>
+        <button class="deckbtn" onclick="{{ scSound }}" style="padding:7px 16px; border-radius:9px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:11.5px; font-weight:500; cursor:pointer; flex:none; margin-left:12px;">{{ audioLabel }}</button>
+      </div>
     </div>
 
     <div style="background:#16161a; border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:16px;">
@@ -789,13 +796,16 @@
           <button class="deckbtn" onclick="{{ scSqPip }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer; opacity:{{ lsOnlyOp }}; pointer-events:{{ lsOnlyPe }};">Squeeze · video PiP</button>
           <button class="deckbtn" onclick="{{ scSqEnd }}" style="padding:11px 8px; border-radius:10px; background:#26161a; border:1px solid #4a2530; color:#ff9db5; font-size:12px; font-weight:500; cursor:pointer;">Dismiss active ad</button>
         </div>
-        <div style="font-size:11px; color:#8a8a94; font-weight:500; margin:14px 0 8px;">AD 50 / 50 · YOUR VIDEO SITS</div>
+        <div style="font-size:11px; color:#8a8a94; font-weight:500; margin:14px 0 8px;">AD SQUEEZE · YOUR VIDEO SITS</div>
         <div style="display:flex; gap:6px; background:#1d1d22; border-radius:10px; padding:4px;">
           <div data-msqpos="lead" onclick="{{ onMSqPos }}" style="flex:1; text-align:center; padding:9px; border-radius:7px; font-size:12px; font-weight:500; background:{{ mSqPosLBg }}; color:{{ mSqPosLColor }}; cursor:pointer;">{{ mSqPosLeadLabel }}</div>
           <div data-msqpos="trail" onclick="{{ onMSqPos }}" style="flex:1; text-align:center; padding:9px; border-radius:7px; font-size:12px; font-weight:500; background:{{ mSqPosRBg }}; color:{{ mSqPosRColor }}; cursor:pointer;">{{ mSqPosTrailLabel }}</div>
         </div>
-        <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:10px;">L-shape, ad focus and PiP are landscape formats and are disabled in portrait.</div>
+        <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:10px;">L-shape, ad focus and PiP are landscape formats and are disabled in portrait. The video-sits toggle applies to split, 50 / 50 and ad focus.</div>
       </sc-if>
+      <div style="display:flex; justify-content:space-between; font-size:11px; color:#9a9aa4; margin:14px 0 6px; padding-top:13px; border-top:1px solid rgba(255,255,255,.07);"><span>Content audio during ads</span><span style="font-variant-numeric:tabular-nums;">{{ duckPct }}%</span></div>
+      <input type="range" min="0" max="60" step="5" value="{{ duckPct }}" oninput="{{ onDuckPct }}" style="width:100%;">
+      <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:8px;">The ad has its own audio. When an ad trigger fires, the content audio eases down to this level and the ad audio fades in; both ease back when it ends. Needs Sound on.</div>
     </div>
 
     <sc-if value="{{ showInspector }}" hint-placeholder-val="{{ true }}">
@@ -883,6 +893,7 @@ class Component extends DCLogic {
       mScrubH:6,
       mSplitW:62,
       mSqPos:'lead',
+      duckPct:20,
       splitW:62,
       sqPos:'left',
       audioOn:false,
@@ -955,10 +966,11 @@ class Component extends DCLogic {
     this.adVideoEl=null;
     this.adVideoRef = (el)=>{
       if(el && el!==this.adVideoEl){
-        this.adVideoEl = el; el.muted = true; el.loop = true; el.playsInline = true;
+        this.adVideoEl = el; el.muted = !this.state.audioOn; el.volume = 0; el.loop = true; el.playsInline = true;
+        this.fadeVol(el, 1, 600);
         const tryPlay = ()=>{
           if(!el.isConnected || el!==this.adVideoEl) return;
-          const p = el.play(); if(p && p.catch) p.catch(()=>setTimeout(tryPlay, 150));
+          const p = el.play(); if(p && p.catch) p.catch(()=>{ if(!el.muted){ el.muted=true; tryPlay(); } else setTimeout(tryPlay, 150); });
         };
         el.addEventListener('loadeddata', tryPlay);
         tryPlay();
@@ -967,11 +979,12 @@ class Component extends DCLogic {
     this.sqVideoEl=null;
     this.sqVideoRef = (el)=>{
       if(el && el!==this.sqVideoEl){
-        this.sqVideoEl = el; el.muted = true; el.loop = true; el.playsInline = true;
+        this.sqVideoEl = el; el.muted = !this.state.audioOn; el.volume = 0; el.loop = true; el.playsInline = true;
+        this.fadeVol(el, 1, 600);
         const tryPlay = ()=>{
           if(!el.isConnected || el!==this.sqVideoEl) return;
           if(!this.state.playing) return;
-          const p = el.play(); if(p && p.catch) p.catch(()=>setTimeout(tryPlay, 150));
+          const p = el.play(); if(p && p.catch) p.catch(()=>{ if(!el.muted){ el.muted=true; tryPlay(); } else setTimeout(tryPlay, 150); });
         };
         el.addEventListener('loadeddata', tryPlay);
         tryPlay();
@@ -990,6 +1003,7 @@ class Component extends DCLogic {
     this.onMScrubH = (e)=>{ this.setState({mScrubH: parseInt(e.target.value,10)||6}); };
     this.onMSplitW = (e)=>{ this.setState({mSplitW: parseInt(e.target.value,10)||62}); };
     this.onMSqPos = (e)=>{ this.setState({mSqPos: e.currentTarget.dataset.msqpos}); };
+    this.onDuckPct = (e)=>{ const v=parseInt(e.target.value,10); this.setState({duckPct: isNaN(v)?20:v}); };
     this.onSplitW = (e)=>{ this.setState({splitW: parseInt(e.target.value,10)||58}); };
     this.onSqPos = (e)=>{ this.setState({sqPos: e.currentTarget.dataset.sqpos}); };
     this.scSound = ()=>{ const next = !this.state.audioOn; this.setState({audioOn: next}); if(this.state.mode==='mobile') this.mCmd(next ? 'sound-on' : 'sound-off'); this.pushLog(next ? 'Sound on' : 'Sound muted'); };
@@ -1084,7 +1098,6 @@ class Component extends DCLogic {
     this.applyFocus();
     this.applyRatingTransition();
     if(this.videoEl){
-      this.videoEl.muted = !this.state.audioOn;
       if(this.state.playing && this.videoEl.paused){ const p=this.videoEl.play(); if(p&&p.catch) p.catch(()=>{}); }
       else if(!this.state.playing && !this.videoEl.paused){ this.videoEl.pause(); }
     }
@@ -1093,6 +1106,32 @@ class Component extends DCLogic {
       if(this.state.playing && this.sqVideoEl.paused){ const p=this.sqVideoEl.play(); if(p&&p.catch) p.catch(()=>{}); }
       else if(!this.state.playing && !this.sqVideoEl.paused){ this.sqVideoEl.pause(); }
     }
+    this.syncAudio();
+  }
+
+  // Ad audio: while an ad runs the content audio eases down to duckPct and the
+  // ad audio fades in; both ease back when it ends. Muted state always wins.
+  fadeVol(el, target, ms){
+    if(!el) return;
+    target=Math.max(0,Math.min(1,target));
+    if(el._volTarget===target) return;
+    el._volTarget=target;
+    clearInterval(el._volT);
+    const from=el.volume, t0=performance.now(), dur=ms||600;
+    el._volT=setInterval(()=>{
+      const k=Math.min(1,(performance.now()-t0)/dur);
+      const e=1-Math.pow(1-k,3);
+      try{ el.volume=from+(target-from)*e; }catch(err){}
+      if(k>=1) clearInterval(el._volT);
+    },40);
+  }
+  syncAudio(){
+    const s=this.state;
+    const duck=Math.max(0,Math.min(100,s.duckPct))/100;
+    const adActive=(s.squeeze && !s.sqOut) || s.ad;
+    if(this.videoEl){ this.videoEl.muted=!s.audioOn; this.fadeVol(this.videoEl, adActive?duck:1, 600); }
+    if(this.sqVideoEl && this.sqVideoEl.isConnected) this.sqVideoEl.muted=!s.audioOn;
+    if(this.adVideoEl && this.adVideoEl.isConnected) this.adVideoEl.muted=!s.audioOn;
   }
 
   applyRatingTransition(){
@@ -1828,6 +1867,8 @@ class Component extends DCLogic {
       onMSplitW: this.onMSplitW,
       mSqPos: s.mSqPos,
       onMSqPos: this.onMSqPos,
+      duckPct: s.duckPct,
+      onDuckPct: this.onDuckPct,
       mSqPosLeadLabel: s.mOrient==='portrait' ? 'Top' : 'Left',
       mSqPosTrailLabel: s.mOrient==='portrait' ? 'Bottom' : 'Right',
       mSqPosLBg: s.mSqPos==='lead' ? '#fff' : 'transparent', mSqPosLColor: s.mSqPos==='lead' ? '#111' : 'rgba(255,255,255,.6)',
