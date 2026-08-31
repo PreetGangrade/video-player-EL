@@ -128,6 +128,16 @@ ad squeeze-back formats, and remote/touch interaction to stakeholders.
   control there); it stays up while a panel is open or a full ad break
   owns the screen. The phone status bar (9:41 / signal / battery) is not
   player chrome and always stays.
+- dev-server.py serves MEDIA (.mp4/.png/.jpg/.woff2) as cacheable and only
+  html/js/css as no-store. Do NOT put media back on no-store: every <video>
+  mount then re-downloads the 86MB feature file, which starves Chrome's
+  per-origin connection pool and leaves ad.mp4 stuck at readyState 0 with no
+  audio (symptom: ad visible but silent / frozen).
+- Ad playback goes through primeAd(el, alive) in BOTH components: preloads,
+  and if the browser refuses unmuted autoplay it falls back to muted, sets
+  el._forcedMute, and lifts the mute on the element's 'playing' event.
+  syncAudio honours _forcedMute (`muted = !soundOn || _forcedMute`) so the
+  two never fight — that fight was the janky-audio-toggle bug.
 - Ad audio system (both stages): ad.mp4 HAS a stereo AAC track. While an ad
   trigger runs, the content audio eases down to the panel's
   "Content audio during ads" percentage (duckPct state on 10ft, `duck` attr
