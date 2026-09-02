@@ -325,7 +325,7 @@ class Component extends DCLogic {
   }
   syncAudio(){
     const s=this.state;
-    let dv=parseInt(this.props.duck,10); if(isNaN(dv)) dv=20;
+    let dv=parseInt(this.props.duck,10); if(isNaN(dv)) dv=12;
     const duck=Math.max(0,Math.min(100,dv))/100;
     const adActive=(s.squeeze&&!s.sqOut)||(s.ad&&!s.adOut);
     if(this.videoEl){ this.videoEl.muted=!this.soundOn(); this.fadeVol(this.videoEl, adActive?duck:1, 600); }

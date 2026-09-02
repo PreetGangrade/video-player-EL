@@ -154,10 +154,13 @@ ad squeeze-back formats, and remote/touch interaction to stakeholders.
   el._forcedMute, and lifts the mute on the element's 'playing' event.
   syncAudio honours _forcedMute (`muted = !soundOn || _forcedMute`) so the
   two never fight — that fight was the janky-audio-toggle bug.
+- assets/ad.mp4 is the Red Bull spot (1920x1080, 15.0s, stereo AAC 48k, 7.7MB),
+  swapped in Sep 2 2026 from MI202512091195_h264_1080p.mp4. Its 15s length
+  matches the squeeze countdown, so the squeeze runs exactly one pass.
 - Ad audio system (both stages): ad.mp4 HAS a stereo AAC track. While an ad
   trigger runs, the content audio eases down to the panel's
   "Content audio during ads" percentage (duckPct state on 10ft, `duck` attr
-  on mobile; default 20%) and the ad video fades in unmuted; both ease back
+  on mobile; default 12%, slider 0-60 step 1) and the ad fades in unmuted; both ease back
   over ~600ms when the ad ends (fadeVol/syncAudio in both components).
   Everything respects the Sound toggle; unmuted autoplay rejections fall
   back to muted playback.

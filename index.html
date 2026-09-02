@@ -804,7 +804,7 @@
         <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:10px;">L-shape, ad focus and PiP are landscape formats and are disabled in portrait. The video-sits toggle applies to split, 50 / 50 and ad focus.</div>
       </sc-if>
       <div style="display:flex; justify-content:space-between; font-size:11px; color:#9a9aa4; margin:14px 0 6px; padding-top:13px; border-top:1px solid rgba(255,255,255,.07);"><span>Content audio during ads</span><span style="font-variant-numeric:tabular-nums;">{{ duckPct }}%</span></div>
-      <input type="range" min="0" max="60" step="5" value="{{ duckPct }}" oninput="{{ onDuckPct }}" style="width:100%;">
+      <input type="range" min="0" max="60" step="1" value="{{ duckPct }}" oninput="{{ onDuckPct }}" style="width:100%;">
       <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:8px;">The ad has its own audio. When an ad trigger fires, the content audio eases down to this level and the ad audio fades in; both ease back when it ends. Needs Sound on.</div>
     </div>
 
@@ -893,7 +893,7 @@ class Component extends DCLogic {
       mScrubH:6,
       mSplitW:62,
       mSqPos:'lead',
-      duckPct:20,
+      duckPct:12,
       splitW:62,
       sqPos:'left',
       audioOn:false,
@@ -984,7 +984,7 @@ class Component extends DCLogic {
     this.onMScrubH = (e)=>{ this.setState({mScrubH: parseInt(e.target.value,10)||6}); };
     this.onMSplitW = (e)=>{ this.setState({mSplitW: parseInt(e.target.value,10)||62}); };
     this.onMSqPos = (e)=>{ this.setState({mSqPos: e.currentTarget.dataset.msqpos}); };
-    this.onDuckPct = (e)=>{ const v=parseInt(e.target.value,10); this.setState({duckPct: isNaN(v)?20:v}); };
+    this.onDuckPct = (e)=>{ const v=parseInt(e.target.value,10); this.setState({duckPct: isNaN(v)?12:v}); };
     this.onSplitW = (e)=>{ this.setState({splitW: parseInt(e.target.value,10)||58}); };
     this.onSqPos = (e)=>{ this.setState({sqPos: e.currentTarget.dataset.sqpos}); };
     this.scSound = ()=>{ const next = !this.state.audioOn; this.setState({audioOn: next}); if(this.state.mode==='mobile') this.mCmd(next ? 'sound-on' : 'sound-off'); this.pushLog(next ? 'Sound on' : 'Sound muted'); };
