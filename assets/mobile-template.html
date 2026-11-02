@@ -219,7 +219,7 @@
           <!-- 'adfocus' portrait: full-width ad with the Advertisement badge above it, your video
                smaller above or below it (sqpos) with the You're watching · LIVE row under it -->
           <sc-if value="{{ sqFocusPOpen }}" hint-placeholder-val="{{ false }}">
-            <div class="psq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:{{ afPBadgeTop }}; left:16px; z-index:6; pointer-events:none;"><span style="display:inline-block; padding:5px 9px; border-radius:6px; background:#fff; color:#000; font-size:12px; font-weight:500; line-height:1;">Advertisement</span></div>
+            <div class="psq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:{{ afPBadgeTop }}; left:16px; z-index:6; pointer-events:none;"><span style="display:inline-block; padding:5px 9px; border-radius:6px; background:rgba(255,255,255,.1); -webkit-backdrop-filter:blur(16px) saturate(160%); backdrop-filter:blur(16px) saturate(160%); color:#fff; font-size:12px; font-weight:500; line-height:1;">Advertisement</span></div>
             <div class="{{ afPAdClass }}" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:{{ afPAdTop }}; left:16px; right:16px; aspect-ratio:16/9; border-radius:12px; overflow:hidden; background:#000; box-shadow:0 14px 40px rgba(0,0,0,.5); z-index:5;">
               <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
             </div>
@@ -738,7 +738,7 @@
             </div>
           </sc-if>
           <sc-if value="{{ sqFocusOpen }}" hint-placeholder-val="{{ false }}">
-            <div class="lsq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:22px; width:523.3px; z-index:41; pointer-events:none; {{ afLsAnchor }}"><span style="display:inline-block; padding:4px 8px; border-radius:5px; background:#fff; color:#000; font-size:11px; font-weight:500; line-height:1;">Advertisement</span></div>
+            <div class="lsq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:22px; width:523.3px; z-index:41; pointer-events:none; {{ afLsAnchor }}"><span style="display:inline-block; padding:4px 8px; border-radius:5px; background:rgba(255,255,255,.1); -webkit-backdrop-filter:blur(16px) saturate(160%); backdrop-filter:blur(16px) saturate(160%); color:#fff; font-size:11px; font-weight:500; line-height:1;">Advertisement</span></div>
             <div class="{{ afLsClass }}" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:47.9px; width:523.3px; aspect-ratio:16/9; border-radius:10px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.6); z-index:39; {{ afLsAnchor }}">
               <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
             </div>
