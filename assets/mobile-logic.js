@@ -238,7 +238,7 @@ class Component extends DCLogic {
     else if(name==='ad-split'){ this.startSqueeze(this.state.orientation==='portrait' ? 'stack' : 'half'); }
     else if(name==='ad-half'){ this.startSqueeze('half'); }
     else if(name==='ad-lshape'){ this.ensureLs(); this.startSqueeze('lshape'); }
-    else if(name==='ad-focus'){ this.ensureLs(); this.startSqueeze('adfocus'); }
+    else if(name==='ad-focus'){ this.startSqueeze('adfocus'); }
     else if(name==='ad-pip'){ this.ensureLs(); this.startSqueeze('pip'); }
     else if(name==='ad-end'){ this.endSqueeze(); }
   }
@@ -520,7 +520,12 @@ class Component extends DCLogic {
       sqStackOpen: s.squeeze==='stack',
       sqHalfOpen: s.squeeze==='half',
       sqLshapeOpen: s.squeeze==='lshape',
-      sqFocusOpen: s.squeeze==='adfocus',
+      sqFocusOpen: !isPortrait && s.squeeze==='adfocus',
+      sqFocusPOpen: isPortrait && s.squeeze==='adfocus',
+      afPAdTop: sqLead ? '416px' : '236px',
+      afPBadgeTop: sqLead ? '386px' : '206px',
+      afPAdClass: sqLead ? 'psq-b' : 'psq-t',
+      afPRowTop: sqLead ? '346px' : '612px',
       sqPipOpen: s.squeeze==='pip',
       halfAdTop: sqLead ? '428px' : '215px',
       halfAdClass: sqLead ? 'psq-b' : 'psq-t',
@@ -532,7 +537,7 @@ class Component extends DCLogic {
       afLsAnchor: sqLead ? 'right:32px;' : 'left:32px;',
       afLsClass: sqLead ? 'lsq-r2' : 'lsq-l2',
       afLsVidRow: sqLead ? 'left:32px;' : 'left:570.4px;',
-      pBugH: activeSq==='stack' ? '20px' : (activeSq==='half' ? '31px' : '34px'),
+      pBugH: (activeSq==='stack' || (activeSq==='adfocus' && isPortrait)) ? '21px' : (activeSq==='half' ? '31px' : '34px'),
       sqCaptionShown: !!s.squeeze && s.squeeze!=='lshape',
       sqCtlShown: !!s.squeeze && s.sqCtl && !s.sqOut,
       squeezeCount: s.squeezeCount,
@@ -567,7 +572,7 @@ class Component extends DCLogic {
       scrubTime: scrubTime, timeNow: timeNow, timeDur: timeDur,
       liveMarkShown: isLD,
       liveMarkH: (sbh+7)+'px',
-      vidTopPad: (isPortrait && s.panel!=='none') ? '120px' : (activeSq==='stack' ? (sqLead ? '292px' : '527px') : (activeSq==='half' ? (sqLead ? '215px' : '428px') : '312px')),
+      vidTopPad: (isPortrait && s.panel!=='none') ? '120px' : (activeSq==='stack' ? (sqLead ? '292px' : '527px') : (activeSq==='half' ? (sqLead ? '215px' : '428px') : (activeSq==='adfocus' && isPortrait ? (sqLead ? '202px' : '468px') : '312px'))),
       toggleVol: this.toggleVol, volDown: this.volDown, volOpen: s.volOpen,
       volW: s.volOpen ? '96px' : '0px', volOp: s.volOpen ? 1 : 0, volLeft: (s.volPct||0).toFixed(1)+'%',
       lsTap: this.lsTap, lsShowChrome: (!isPortrait && s.lsControls && !s.scrubbing && !s.toast && !s.ad && !s.squeeze),

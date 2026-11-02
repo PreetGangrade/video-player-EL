@@ -24,6 +24,7 @@
   .vslide{transition:height .65s cubic-bezier(.3,0,.18,1);}
   [data-sq]{transition:width .65s cubic-bezier(.3,0,.18,1), margin .65s cubic-bezier(.3,0,.18,1), border-radius .65s cubic-bezier(.3,0,.18,1), box-shadow .65s ease;}
   [data-sq="stack"]{width:60% !important; margin:0 auto !important; border-radius:10px !important; box-shadow:0 14px 40px rgba(0,0,0,.55);}
+  [data-sq="adfocus"]{width:62% !important; margin:0 auto !important; border-radius:10px !important; box-shadow:0 14px 40px rgba(0,0,0,.55);}
   [data-sq="half"]{width:calc(100% - 32px) !important; margin:0 auto !important; border-radius:12px !important; box-shadow:0 14px 40px rgba(0,0,0,.55);}
   @keyframes psq-t{from{transform:translateY(-560px)}}
   @keyframes psq-b{from{transform:translateY(560px)}}
@@ -215,9 +216,21 @@
               <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
             </div>
           </sc-if>
+          <!-- 'adfocus' portrait: full-width ad with the Advertisement badge above it, your video
+               smaller above or below it (sqpos) with the You're watching · LIVE row under it -->
+          <sc-if value="{{ sqFocusPOpen }}" hint-placeholder-val="{{ false }}">
+            <div class="psq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:{{ afPBadgeTop }}; left:16px; z-index:6; pointer-events:none;"><span style="display:inline-block; padding:5px 9px; border-radius:6px; background:#fff; color:#000; font-size:12px; font-weight:500; line-height:1;">Advertisement</span></div>
+            <div class="{{ afPAdClass }}" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:{{ afPAdTop }}; left:16px; right:16px; aspect-ratio:16/9; border-radius:12px; overflow:hidden; background:#000; box-shadow:0 14px 40px rgba(0,0,0,.5); z-index:5;">
+              <video ref="{{ sqVideoRef }}" src="assets/ad.mp4" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video>
+            </div>
+            <div class="psq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; top:{{ afPRowTop }}; left:19%; right:19%; z-index:6; display:flex; align-items:center; justify-content:space-between; pointer-events:none;">
+              <span style="font-size:12px; font-weight:500; color:rgba(255,255,255,.75);">You're watching</span>
+              <span style="display:flex; align-items:center; gap:5px; font-size:11px; font-weight:500; letter-spacing:.08em; color:#fff;"><span style="width:6px; height:6px; border-radius:50%; background:#FF3B30; animation:m-pulse 1.6s infinite;"></span>LIVE</span>
+            </div>
+          </sc-if>
           <!-- quiet countdown + centered play/pause (10ft pattern) -->
           <sc-if value="{{ sqCaptionShown }}" hint-placeholder-val="{{ false }}">
-            <div class="psq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:0; right:0; bottom:56px; z-index:44; text-align:center; font-size:12px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; pointer-events:none;">Advertisement · Back in {{ squeezeCount }}s</div>
+            <div class="psq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:0; right:0; bottom:56px; z-index:44; text-align:center; font-size:12px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; pointer-events:none;">Back in {{ squeezeCount }}s</div>
           </sc-if>
           <sc-if value="{{ sqCtlShown }}" hint-placeholder-val="{{ false }}">
             <div style="position:absolute; left:0; right:0; bottom:88px; display:flex; justify-content:center; z-index:45; animation:m-fadein .2s ease;">
@@ -749,7 +762,7 @@
             </div>
           </sc-if>
           <sc-if value="{{ sqCaptionShown }}" hint-placeholder-val="{{ false }}">
-            <div class="lsq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:0; right:0; bottom:10px; z-index:45; text-align:center; font-size:11px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6); pointer-events:none;">Advertisement · Back in {{ squeezeCount }}s</div>
+            <div class="lsq-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:0; right:0; bottom:10px; z-index:45; text-align:center; font-size:11px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6); pointer-events:none;">Back in {{ squeezeCount }}s</div>
           </sc-if>
           <sc-if value="{{ sqCtlShown }}" hint-placeholder-val="{{ false }}">
             <div style="position:absolute; left:0; right:0; bottom:40px; display:flex; justify-content:center; z-index:46; animation:m-fadein .2s ease;">

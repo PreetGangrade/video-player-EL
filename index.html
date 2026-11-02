@@ -584,7 +584,7 @@
 
         <!-- persistent quiet countdown (all squeeze layouts except L-shape) -->
         <sc-if value="{{ sqCaptionShown }}" hint-placeholder-val="{{ false }}">
-          <div class="sqe-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:0; right:0; bottom:18px; z-index:6; text-align:center; font-size:13px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6); pointer-events:none;">Advertisement · Back in {{ squeezeCount }}s</div>
+          <div class="sqe-f" data-sqx="{{ sqOutAttr }}" style="position:absolute; left:0; right:0; bottom:18px; z-index:6; text-align:center; font-size:13px; font-weight:500; color:rgba(255,255,255,.55); font-variant-numeric:tabular-nums; text-shadow:0 1px 6px rgba(0,0,0,.6); pointer-events:none;">Back in {{ squeezeCount }}s</div>
         </sc-if>
 
         <!-- squeeze control section: play/pause only, centered (Dismiss lives in the operator panel) -->
@@ -793,7 +793,7 @@
           <button class="deckbtn" onclick="{{ scSqSplit }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer;">Squeeze · split</button>
           <button class="deckbtn" onclick="{{ scSqHalf }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer;">Squeeze · 50 / 50</button>
           <button class="deckbtn" onclick="{{ scSqL }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer; opacity:{{ lsOnlyOp }}; pointer-events:{{ lsOnlyPe }};">Squeeze · L-shape</button>
-          <button class="deckbtn" onclick="{{ scSqFocus }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer; opacity:{{ lsOnlyOp }}; pointer-events:{{ lsOnlyPe }};">Squeeze · ad focus</button>
+          <button class="deckbtn" onclick="{{ scSqFocus }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer;">Squeeze · ad focus</button>
           <button class="deckbtn" onclick="{{ scSqPip }}" style="padding:11px 8px; border-radius:10px; background:#1d1d22; border:1px solid #2c2c34; color:#fff; font-size:12px; font-weight:500; cursor:pointer; opacity:{{ lsOnlyOp }}; pointer-events:{{ lsOnlyPe }};">Squeeze · video PiP</button>
           <button class="deckbtn" onclick="{{ scSqEnd }}" style="padding:11px 8px; border-radius:10px; background:#26161a; border:1px solid #4a2530; color:#ff9db5; font-size:12px; font-weight:500; cursor:pointer;">Dismiss active ad</button>
         </div>
@@ -802,7 +802,7 @@
           <div data-msqpos="lead" onclick="{{ onMSqPos }}" style="flex:1; text-align:center; padding:9px; border-radius:7px; font-size:12px; font-weight:500; background:{{ mSqPosLBg }}; color:{{ mSqPosLColor }}; cursor:pointer;">{{ mSqPosLeadLabel }}</div>
           <div data-msqpos="trail" onclick="{{ onMSqPos }}" style="flex:1; text-align:center; padding:9px; border-radius:7px; font-size:12px; font-weight:500; background:{{ mSqPosRBg }}; color:{{ mSqPosRColor }}; cursor:pointer;">{{ mSqPosTrailLabel }}</div>
         </div>
-        <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:10px;">L-shape, ad focus and PiP are landscape formats and are disabled in portrait. The video-sits toggle applies to split, 50 / 50 and ad focus.</div>
+        <div style="font-size:10.5px; color:#6b6b76; line-height:1.5; margin-top:10px;">L-shape and PiP are landscape formats and are disabled in portrait. The video-sits toggle applies to split, 50 / 50 and ad focus.</div>
       </sc-if>
       <div style="display:flex; justify-content:space-between; font-size:11px; color:#9a9aa4; margin:14px 0 6px; padding-top:13px; border-top:1px solid rgba(255,255,255,.07);"><span>Content audio during ads</span><span style="font-variant-numeric:tabular-nums;">{{ duckPct }}%</span></div>
       <input type="range" min="0" max="60" step="1" value="{{ duckPct }}" oninput="{{ onDuckPct }}" style="width:100%;">
